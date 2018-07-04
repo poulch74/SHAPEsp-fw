@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+   <head>
+   <meta name='viewport' content='width=device-width; initial-scale=1.0; maximum-scale=2.0;'>
+   <script type='text/javascript'>
+      window.onload=Pinstatus;
+      function Pinstatus()
+      { 
+         maketable();
+         fillselect();
+         sendbutton(0);
+         sendbutton1(0,0,true);
+      }
+
+      function fillselect()
+      {
+        var tl = ['All','MO','TU','WE','TH','FR','SA','SU','Work','SA,SU','Work+SA','MO,WE,FR','TU,TH,SA','MO,TU,WE','TH,FR,SA'];
+        var val = ['127','1','2','4','8','16','32','64','31','96','63','21','42','7','56'];
+        for(var i=0;i<10;i++)
+        {
+          var obj = document.getElementById('sdmask'+i);
+          var obj1 = document.getElementById('edmask'+i);
+          var sel=true;
+          for(var j=0;j<15;j++)
+          {
+            if(j!=0) sel = false;
+            obj.options[j] = new Option(tl[j], val[j], sel);
+            obj1.options[j] = new Option(tl[j], val[j], sel);
+          }
+        }
+      }
+
+      function maketable()
+      {
+         for(var i=0;i<10;i++)
+         {
+            var table = document.getElementById("timer_table"); // Получаем ссылку на таблицу
+ 
+            var row = table.insertRow(table.rows.length-1); // Добавляем строку
+            var cell0 = row.insertCell(0);
+            var cell1 = row.insertCell(1);
+            var cell2 = row.insertCell(2);
+            var cell3 = row.insertCell(3);
+            var cell4 = row.insertCell(4);
+            var cell5 = row.insertCell(5);
+            var cell6 = row.insertCell(6);
+            var cell7 = row.insertCell(7);
+
+            cell0.innerHTML = "Prg"+i;
+
+            var select = document.createElement("select"); // Ввод файла
+            select.className = "itext"; select.id = "sact"+i;
+            select.appendChild(new Option("No", "0"));
+            select.appendChild(new Option("Yes", "1"));   
+            cell1.appendChild(select);
+
+            var combo1 = document.createElement("select"); // Ввод файла
+            combo1.className = "ctext"; combo1.id = "sdmask"+i;
+            cell2.appendChild(combo1);
+
+            var input1 = document.createElement("input"); // Ввод файла
+            input1.className = "mod"; input1.id = "shour"+i; input1.type = "number";
+            input1.min =  "0"; input1.max = "23"; input1.step = "1";
+            input1.value = "0";
+            cell3.appendChild(input1);
+
+            var input2 = document.createElement("input"); // Ввод файла
+            input2.className = "mod";
+            input2.id = "smin"+i;
+            input2.type = "number";
+            input2.min =  "0";
+            input2.max = "59";
+            input2.step = "1";
+            input2.value = "0";
+            cell4.appendChild(input2);
+
+            var combo2 = document.createElement("select"); // Ввод файла
+            combo2.className = "ctext";
+            combo2.id = "edmask"+i;
+            cell5.appendChild(combo2);
+
+            var input3 = document.createElement("input"); // Ввод файла
+            input3.className = "mod";
+            input3.id = "ehour"+i;
+            input3.type = "number";
+            input3.min =  "0";
+            input3.max = "23";
+            input3.step = "1";
+            input3.value = "0";
+            cell6.appendChild(input3);
+
+            var input4 = document.createElement("input"); // Ввод файла
+            input4.className = "mod";
+            input4.id = "emin"+i;
+            input4.type = "number";
+            input4.min =  "0";
+            input4.max = "59";
+            input4.step = "1";
+            input4.value = "0";
+            cell7.appendChild(input4);
+         }
+      }
+
+
+      function sendbutton(act)
+      {
+        document.getElementById('description').innerHTML = 'Processing Button Click';
+        var obj = new Object();
+        obj.year = document.getElementById('iyear').value;
+        obj.month = document.getElementById('imonth').value;
+        obj.day = document.getElementById('iday').value;
+        obj.dow = document.getElementById('idow').value;
+        obj.hour = document.getElementById('ihour').value;
+        obj.minu = document.getElementById('imin').value;
+        obj.sec = document.getElementById('isec').value;
+        obj.act = act;
+        var params = JSON.stringify(obj);
+        var server = 'index2?timeset=0&r=' + Math.random() + '&par=' + params;
+        request1 = new XMLHttpRequest();
+        request1.onreadystatechange = updateasyncbutton;
+        request1.open('GET', server, true);
+        request1.send(null);
+      }
+
+      function updateasyncbutton()
+      {
+        if ((request1.readyState == 4) && (request1.status == 200))
+        {
+          result = request1.responseText;
+          document.getElementById('description').innerHTML = result;
+          var resp = JSON.parse(result);
+          document.getElementById('description').innerHTML = result;
+          document.getElementById('iyear').value = resp.year;
+          document.getElementById('imonth').value = resp.month;
+          document.getElementById('iday').value = resp.day;
+          document.getElementById('idow').value = resp.dow;
+          document.getElementById('ihour').value = resp.hour;
+          document.getElementById('imin').value = resp.minu;
+          document.getElementById('isec').value = resp.sec;
+        }
+      }
+
+      function sendbutton1(act,num,asyn)
+      {
+        document.getElementById('description1').innerHTML = 'sact'+num;
+        var server = 'index2?r=' + Math.random()+'&act='+act;
+        var apar = [];
+        for(var i=0;i<10;i++)
+        {
+          var obj = new Object();
+          obj.sact = document.getElementById('sact'+i).value;
+          obj.sdmask = document.getElementById('sdmask'+i).value;
+          obj.shour = document.getElementById('shour'+i).value;
+          obj.smin = document.getElementById('smin'+i).value;
+          obj.edmask = document.getElementById('edmask'+i).value;
+          obj.ehour = document.getElementById('ehour'+i).value;
+          obj.emin = document.getElementById('emin'+i).value;
+          document.getElementById('sbtn12').disabled = true;
+          apar[i] = obj;
+        }
+        var params = JSON.stringify(apar);
+        server += '&par=' + params;
+        document.getElementById('description').innerHTML = server;
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function() { if ((req.readyState == 4) && (req.status == 200)) updasyncbtn1(req); };
+        req.open('GET', server, asyn);
+        req.send(null);
+      }
+
+      function updasyncbtn1(req)
+      {
+          result = req.responseText;
+          document.getElementById('description1').innerHTML = result;
+          var resp = JSON.parse(result);
+          for(var i=0;i<10;i++)
+          {
+            document.getElementById('sact'+i).value = resp[i].sact;
+            document.getElementById('sdmask'+i).value = resp[i].sdmask;
+            document.getElementById('shour'+i).value = resp[i].shour;
+            document.getElementById('smin'+i).value = resp[i].smin;
+            document.getElementById('edmask'+i).value = resp[i].edmask;
+            document.getElementById('ehour'+i).value = resp[i].ehour;
+            document.getElementById('emin'+i).value = resp[i].emin;
+            document.getElementById('sbtn12').disabled = false;
+          }
+      }
+
+   </script>
+
+   <style type='text/css'>
+
+   body { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
+
+   ul#tabnav { text-align: left; margin: 1em 0 1em 0; font: 12px verdana, arial, sans-serif;
+   border-bottom: 1px solid #fc0;list-style-type: none; padding: 3px 10px 3px 10px; }
+
+   ul#tabnav li { display: inline; }
+
+   body#tab1 li.tab1, body#tab2 li.tab2, body#tab3 li.tab3, body#tab4 li.tab4, body#tab5 li.tab5
+   { border-bottom: 1px solid #fff; background-color: #fff; }
+
+   body#tab1 li.tab1 a, body#tab2 li.tab2 a, body#tab3 li.tab3 a, body#tab4 li.tab4 a, body#tab5 li.tab5 a
+   { background-color: #fff; color: #000; position: relative; top: 1px; padding-top: 4px; }
+
+   ul#tabnav li a { padding: 3px 4px; border: 1px solid #fc0; background-color: #fc0;
+   color: #666; margin-right: 0px; text-decoration: none; border-bottom: none; }
+
+   ul#tabnav a:hover { background: #fff; }
+
+   body#tab1 table.tab1, body#tab2 table.tab2, body#tab3 table.tab3, body#tab4 table.tab4, body#tab5 table.tab5
+   { width:100%; border-spacing: 0px; border-right: 1px solid #fc0; border-left: 1px solid #fc0;}
+
+   input[type="number"] {
+       width: 5em;
+       height: 2em;
+       border-radius: 4px;  
+       position: relative;
+       border: 1px solid #fc0;
+       border-color: #fc0;
+       padding: 0 0 0 1em;
+   }
+
+
+   input[type="number"].mod::-webkit-outer-spin-button, 
+   input[type="number"].mod::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      background: #FFF url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVQYlWNgwAT/sYhhKPiPT+F/LJgEsHv37v+EMGkmkuImoh2NoQAANlcun/q4OoYAAAAASUVORK5CYII=) no-repeat center center;
+      width: 1.2em;
+      border-left: 1px solid #fc0;
+      opacity: .5; /* shows Spin Buttons per default (Chrome >= 39) */
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+   }
+
+   input[type="number"].mod::-webkit-inner-spin-button:hover,
+   input[type="number"].mod::-webkit-inner-spin-button:active{
+       box-shadow: 0 0 2px #fc0;
+       opacity: .8;
+   }
+
+   input:-webkit-autofill {
+       background: black;
+       color: red;
+   } 
+
+
+   .fancybut { background: #fc0; color: gray; width: 70px; height: 22px;
+               border: 1px solid #fc0; border-radius: 4px; outline: 0; }
+
+   .button24 {
+   display: inline-block;
+   color: white;
+   text-decoration: none;
+   height: 2em;
+   padding: .2em 2em;
+   outline: none;
+   border-width: 1px 0;
+   border-style: solid none;
+   border-color: #FFCC00 #000 #D77206;
+   border-radius: 4px;
+   background: linear-gradient(#F3AE0F, #E38916) #E38916;
+   transition: 0.2s;
+   }
+   .button24:hover { background: linear-gradient(#ffcc00, #f5ae00) #ffcc00; }
+   .button24:active { background: linear-gradient(#f59500, #ffcc00) #f59500; }
+
+
+   .itext{ width: 5em; height: 2em; padding: 0 0 0 1em;
+           border: 1px solid #fc0; outline: 0; border-radius: 4px; } 
+
+   .ctext{ width: 7em; height: 2em; padding: 0 0 0 1em;
+           border: 1px solid #fc0; outline: 0; border-radius: 4px; } 
+
+   </style>
+   
+   </head>
+   <body id='tab2'>
+   <table  class='tab2'>
+   <tr><td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>SHAPEsp timer v1.0</td></tr>
+   <tr>
+   <td>
+   <ul id='tabnav'>
+      <li class='tab1'><a href='/index1'>Status</a></li>
+      <li class='tab2'><a href='/index2'>Timer</a></li>
+      <li class='tab3'><a href='/index3'>Settings</a></li>
+      <li class='tab4'><a href='/index4'>Security</a></li>
+      <li class='tab5'><a href='/index5'>Logoff</a></li>
+   </ul>
+   </td>
+   </tr>
+
+   <tr>
+   <td>
+
+   <table>
+   <tr> <td></td> <td>Year</td> <td>Month</td> <td>Day</td> <td>DoW</td> <td>Hour</td> <td>Min</td> <td>Sec</td> <td></td> </tr>
+   <tr>
+   <td> Time: </td>
+   <td> <input class='mod' type='number' id='iyear' name='year' min='2000' max='2032' step='1' value ='2017'> </td>
+   <td> <input class='mod' type='number' id='imonth' name='month' min='1' max='12' step='1' value ='1'> </td>
+   <td> <input class='mod' type='number' id='iday' name='day' min='1' max='31' step='1' value ='1'> </td>
+   <td>
+   <select class=itext id='idow' name='dow'>
+      <option selected value='1'>Mon</option>
+      <option value='2'>Tue</option>
+      <option value='3'>Wen</option>
+      <option value='4'>Thu</option>
+      <option value='5'>Fri</option>
+      <option value='6'>Sat</option>
+      <option value='7'>Sun</option>
+   </select>
+   </td>
+   <td> <input class='mod' type='number' id='ihour' name='hour' min='0' max='23' step='1' value ='0'> </td>
+   <td> <input class='mod' type='number' id='imin' name='min' min='0' max='59' step='1' value ='0'> </td>
+   <td> <input class='mod' type='number' id='isec' name='sec' min='0' max='59' step='1' value ='0'> </td>
+   <td><button class='button24' onclick='sendbutton(1)'>Set</button></td>
+   </tr>
+   </table>
+
+   </td>
+   </tr>
+
+   <tr><td>&nbsp</td></tr>
+
+   <tr>
+   <td>
+
+   <table id="timer_table">
+   <tr> <td></td> <td>Active</td> <td>sDoW</td> <td>sHour</td> <td>sMin</td> <td>eDoW</td> <td>eHour</td> <td>eMin</td> </tr>
+
+<!--
+   <tr><td>Prg0:</td>
+   <td><select class='itext' id=  'sact0'><option selected value='0'>No</option><option value='1'>Yes</option></select></td>
+   <td><select class='ctext' id='sdmask0'></select></td>
+
+   <td> <input class='mod'   id= 'shour0' type='number' min='0' max='23' step='1' value ='0'> </td>
+   <td> <input class='mod'   id=  'smin0' type='number' min='0' max='59' step='1' value ='0'> </td>
+  
+   <td><select class='ctext' id='edmask0'></select></td>
+
+   <td> <input class='mod'   id= 'ehour0' type='number' min='0' max='23' step='1' value ='0'> </td>
+   <td> <input class='mod'   id=  'emin0' type='number'min='0' max='59' step='1' value ='0'> </td>
+   </tr>
+   Тут скриптом 10 записей
+-->
+   <tr>
+   <td></td>
+   <td><button class='button24' id= 'sbtn12' onclick='sendbutton1(1,12,true)'>Set</button></td>
+   <td><button class='button24' id= 'sbtn10' onclick='sendbutton1(2,10,true)'>Save</button></td>
+   <td></td><td></td>
+   <td><button class='button24' id= 'sbtn11' onclick='sendbutton1(3,11,true)'>Reset</button></td>
+   <td></td><td></td></tr>
+   </table>
+
+   </td>
+   </tr>
+
+   <tr>
+   <td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>&nbsp</td>
+   </tr>
+
+   </table>
+   <p id='description'> - </p>
+   <p id='description1'> - </p>
+   </body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+   <head>
+   <meta name='viewport' content='width=device-width; initial-scale=1.0; maximum-scale=2.0;'>
+   <script type='text/javascript'>
+      window.onload=Pinstatus;
+      function Pinstatus(){ morestatus(); }
+      function morestatus()
+      {
+         setTimeout(morestatus, 4000);
+         document.getElementById('description').innerHTML = 'Processing Status';
+         server = 'index1?status=0';
+         request = new XMLHttpRequest();
+         request.onreadystatechange = updateasyncstatus;
+         request.open('GET', server, true);
+         request.send(null);
+      }
+      function updateasyncstatus()
+      {
+         if((request.readyState==4)&&(request.status==200))
+         {
+            xmlDoc=request.responseXML;
+            xmlmsg=xmlDoc.getElementsByTagName('datetime')[0].firstChild.nodeValue;
+            document.getElementById('datetime').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('voltage')[0].firstChild.nodeValue;
+            document.getElementById('voltage').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('vstatus')[0].firstChild.nodeValue;
+            document.getElementById('valve').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('vmode')[0].firstChild.nodeValue;
+            document.getElementById('vmode').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('ssid')[0].firstChild.nodeValue;
+            document.getElementById('ssid').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('ip1')[0].firstChild.nodeValue;
+            document.getElementById('ip1').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('rssi')[0].firstChild.nodeValue;
+            document.getElementById('rssi').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('wifimode')[0].firstChild.nodeValue;
+            document.getElementById('wifimode').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('temp')[0].firstChild.nodeValue;
+            document.getElementById('temp').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('hum')[0].firstChild.nodeValue;
+            document.getElementById('hum').innerHTML=xmlmsg;
+            xmlmsg=xmlDoc.getElementsByTagName('pres')[0].firstChild.nodeValue;
+            document.getElementById('pres').innerHTML=xmlmsg;
+         }
+      }
+   </script>
+
+   <style type='text/css'>
+   
+   body { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
+   form { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
+   
+   ul#tabnav { text-align: left; margin: 1em 0 1em 0; font: 12px verdana, arial, sans-serif;
+   border-bottom: 1px solid #fc0;list-style-type: none; padding: 3px 10px 3px 10px; }
+   
+   ul#tabnav li { display: inline; }
+   
+   body#tab1 li.tab1, body#tab2 li.tab2, body#tab3 li.tab3, body#tab4 li.tab4, body#tab5 li.tab5
+   { border-bottom: 1px solid #fff; background-color: #fff; }
+   
+   body#tab1 li.tab1 a, body#tab2 li.tab2 a, body#tab3 li.tab3 a, body#tab4 li.tab4 a, body#tab5 li.tab5 a
+   { background-color: #fff; color: #000; position: relative; top: 1px; padding-top: 4px; }
+   
+   ul#tabnav li a { padding: 3px 4px; border: 1px solid #fc0; background-color: #fc0;
+   color: #666; margin-right: 0px; text-decoration: none; border-bottom: none; }
+   
+   ul#tabnav a:hover { background: #fff; }
+   
+   body#tab1 table.tab1, body#tab2 table.tab2, body#tab3 table.tab3, body#tab4 table.tab4, body#tab5 table.tab5
+   { width:100%; border-spacing: 0px; border-right: 1px solid #fc0; border-left: 1px solid #fc0;}
+   
+   .fancybut { background: #fc0; color: gray; width: 70px; height: 22px;
+               border: 1px solid #fc0; border-radius: 3px; outline: 0; }
+   .button24 {
+   display: inline-block;
+   color: white;
+   text-decoration: none;
+   padding: .2em 2em;
+   height: 2em;
+   outline: none;
+   border-width: 1px 0;
+   border-style: solid none;
+   border-color: #FFCC00 #000 #D77206;
+   border-radius: 4px;
+   background: linear-gradient(#F3AE0F, #E38916) #E38916;
+   transition: 0.2s;
+   }
+   .button24:hover { background: linear-gradient(#ffcc00, #f5ae00) #ffcc00; }
+   .button24:active { background: linear-gradient(#f59500, #ffcc00) #f59500; }
+   </style>
+   
+   </head>
+
+   <body id='tab1'>
+   <table  class='tab1'>
+   <tr><td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>SHAPEsp timer v1.0</td></tr>
+   <tr>
+   <td>
+   <ul id='tabnav'>
+      <li class='tab1'><a href='/index1'>Status</a></li>
+      <li class='tab2'><a href='/index2'>Timer</a></li>
+      <li class='tab3'><a href='/index3'>Settings</a></li>
+      <li class='tab4'><a href='/index4'>Security</a></li>
+      <li class='tab5'><a href='/index5'>Logoff</a></li>
+   </ul>
+   </td>
+   </tr>
+
+   <tr>
+   <td>
+   <table>
+   <tr>
+   <td>DateTime:</td>
+   <td id='datetime'></td>
+   </tr>
+   <tr>
+   <td>Temperature, C:</td>
+   <td id='temp'></td>
+   </tr>
+   <tr>
+   <td>Humidity, RH:</td>
+   <td id='hum'></td>
+   </tr>
+   <tr>
+   <td>Pressure, mmHg:</td>
+   <td id='pres'></td>
+   </tr>
+   <tr>
+   <td>WIFI mode:</td>
+   <td id='wifimode'></td>
+   </tr>
+   <tr>
+   <td>SSID:</td>
+   <td id='ssid'></td>
+   </tr>
+   <tr>
+   <td>IP:</td>
+   <td id='ip1'></td>
+   </tr>
+   <tr>
+   <td>RSSI:</td>
+   <td id='rssi'></td>
+   </tr>
+   <tr>
+   <td>Voltage:</td>
+   <td id='voltage'></td>
+   </tr>
+   <tr>
+   <td>Valve mode:</td>
+   <td id='vmode'></td>
+   </tr>
+   <tr>
+   <td>Valve status:</td>
+   <td id='valve'></td>
+   </tr>
+   </table>
+   </td>
+   </tr>
+   <tr>
+   <td>
+   <table>
+   <tr>
+   <td><form  action='/index1?valve=0&action=0' method='POST'>
+   <input type='submit' class='button24' name='vclose' value='Close'>
+   </form></td>
+   <td><form action='/index1?valve=0&action=1' method='POST'>
+   <input type='submit' class='button24' name='vopen' value='Open'>
+   </form></td>
+   <td><form action='/index1?valve=0&action=2' method='POST'>
+   <input type='submit' class='button24' name='vauto' value='Auto'>
+   </form></td>
+   </tr>
+   </table>
+   </td>
+   </tr>
+   
+   
+   <tr>
+   <td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>&nbsp</td>
+   </tr>
+   
+   </table>
+   <p id='description'> - </p>
+   </body>
+</html>

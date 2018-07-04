@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+   <head>
+   <meta name='viewport' content='width=device-width; initial-scale=1; maximum-scale=2.0;'>
+   <script type='text/javascript'>
+      window.onload=Pinstatus;
+      function Pinstatus(){ sendbutton(0); }
+
+      function sendbutton(act)
+      {
+        document.getElementById('description').innerHTML = 'Processing Button Click';
+        var ssid = document.getElementById('i_ssid');
+        var pwd = document.getElementById('i_pwd');
+        var DHCP = document.getElementById('i_dhcp');
+        var IPvalue = document.getElementById('i_ipa').value;
+        var GWvalue = document.getElementById('i_gw').value;
+        var MASK = document.getElementById('i_mask');
+        var TNET = document.getElementById('i_tnet');
+
+        var pattern = /(25[0-5]|2[0-4]\d|1\d{2}|\d{1,2})\.(25[0-5]|2[0-4]\d|1\d{2}|\d{1,2})\.(25[0-5]|2[0-4]\d|1\d{2}|\d{1,2})\.(25[0-5]|2[0-4]\d|1\d{2}|\d{1,2})/;
+
+        if(act==1) 
+        {
+        var ipArray = IPvalue.match(pattern);
+        var gwArray = GWvalue.match(pattern);
+        if(ipArray==null) { alert('Invalid IP address!!!'); return; }
+        if(gwArray==null) { alert('Invalid GW address!!!'); return; }
+        }
+
+        server = 'index3?r=' + Math.random();
+        server += '&wifiset=' + act;
+        server += '&ssid=' + ssid.value;
+        server += '&pwd=' + pwd.value;
+        server += '&dhcp=' + DHCP.value;
+        server += '&vip=' + IPvalue;
+        server += '&vgw=' + GWvalue;
+        server += '&vmask=' + MASK.value;
+        server += '&tnet=' + TNET.value;
+
+        request = new XMLHttpRequest();
+        request.onreadystatechange = updateasyncbutton;
+        request.open('GET', server, true);
+        request.send(null);
+      }
+      function updateasyncbutton()
+      {
+        if ((request.readyState == 4) && (request.status == 200))
+        {
+          result = request.responseText;
+          document.getElementById('description').innerHTML = result;
+          fullset = result.split(',');
+          document.getElementById('i_ssid').value = fullset[1];
+          document.getElementById('i_pwd').value = fullset[2];
+          document.getElementById('i_dhcp').value = fullset[3];
+          document.getElementById('i_ipa').value = fullset[4];
+          document.getElementById('i_gw').value = fullset[5];
+          document.getElementById('i_mask').value = fullset[6];
+          document.getElementById('i_tnet').value = fullset[7];
+        }
+      }
+   </script>
+
+   <style type='text/css'>
+   
+   body { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
+   
+   ul#tabnav { text-align: left; margin: 1em 0 1em 0; font: 12px verdana, arial, sans-serif;
+   border-bottom: 1px solid #fc0;list-style-type: none; padding: 3px 10px 3px 10px; }
+   
+   ul#tabnav li { display: inline; }
+   
+   body#tab1 li.tab1, body#tab2 li.tab2, body#tab3 li.tab3, body#tab4 li.tab4, body#tab5 li.tab5
+   { border-bottom: 1px solid #fff; background-color: #fff; }
+   
+   body#tab1 li.tab1 a, body#tab2 li.tab2 a, body#tab3 li.tab3 a, body#tab4 li.tab4 a, body#tab5 li.tab5 a
+   { background-color: #fff; color: #000; position: relative; top: 1px; padding-top: 4px; }
+   
+   ul#tabnav li a { padding: 3px 4px; border: 1px solid #fc0; background-color: #fc0;
+   color: #666; margin-right: 0px; text-decoration: none; border-bottom: none; }
+   
+   ul#tabnav a:hover { background: #fff; }
+   
+   body#tab1 table.tab1, body#tab2 table.tab2, body#tab3 table.tab3, body#tab4 table.tab4, body#tab5 table.tab5
+   { width:100%; border-spacing: 0px; border-right: 1px solid #fc0; border-left: 1px solid #fc0;}
+
+
+   .iptext{ height: 2em; padding: 0 1em 0 1em;
+           border: 1px solid #fc0; outline: 0; border-radius: 4px; } 
+
+   .button24 {
+   display: inline-block;
+   color: white;
+   text-decoration: none;
+   padding: .2em 2em;
+   height: 2em;
+   outline: none;
+   border-width: 1px 0;
+   border-style: solid none;
+   border-color: #FFCC00 #000 #D77206;
+   border-radius: 3px;
+   background: linear-gradient(#F3AE0F, #E38916) #E38916;
+   transition: 0.2s;
+   }
+   .button24:hover { background: linear-gradient(#ffcc00, #f5ae00) #ffcc00; }
+   .button24:active { background: linear-gradient(#f59500, #ffcc00) #f59500; }
+
+</style>
+
+</head>
+
+<body id='tab3'>
+
+<table  class='tab3'>
+
+<tr><td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>SHAPEsp timer v1.0</td></tr>
+
+<tr>
+<td>
+<ul id='tabnav'>
+   <li class='tab1'><a href='/index1'>Status</a></li>
+   <li class='tab2'><a href='/index2'>Timer</a></li>
+   <li class='tab3'><a href='/index3'>Settings</a></li>
+   <li class='tab4'><a href='/index4'>Security</a></li>
+   <li class='tab5'><a href='/index5'>Logoff</a></li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>
+
+<table>
+
+<tr>
+<td align='right'>SSID:</td>
+<td>
+<input type='text' class = 'iptext' name='n_ssid' id='i_ssid' value='DIR-300'>
+</td>
+</tr>
+
+<tr>
+<td align='right'>PWD:</td>
+<td>
+<input type='text' class = 'iptext' name='n_pwd' id='i_pwd' value=''>
+</td>
+</tr>
+
+<tr>
+<td align='right'>DHCP:</td>
+<td align='left'>
+<select class = 'iptext' id='i_dhcp' name='n_dhcp'>
+  <option value='0'>No</option>
+  <option selected value='1'>Yes</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td align='right'>IP address:</td>
+<td>
+<input type='text' class = 'iptext' name='nipa' id='i_ipa' required value =''
+title = 'Input ip address d.d.d.d'>
+</td>
+</tr>
+
+<tr>
+<td align='right'>Gateway:</td>
+<td>
+<input type='text' class = 'iptext' name='ngw' id='i_gw' required value =''
+title = 'Input gateway address d.d.d.d'>
+</td>
+</tr>
+
+<tr>
+<td align='right'>Subnet:</td>
+<td align='left'>
+<select class = 'iptext' id='i_mask' name='nmask'>
+  <option selected value='24'>&nbsp/24</option>
+  <option value='23'>&nbsp/23</option>
+  <option value='22'>&nbsp/22</option>
+  <option value='21'>&nbsp/21</option>
+  <option value='20'>&nbsp/20</option>
+  <option value='19'>&nbsp/19</option>
+  <option value='18'>&nbsp/18</option>
+  <option value='17'>&nbsp/17</option>
+  <option value='16'>&nbsp/16</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td align='right'>Trusted Net:</td>
+<td align='left'>
+<select class = 'iptext' id='i_tnet' name='n_tnet'>
+  <option selected value='0'>No</option>
+  <option value='1'>Yes</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>
+</td>
+<td align='center'>
+<button class=button24 onclick='sendbutton(1)'>Apply</button>
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+
+<tr>
+<td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>&nbsp</td>
+</tr>
+
+</table>
+
+<p id='description'>-</p>
+
+</body>
+</html>

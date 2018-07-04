@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name='viewport' content='width=device-width; initial-scale=1.0; maximum-scale=2.0;'>
+<script type='text/javascript'>
+  function checkPasswords(){
+    if(pwdf.PASSWORD1.value == pwdf.PASSWORD2.value) {
+        alert('Login/Password changed! Logoff...');
+        return true; }
+    return true;
+  }
+</script>
+<style type='text/css'>
+
+   body { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
+
+   ul#tabnav { text-align: left; margin: 1em 0 1em 0; font: 12px verdana, arial, sans-serif;
+   border-bottom: 1px solid #fc0;list-style-type: none; padding: 3px 10px 3px 10px; }
+
+   ul#tabnav li { display: inline; }
+
+   body#tab1 li.tab1, body#tab2 li.tab2, body#tab3 li.tab3, body#tab4 li.tab4, body#tab5 li.tab5
+   { border-bottom: 1px solid #fff; background-color: #fff; }
+
+   body#tab1 li.tab1 a, body#tab2 li.tab2 a, body#tab3 li.tab3 a, body#tab4 li.tab4 a, body#tab5 li.tab5 a
+   { background-color: #fff; color: #000; position: relative; top: 1px; padding-top: 4px; }
+
+   ul#tabnav li a { padding: 3px 4px; border: 1px solid #fc0; background-color: #fc0;
+   color: #666; margin-right: 0px; text-decoration: none; border-bottom: none; }
+
+   ul#tabnav a:hover { background: #fff; }
+
+   body#tab1 table.tab1, body#tab2 table.tab2, body#tab3 table.tab3, body#tab4 table.tab4, body#tab5 table.tab5
+   { width:100%; border-spacing: 0px; border-right: 1px solid #fc0; border-left: 1px solid #fc0;}
+
+   .itext{ height: 2em; padding: 0 1em 0 1em;
+           border: 1px solid #fc0; outline: 0; border-radius: 4px;
+         } 
+
+   .button24 {
+   display: inline-block;
+   color: white;
+   text-decoration: none;
+   padding: .2em 2em;
+   height: 2em;
+   outline: none;
+   border-width: 1px 0;
+   border-style: solid none;
+   border-color: #FFCC00 #000 #D77206;
+   border-radius: 4px;
+   background: linear-gradient(#F3AE0F, #E38916) #E38916;
+   transition: 0.2s;
+   }
+   .button24:hover { background: linear-gradient(#ffcc00, #f5ae00) #ffcc00; }
+   .button24:active { background: linear-gradient(#f59500, #ffcc00) #f59500; }
+</style> 
+
+</head>
+ <body id='tab4'><table  class='tab4'>
+ <tr><td  bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>SHAPEsp timer v1.0</td></tr>
+ <tr>
+ <td>
+ <ul id='tabnav'>
+   <li class='tab1'><a href='/index1'>Status</a></li>
+   <li class='tab2'><a href='/index2'>Timer</a></li>
+   <li class='tab3'><a href='/index3'>Settings</a></li>
+   <li class='tab4'><a href='/index4'>Security</a></li>
+   <li class='tab5'><a href='/index5'>Logoff</a></li>
+ </ul>
+ </td>
+ </tr>
+ 
+ <tr>
+ <td>
+ <form name='pwdf' action='/index4' onsubmit='return checkPasswords();'>
+ <table>
+ <tr><td align='right'>User:</td>
+ <td align='centre'><input type='text' class='itext' name='USERNAME' size='20' maxlength='20' placeholder='user name'></td></tr>
+ <tr><td align='right'>Password:</td>
+ <td align='center'>
+ <input type='password' class='itext' id='passw1' name='PASSWORD1' size='20' maxlength='20' placeholder='********'>
+ </td>
+ </tr>
+ <tr><td align='right'>Repeat:</td>
+ <td align='center'>
+ <input type='password' class='itext' id='passw2' name='PASSWORD2' size='20' maxlength='20' placeholder='********'>
+ </td>
+ </tr>
+ <tr><td></td><td style='height:2em' align='center'><input type='submit' class='button24' name='SUBMIT' value='Change'></td></tr>
+ </table>
+ </form>
+ </td>
+ </tr>
+ <tr>
+ <td bgcolor='#f00' style='height:2em; padding:0 0 0 1em' align='left'>
+ Password mismatch! Try again.
+ </tr>
+ </table>
+ </body>
+ </html>

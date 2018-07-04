@@ -1,0 +1,1 @@
+esptool.exe -cd nodemcu -cb 115200 -cp COM7 -ca 0xDB000 -cf spiffs.bin
