@@ -1,6 +1,6 @@
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 #include <ESP8266SSDP.h>
 #include <EEPROM.h>
 #include <brzo_i2c.h>
@@ -8,6 +8,9 @@
 #include <uRTCLib.h>
 #include <Ticker.h>
 #include <ArduinoJson.h>
+
+#include <Hash.h>
+#include <functional>
 
 #include <FS.h>
 
@@ -142,8 +145,8 @@ float temp,hum,pres;
 
 IPAddress apIP(192, 168, 4, 1);
 
-ESP8266WebServer server(80);
-ESP8266HTTPUpdateServer httpUpdater;
+AsyncWebServer server(80);
+//ESP8266HTTPUpdateServer httpUpdater;
 
 ESP_CONFIG cfg;
 ESP_TPRG prg;
@@ -231,33 +234,34 @@ void setup()
    if(false) WriteConfig(true); // if pin pushed write def config
    Serial.println("write cfg end");
 
-   if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
-   else server.on("/"     , handleLogin);
+   //if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
+   //else server.on("/"     , handleLogin);
+    
+   server.on("/"     , handleLogin);
 
    server.on("/login", handleLogin);
-   server.on("/index1",handleIndex1); // status
-   server.on("/index2",handleIndex2); //timer settings
-   server.on("/index3",handleWiFiSettings); //wifi settings
-   server.on("/index4",handleSecurity); // pwd change
-   server.on("/index5",handleLogoff);
-   server.on("/favicon.ico",handleFavicon);
+   server.on("/index1", handleIndex1); // status
+   server.on("/index2", HTTP_GET, handleIndex2); //timer settings
+   server.on("/index3", handleWiFiSettings); //wifi settings
+   server.on("/index4", handleSecurity); // pwd change
+   server.on("/index5", handleLogoff);
+
+   server.on("/favicon.ico", handleFavicon);
    server.onNotFound(handleNotFound);
 
    // ssdp
-   server.on("/description.xml", HTTP_GET, [](){
-      SSDP.schema(server.client());
-   });
-   
-   const char *headerkeys[] = {"User-Agent","Cookie"} ; //here the list of headers to be recorded
-   size_t headerkeyssize = sizeof(headerkeys)/sizeof(char*);
-   server.collectHeaders(headerkeys, headerkeyssize ); //ask server to track these headers
+   ///server.on("/description.xml", HTTP_GET, [](AsyncWebServerRequest *request)){
+   ///   SSDP.schema(server.client());
+   ///});
+
 
    // webupdate
-   httpUpdater.setup(&server);
+   //httpUpdater.setup(&server);
      
    // Start the server
-   server.begin();  DbgPrintln(("Server started"));
-
+   server.begin();
+   DbgPrintln(("Server started"));
+/*
    DbgPrintln(("Starting SSDP...\n"));
 
    SSDP.setDeviceType("upnp:rootdevice");
@@ -272,7 +276,7 @@ void setup()
    SSDP.setManufacturer("SHAPEsp");
    SSDP.setManufacturerURL("http://www.google.com");
    SSDP.begin();
-
+*/
    if(!ReadTmrPrg())
    { 
       DbgPrintln(("Failed read tmr config!!! Trying write default..."));
@@ -306,7 +310,7 @@ void setup()
 
 void loop()
 {
-   server.handleClient();
+  // server.handleClient();
 
    if(tflag)
    {

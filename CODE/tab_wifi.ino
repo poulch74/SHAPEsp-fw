@@ -1,26 +1,26 @@
 #include "tmrlib.h"
 
-void handleWiFiSettings()
+void handleWiFiSettings(AsyncWebServerRequest *request)
 {
    DbgPrintln(("Enter handle wifi set"));
-   String message = DbgArgMsg();
+   String message = DbgArgMsg(request);
 
-   if (!is_auth()) { UrlRedirect("/login"); return; }
+   if(!is_auth(request)) { request->redirect("/login"); return; }
   
-   if(server.hasArg("wifiset"))
+   if(request->hasArg("wifiset"))
    {
-      int act = server.arg("wifiset").toInt();
+      int act = request->arg("wifiset").toInt();
       if(act==1)
       {
-         if(server.hasArg("ssid")) snprintf(cfg.s.sta_ssid, 33 ,server.arg("ssid").c_str());
-         if(server.hasArg("pwd")) snprintf(cfg.s.sta_pwd,65, server.arg("pwd").c_str());
-         if(server.hasArg("dhcp")) { cfg.s.sta_dhcp = server.arg("dhcp").toInt();}
+         if(request->hasArg("ssid")) snprintf(cfg.s.sta_ssid, 33 ,request->arg("ssid").c_str());
+         if(request->hasArg("pwd")) snprintf(cfg.s.sta_pwd,65, request->arg("pwd").c_str());
+         if(request->hasArg("dhcp")) { cfg.s.sta_dhcp = request->arg("dhcp").toInt();}
          IPAddress ip;
-         if(server.hasArg("vip")) { ip.fromString(server.arg("vip")); for(int i=0;i<4; i++) cfg.s.sta_ip[i] = ip[i]; }
-         if(server.hasArg("vgw")) { ip.fromString(server.arg("vgw")); for(int i=0;i<4; i++) cfg.s.sta_gw[i] = ip[i]; }
-         if(server.hasArg("vmask"))
+         if(request->hasArg("vip")) { ip.fromString(request->arg("vip")); for(int i=0;i<4; i++) cfg.s.sta_ip[i] = ip[i]; }
+         if(request->hasArg("vgw")) { ip.fromString(request->arg("vgw")); for(int i=0;i<4; i++) cfg.s.sta_gw[i] = ip[i]; }
+         if(request->hasArg("vmask"))
          { 
-            int m = 32-(server.arg("vmask").toInt())&0x1F;
+            int m = 32-(request->arg("vmask").toInt())&0x1F;
             uint32_t ma = 0xFFFFFFFF<<m;
             cfg.s.sta_subnet[0] = (ma>>24)&0xFF;
             cfg.s.sta_subnet[1] = (ma>>16)&0xFF;
@@ -31,7 +31,7 @@ void handleWiFiSettings()
             DbgPrintln((s));
          }
 
-         if(server.hasArg("tnet")) { cfg.s.skip_logon = server.arg("tnet").toInt();}
+         if(request->hasArg("tnet")) { cfg.s.skip_logon = request->arg("tnet").toInt();}
   
          WriteConfig(false);
          DbgPrintln(("write config"));
@@ -51,10 +51,12 @@ void handleWiFiSettings()
       content += "," + IPAddress(cfg.s.sta_gw[0],cfg.s.sta_gw[1],cfg.s.sta_gw[2],cfg.s.sta_gw[3]).toString();
       content += "," + String(m);//IPAddress(cfg.s.sta_subnet[0],cfg.s.sta_subnet[1],cfg.s.sta_subnet[2],cfg.s.sta_subnet[3]).toString();
       content += "," + String(cfg.s.skip_logon);
-      server.send(200, "text/plain", content);    
+      request->send(200, "text/plain", content);    
    }
   
-   size_t sz = sendFile("/wifi.htm","text/html");   
-   DbgPrint(("Output size: ")); DbgPrintln((String(sz)));
+   request->send(SPIFFS, "/wifi.htm","text/html");
+   //size_t sz = sendFile("/wifi.htm","text/html");   
+   //DbgPrint(("Output size: ")); DbgPrintln((String(sz)));
    DbgPrintln((message));  
 }
+  

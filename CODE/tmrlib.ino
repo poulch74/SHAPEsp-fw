@@ -1,14 +1,14 @@
 #include "tmrlib.h"
 
-String DbgArgMsg()
+String DbgArgMsg(AsyncWebServerRequest *request)
 {
    String message;
-   message += "URI: " + server.uri();
-   message += "\nMethod: " + String((server.method() == HTTP_GET)?"GET":"POST");
-   message += "\nArguments: " + String(server.args()) + "\n";
-   for (uint8_t i=0; i<server.args(); i++)
+   message += "URI: " + request->url();
+   message += "\nMethod: " + String((request->method() == HTTP_GET)?"GET":"POST");
+   message += "\nArguments: " + String(request->args()) + "\n";
+   for (uint8_t i=0; i<request->args(); i++)
    {
-      message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+      message += " " + request->argName(i) + ": " + request->arg(i) + "\n";
    }
    return message;  
 }
@@ -25,36 +25,20 @@ uint16_t crc16(const uint8_t *msg, int msg_len)
    return crc;
 }
 
-void UrlRedirect(String url)
-{
-   String content = "HTTP/1.1 301 OK\r\nLocation: " + url + "\r\nCache-Control: no-cache\r\n\r\n";
-   server.sendContent(content);
-}
-
-void handleNotFound()
-{
-   String message = DbgArgMsg();
-   DbgPrintln(("File Not Found\n\n" + message));
+void handleNotFound(AsyncWebServerRequest *request) {
+    request->send(404, "text/plain", "Not found");
 }
 
 
-void handleFavicon()
+void handleFavicon(AsyncWebServerRequest *request)
 {
-   sendFile("/favicon.ico","image/ico");
+   request->send(SPIFFS, "/favicon.ico","image/ico");
 }
 
-size_t sendFile(String fname, String content_type)
-{
-   File file = SPIFFS.open(fname,"r");
-   if (!file) { server.send(404,"text/html","<html><body>Not Found</body></html>"); return 0; }
-   size_t sz = server.streamFile(file,content_type);
-   DbgPrint(("Output size: ")); DbgPrintln((String(sz)));
-   file.close();
-   return sz;
-}
 
-bool is_auth()
+bool is_auth(AsyncWebServerRequest *request)
 {
+    /*
    if(cfg.s.skip_logon)
    {
       do
@@ -80,12 +64,12 @@ bool is_auth()
       } while(0);         
       DbgPrint(("Remote client!!!"));
    }
-
+*/
 
    DbgPrintln(("Enter is_authentified"));
-   if (server.hasHeader("Cookie")){   
+   if (request->hasHeader("Cookie")){   
       DbgPrint(("Found cookie: "));
-      String cookie = server.header("Cookie");
+      String cookie = request->header("Cookie");
       DbgPrintln((cookie));
       if (cookie.indexOf("ESPSESSIONID=") != -1) {
          String si = cookie.substring(cookie.indexOf('=')+1);

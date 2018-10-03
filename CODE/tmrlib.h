@@ -1,29 +1,25 @@
 #ifndef tmrlib_h
 #define tmrlib_h
 
-size_t sendFile(String fname, String content_type);
+void handleIndex2(AsyncWebServerRequest *request);
 
-void handleIndex2();
+void handleFavicon(AsyncWebServerRequest *request);
 
-void handleFavicon();
+void handleLogin(AsyncWebServerRequest *request);
 
-void handleLogin();
+void handleLogoff(AsyncWebServerRequest *request);
 
-void handleLogoff();
+void handleSecurity(AsyncWebServerRequest *request);
 
-void handleSecurity();
+void handleIndex1(AsyncWebServerRequest *request);
 
-void handleIndex1();
+void handleWiFiSettings(AsyncWebServerRequest *request);
 
-void handleWiFiSettings();
-
-String DbgArgMsg();
+String DbgArgMsg(AsyncWebServerRequest *request);
 
 uint16_t crc16(const uint8_t *msg, int msg_len);
 
-void UrlRedirect(String url);
-
-void handleNotFound();
+void handleNotFound(AsyncWebServerRequest *request);
 
 bool is_auth();
 

@@ -1,19 +1,19 @@
 #include "tmrlib.h"
 
-void handleIndex2()
+void handleIndex2(AsyncWebServerRequest *request)
 {
    DbgPrintln(("Enter handle timerset"));
-   String message = DbgArgMsg();
+   String message = DbgArgMsg(request);
    do
    {
-      if(!is_auth()) { UrlRedirect("/login"); break; }
+      if(!is_auth(request)) { request->redirect("/login"); break; }
 
-      if(server.hasArg("timeset"))
+      if(request->hasArg("timeset"))
       {
          do
          {
             StaticJsonBuffer<JSON_OBJECT_SIZE(8) + 90> jsonBuffer;
-            JsonObject& root = jsonBuffer.parseObject(server.arg("par"));
+            JsonObject& root = jsonBuffer.parseObject(request->arg("par"));
             if (root.success())
             {
                Serial.println("JSON parsing!");
@@ -30,7 +30,7 @@ void handleIndex2()
 
          StaticJsonBuffer<JSON_OBJECT_SIZE(8) + 90> respBuffer;
          JsonObject& resp = respBuffer.createObject();
-         resp["rand"] = server.arg("r");
+         resp["rand"] = request->arg("r");
          resp["year"] = rtc.year()+2000;
          resp["month"] = rtc.month();
          resp["day"] = rtc.day();
@@ -41,20 +41,20 @@ void handleIndex2()
          String json;
          resp.printTo(json);
          DbgPrintln((json));
-         server.send(200, "text/plain", json);
+         request->send(200, "text/plain", json);
          break;
       }
 
-      if(server.hasArg("act"))
+      if(request->hasArg("act"))
       {
-         int act = server.arg("act").toInt(); // 0 читать 1писать 2 соранить 3 сброситьи сохранить
+         int act = request->arg("act").toInt(); // 0 читать 1писать 2 соранить 3 сброситьи сохранить
  
          if(act==3) { SaveTmrPrg(true); } // reset и сохраним в eeprom 
          if(act==2) { SaveTmrPrg(false); } // сохраним в eeprom
          if(act==1)
          {
             StaticJsonBuffer<JSON_ARRAY_SIZE(10) + 10*JSON_OBJECT_SIZE(7) + 590> jsonBuffer;
-            JsonArray& root = jsonBuffer.parseArray(server.arg("par"));
+            JsonArray& root = jsonBuffer.parseArray(request->arg("par"));
             if (root.success())
             {
                DbgPrintln(("JSON parsing!"));
@@ -90,13 +90,15 @@ void handleIndex2()
          String json;
          resp.printTo(json);
          DbgPrintln((json));
-         server.send(200, "text/plain", json);    
+         request->send(200, "text/plain", json);    
          break;
       }     
 
-      size_t sz = sendFile("/timeset.htm","text/html");   
-      DbgPrint(("Output size: ")); DbgPrintln((String(sz)));
+      request->send(SPIFFS, "/timeset.htm","text/html");
+      //size_t sz = sendFile("/timeset.htm","text/html");   
+      //DbgPrint(("Output size: ")); DbgPrintln((String(sz)));
    } while(0);
 
    DbgPrintln((message));
 }
+ 
