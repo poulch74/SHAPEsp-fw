@@ -1,4 +1,4 @@
-#include "tmrlib.h"
+//#include "tmrlib.h"
 
 void handleIndex1(AsyncWebServerRequest *request)
 {
@@ -14,7 +14,7 @@ void handleIndex1(AsyncWebServerRequest *request)
          String xml;
          xml="<?xml version='1.0'?>";
          xml+="<xml>";
-         xml+="<datetime>" + String(current_time) + "</datetime>";
+         xml+="<datetime>" + strDateTime(now()) + "</datetime>";
          xml+="<temp>" + String(temp) + "</temp>";
          xml+="<hum>" + String(hum) + "</hum>";
          xml+="<pres>" + String(pres*25.4) + "</pres>";
@@ -48,13 +48,10 @@ void handleIndex1(AsyncWebServerRequest *request)
             if(action==0) mflag = 2; //off
             if(action==2) mflag = 3; // auto
          }      
-         //UrlRedirect("/index1");
          request->redirect("/index1");
          break;
       }
 
-      //size_t sz = sendFile("/status.htm","text/html");               
-      //DbgPrint(("Output size: ")); DbgPrintln((String(sz)));
       request->send(SPIFFS, "/status.htm","text/html");
    } while(0);
 

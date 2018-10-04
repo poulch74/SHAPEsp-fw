@@ -3,23 +3,28 @@
 #include <ESPAsyncWebServer.h>
 #include <ESP8266SSDP.h>
 #include <EEPROM.h>
-#include <brzo_i2c.h>
-#include <BME280I2C_BRZO.h>
-#include <uRTCLib.h>
 #include <Ticker.h>
 #include <ArduinoJson.h>
 
+#include <limits.h>
+#include <math.h>
+
 #include <Hash.h>
 #include <functional>
+#include <queue>
 
 #include <FS.h>
 
 #include <ESP8266HTTPUpdateServer.h>
 
-#include <limits.h>
-#include <math.h>
+#include "TimeLib.h"
 
-#include "tmrlib.h"
+#define I2C_USE_BRZO 1
+
+#include "brzo_i2c.h"
+#include "BME280I2C_BRZO.h"
+
+void prototypes(void) {} // here we collect all func prototypes
 
 const int VALVE = 1; // 1 valve 0 relay
 
@@ -33,8 +38,6 @@ const int VALVE = 1; // 1 valve 0 relay
    #define DbgPrintln(s)
 #endif
 
-const char* dow[] = {"Mon","Tue","Wen","Thu","Fri","Sat","Sun"};
-
 const char* ssid = "DIR-300";
 //const char* ssid = "CH1-Home";
 const char* password = "chps74qwerty";
@@ -42,6 +45,19 @@ const char* password = "chps74qwerty";
 int session_id =0;
 
 #pragma pack(1)
+
+typedef struct _genevent_
+{
+   uint32_t type;
+} genevent, *pgenevent;
+
+typedef struct _sysevent
+   :genevent
+{
+   String payload;
+} sysevent, *psysevent;
+
+std::queue<pgenevent> sysqueue;
 
 typedef struct _ESP_TPRG_S
 {
@@ -106,8 +122,6 @@ const int drvA1   = 14; // close pin
 const int drvA2   = 12; // open pin
 const int drvSTBY = 13; // open pin
 
-uRTCLib_brzo rtc;
-
 bool tflag;
 bool voffflag;
 Ticker timer;
@@ -135,7 +149,7 @@ int curstate;
 int wifimode;
 String softAPname;
 
-char current_time[96]; // loop print time in this array
+//char current_time[96]; // loop print time in this array
 
 float volt;
 
@@ -153,13 +167,6 @@ ESP_TPRG prg;
 
 void setup()
 {
-   pinMode(drvA1, OUTPUT);   digitalWrite(drvA1, LOW);
-   pinMode(drvA2, OUTPUT);   digitalWrite(drvA2, LOW);
-   pinMode(drvSTBY, OUTPUT); digitalWrite(drvSTBY, LOW);
-   pinMode(led, INPUT);//     digitalWrite(led, HIGH);
-
-   brzo_i2c_setup(4,5,200);   
-
    wifimode = 0; // station
    bmepresent=0;
    temp=0;
@@ -169,8 +176,31 @@ void setup()
 
    Serial.begin(115200);
 
-   rtc.refresh();
-   randomSeed(rtc.second());
+   pinMode(drvA1, OUTPUT);   digitalWrite(drvA1, LOW);
+   pinMode(drvA2, OUTPUT);   digitalWrite(drvA2, LOW);
+   pinMode(drvSTBY, OUTPUT); digitalWrite(drvSTBY, LOW);
+   pinMode(led, INPUT);//     digitalWrite(led, HIGH);
+
+   i2c_setup(4,5,200,400);
+   setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
+
+   time_t tm = now();
+   DbgPrint(("NOW: ")); DbgPrintln((strDateTime(tm)));
+
+   sysevent *ev = new sysevent();
+   ev->payload = "test";
+   sysqueue.push(ev);
+
+   ev = new sysevent();
+   ev->payload = "test1";
+   sysqueue.push(ev);
+
+   genevent *e = sysqueue.front();
+   sysqueue.pop();
+   DbgPrint(( ((sysevent *)e)->payload ));
+   delete (sysevent *)e;
+  
+   randomSeed(second());
 
    SPIFFS.begin();
 
@@ -310,8 +340,6 @@ void setup()
 
 void loop()
 {
-  // server.handleClient();
-
    if(tflag)
    {
       tflag=false;
@@ -332,20 +360,18 @@ void loop()
          bme280.read(pres, temp, hum, tempUnit, presUnit);
       }      
 
-      rtc.refresh();
-
-      snprintf(current_time,96,"%02d/%02d/%02d %s %02d:%02d:%02d",
-                 rtc.year(),rtc.month(),rtc.day(),dow[rtc.dayOfWeek()-1],rtc.hour(),rtc.minute(),rtc.second());
-
-      //debug
-      DbgPrint(("DateTime:")); DbgPrintln((current_time));
-
       int  pin2 = digitalRead(led);
-
       DbgPrint(("Water Alarm:")); DbgPrintln((String(pin2)));
 
-      uint16_t tcur = rtc.hour()*60+rtc.minute();
-      uint8_t cdow = 1 << (rtc.dayOfWeek()-1);
+      time_t t = now();
+
+      //debug
+      DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
+
+      uint16_t tcur = (uint16_t)((t-previousMidnight(t))/60);
+      
+      uint8_t shift = (dayOfWeek(t)-1) ? (dayOfWeek(t)-2):6;
+      uint8_t cdow = 1 << shift; // 0 based day of week 0 monday
 
       if(!skiptmr)
       {
@@ -385,7 +411,9 @@ void loop()
             curstate = vstate;
          }
       }
+
       timer.once_ms(5000,alarm); // timer rearm
    }
+   delay(20);
 }
 

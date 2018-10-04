@@ -31,5 +31,4 @@ bool ReadTmrPrg();
 
 void SaveTmrPrg(bool def);
 
-
 #endif

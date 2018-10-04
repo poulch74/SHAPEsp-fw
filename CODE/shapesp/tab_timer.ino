@@ -1,5 +1,3 @@
-#include "tmrlib.h"
-
 void handleIndex2(AsyncWebServerRequest *request)
 {
    DbgPrintln(("Enter handle timerset"));
@@ -19,25 +17,42 @@ void handleIndex2(AsyncWebServerRequest *request)
                Serial.println("JSON parsing!");
                if(root["act"].as<int>()) // 8 в 1 устанавливать а если 0  только читать
                {
-                  rtc.set(root["sec"], root["minu"], root["hour"],
-                          root["dow"], root["day"], root["month"],
-                          root["year"].as<int>()-2000 );
+                  time_t t;
+                  tmElements_t tm;
+
+                  tm.Second = root["sec"];
+                  tm.Minute = root["minu"];
+                  tm.Hour   = root["hour"];
+
+                  tm.Wday = root["dow"].as<int>()+1;
+                  if(tm.Wday>7) tm.Wday = 1;
+
+
+                  tm.Day   =  root["day"];
+                  tm.Month = root["month"];
+                  tm.Year  = y2kYearToTm(root["year"].as<int>()-2000);
+
+                  t = makeTime(tm);
+                  setTime_rtc(t);
+                  setTime(t);
                }
             }        
          } while(0);
 
-         rtc.refresh();
+         time_t t = now();
+         tmElements_t tm;
+         breakTime(t, tm);
 
          StaticJsonBuffer<JSON_OBJECT_SIZE(8) + 90> respBuffer;
          JsonObject& resp = respBuffer.createObject();
          resp["rand"] = request->arg("r");
-         resp["year"] = rtc.year()+2000;
-         resp["month"] = rtc.month();
-         resp["day"] = rtc.day();
-         resp["dow"] = rtc.dayOfWeek();
-         resp["hour"] = rtc.hour();
-         resp["minu"] = rtc.minute();
-         resp["sec"] = rtc.second();
+         resp["year"] = tmYearToCalendar(tm.Year);
+         resp["month"] = tm.Month;
+         resp["day"] = tm.Day;
+         resp["dow"] = (tm.Wday-1) ? (tm.Wday-1):7;
+         resp["hour"] = tm.Hour;
+         resp["minu"] = tm.Minute;
+         resp["sec"] = tm.Second;
          String json;
          resp.printTo(json);
          DbgPrintln((json));
@@ -95,8 +110,7 @@ void handleIndex2(AsyncWebServerRequest *request)
       }     
 
       request->send(SPIFFS, "/timeset.htm","text/html");
-      //size_t sz = sendFile("/timeset.htm","text/html");   
-      //DbgPrint(("Output size: ")); DbgPrintln((String(sz)));
+
    } while(0);
 
    DbgPrintln((message));
