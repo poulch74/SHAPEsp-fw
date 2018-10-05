@@ -7,7 +7,7 @@
       function Pinstatus(){ morestatus(); }
       function morestatus()
       {
-         setTimeout(morestatus, 4000);
+         setTimeout(morestatus, 500);
          document.getElementById('description').innerHTML = 'Processing Status';
          server = 'index1?status=0';
          request = new XMLHttpRequest();

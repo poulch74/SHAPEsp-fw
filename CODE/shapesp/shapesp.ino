@@ -14,19 +14,14 @@
 #include <queue>
 
 #include <FS.h>
-
 #include <ESP8266HTTPUpdateServer.h>
 
 #include "TimeLib.h"
 
-#define I2C_USE_BRZO 1
-
 #include "brzo_i2c.h"
 #include "BME280I2C_BRZO.h"
 
-void prototypes(void) {} // here we collect all func prototypes
-
-const int VALVE = 1; // 1 valve 0 relay
+#define I2C_USE_BRZO 1
 
 #define PDEBUG
 
@@ -37,6 +32,12 @@ const int VALVE = 1; // 1 valve 0 relay
    #define DbgPrint(s)
    #define DbgPrintln(s)
 #endif
+
+#include "relay.h"
+
+void prototypes(void) {} // here we collect all func prototypes
+
+const int VALVE = 1; // 1 valve 0 relay
 
 const char* ssid = "DIR-300";
 //const char* ssid = "CH1-Home";
@@ -123,33 +124,18 @@ const int drvA2   = 12; // open pin
 const int drvSTBY = 13; // open pin
 
 bool tflag;
-bool voffflag;
 Ticker timer;
-void alarm()
-{ 
-   tflag = true;
-   if(voffflag)
-   { 
-      //DbgPrintln(("alloff"));
-      //digitalWrite(led,   HIGH);
-      digitalWrite(drvA1, LOW);
-      digitalWrite(drvA2, LOW);
-   }
-}
+void alarm() { tflag = true; }
 
 Ticker timerSTBY; // timer 300ms pulse to start motor
 void STBYoff() { digitalWrite(drvSTBY, LOW); }
 
-bool vaction;
 bool skiptmr; // пропускать таймеры если открыл вручную, не авто режим
 int mflag;
-int vstate;
 int curstate;
 
 int wifimode;
 String softAPname;
-
-//char current_time[96]; // loop print time in this array
 
 float volt;
 
@@ -160,7 +146,8 @@ float temp,hum,pres;
 IPAddress apIP(192, 168, 4, 1);
 
 AsyncWebServer server(80);
-//ESP8266HTTPUpdateServer httpUpdater;
+
+Relay relay(14,12,13,R_VALVE,1);
 
 ESP_CONFIG cfg;
 ESP_TPRG prg;
@@ -176,10 +163,7 @@ void setup()
 
    Serial.begin(115200);
 
-   pinMode(drvA1, OUTPUT);   digitalWrite(drvA1, LOW);
-   pinMode(drvA2, OUTPUT);   digitalWrite(drvA2, LOW);
-   pinMode(drvSTBY, OUTPUT); digitalWrite(drvSTBY, LOW);
-   pinMode(led, INPUT);//     digitalWrite(led, HIGH);
+   relay.Initialize();
 
    i2c_setup(4,5,200,400);
    setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
@@ -194,11 +178,12 @@ void setup()
    ev = new sysevent();
    ev->payload = "test1";
    sysqueue.push(ev);
+   
 
    genevent *e = sysqueue.front();
    sysqueue.pop();
-   DbgPrint(( ((sysevent *)e)->payload ));
    delete (sysevent *)e;
+   DbgPrint((((sysevent *)e)->payload));
   
    randomSeed(second());
 
@@ -290,6 +275,7 @@ void setup()
      
    // Start the server
    server.begin();
+
    DbgPrintln(("Server started"));
 /*
    DbgPrintln(("Starting SSDP...\n"));
@@ -321,34 +307,18 @@ void setup()
    tflag=false;
    mflag=0;
    skiptmr=false;
-   voffflag=false;
-   vaction=false;
-   vstate=0;
    curstate=0;
 
-   // must set valve off
-   if(VALVE)
-   {
-      voffflag=true;
-      //digitalWrite(led, LOW);
-      digitalWrite(drvA1, LOW);
-      digitalWrite(drvA2, HIGH);
-      digitalWrite(drvSTBY, HIGH); timerSTBY.once_ms(300,STBYoff); // timer off
-   }      
-   timer.once_ms(5000,alarm); // start sheduler&timout timer
+   timer.once_ms(1000,alarm); // start sheduler&timout timer
 }
 
 void loop()
 {
    if(tflag)
    {
-      tflag=false;
-      voffflag=false;
-
-      if(mflag==1) { mflag=0; skiptmr = true;  vaction=true; vstate=1; } // открыть вручную
-      if(mflag==2) { mflag=0; skiptmr = true; vaction=true; vstate=0; } // закрыть вручную
-      if(mflag==3) { mflag=0; skiptmr = false; } // автомат
-
+      time_t t = now();
+      DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
+   
       uint16_t adc = analogRead(A0);
       volt = adc*15.63/1024.0; //1000 15.98
 
@@ -363,56 +333,21 @@ void loop()
       int  pin2 = digitalRead(led);
       DbgPrint(("Water Alarm:")); DbgPrintln((String(pin2)));
 
-      time_t t = now();
+      if(mflag==1 || mflag==2) skiptmr = true;
+      if(mflag==3) skiptmr = false;
 
-      //debug
-      DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
+      int vaction = TestSheduler(t,mflag,skiptmr);
+      mflag = 0;
 
-      uint16_t tcur = (uint16_t)((t-previousMidnight(t))/60);
-      
-      uint8_t shift = (dayOfWeek(t)-1) ? (dayOfWeek(t)-2):6;
-      uint8_t cdow = 1 << shift; // 0 based day of week 0 monday
-
-      if(!skiptmr)
-      {
-         for(int i=0;i<10;i++)
-            if((prg.ta.p[i].active)&&(tcur==prg.ta.p[i].on_ts)&&(cdow&prg.ta.p[i].on_dowmask)) {vaction = true; vstate = 1; break;}
-
-         for(int i=0;i<10;i++)  
-            if((prg.ta.p[i].active)&&(tcur==prg.ta.p[i].off_ts)&&(cdow&prg.ta.p[i].off_dowmask)) { vaction = true; vstate = 0; break;}
-      }
-  
-      if(vaction)
-      {
-         vaction = false;
-
-         if(vstate!=curstate)
-         {
-            int a1,a2=a1=LOW;
-
-            if(VALVE)
-            {
-               voffflag=true;
-               //digitalWrite(led, LOW);
-               if(vstate==1) { a1=HIGH; a2=LOW;  DbgPrintln(("on valve start")); }
-               if(vstate==0) { a1=LOW;  a2=HIGH; DbgPrintln(("off valve start"));}
-            }
-            else
-            {
-               //voffflag=false;
-               if(vstate==1) { a1=HIGH; a2=LOW;  DbgPrintln(("on relay"));  }
-               if(vstate==0) { a1=LOW;  a2=LOW;  DbgPrintln(("off relay")); }
-            }               
-        
-            digitalWrite(drvA1, a1);
-            digitalWrite(drvA2, a2);
-            digitalWrite(drvSTBY, HIGH); timerSTBY.once_ms(300,STBYoff); // timer off
-
-            curstate = vstate;
-         }
+      if(vaction!=0)
+      {  
+         int state = 0;
+         if(vaction>0) state = 1;
+         curstate = relay.SetState(state);
       }
 
-      timer.once_ms(5000,alarm); // timer rearm
+      tflag=false;
+      timer.once_ms(1000,alarm); // timer rearm
    }
    delay(20);
 }
