@@ -45,20 +45,13 @@ const char* password = "chps74qwerty";
 
 int session_id =0;
 
+// events
+#define EVT_1SEC 1
+#define EVT_5SEC 2
+
+std::queue<uint32_t> sysqueue; // очередь сообщений
+
 #pragma pack(1)
-
-typedef struct _genevent_
-{
-   uint32_t type;
-} genevent, *pgenevent;
-
-typedef struct _sysevent
-   :genevent
-{
-   String payload;
-} sysevent, *psysevent;
-
-std::queue<pgenevent> sysqueue;
 
 typedef struct _ESP_TPRG_S
 {
@@ -123,9 +116,14 @@ const int drvA1   = 14; // close pin
 const int drvA2   = 12; // open pin
 const int drvSTBY = 13; // open pin
 
-bool tflag;
+static int sec5cnt = 0;
 Ticker timer;
-void alarm() { tflag = true; }
+void alarm()
+{ 
+  // tflag = true;
+   sysqueue.push(EVT_1SEC);
+   sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
+}
 
 Ticker timerSTBY; // timer 300ms pulse to start motor
 void STBYoff() { digitalWrite(drvSTBY, LOW); }
@@ -170,7 +168,7 @@ void setup()
 
    time_t tm = now();
    DbgPrint(("NOW: ")); DbgPrintln((strDateTime(tm)));
-
+/*
    sysevent *ev = new sysevent();
    ev->payload = "test";
    sysqueue.push(ev);
@@ -184,7 +182,7 @@ void setup()
    sysqueue.pop();
    delete (sysevent *)e;
    DbgPrint((((sysevent *)e)->payload));
-  
+*/  
    randomSeed(second());
 
    SPIFFS.begin();
@@ -304,51 +302,57 @@ void setup()
    //    DbgPrintln(("Deepsleep for 10s"));
    //    ESP.deepSleep(10e6);
 
-   tflag=false;
    mflag=0;
    skiptmr=false;
    curstate=0;
 
-   timer.once_ms(1000,alarm); // start sheduler&timout timer
+   timer.attach_ms(1000,alarm); // start sheduler&timout timer
 }
 
 void loop()
 {
-   if(tflag)
+   uint32_t evt = 0; // include
+   time_t t = now();
+
+   if(!sysqueue.empty()) { evt = sysqueue.front();  sysqueue.pop(); }
+
+   switch(evt)
    {
-      time_t t = now();
-      DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
-   
-      uint16_t adc = analogRead(A0);
-      volt = adc*15.63/1024.0; //1000 15.98
-
-      /////////////bme280
-      if(bmepresent)
+      case EVT_1SEC:
       {
-         BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-         BME280::PresUnit presUnit(BME280::PresUnit_inHg);
-         bme280.read(pres, temp, hum, tempUnit, presUnit);
-      }      
+         DbgPrint(("Queue size: ")); DbgPrintln((String(sysqueue.size())));
+         DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
 
-      int  pin2 = digitalRead(led);
-      DbgPrint(("Water Alarm:")); DbgPrintln((String(pin2)));
+         uint16_t adc = analogRead(A0);
+         volt = adc*15.63/1024.0; //1000 15.98
 
-      if(mflag==1 || mflag==2) skiptmr = true;
-      if(mflag==3) skiptmr = false;
+         /////////////bme280
+         if(bmepresent)
+         {
+            BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+            BME280::PresUnit presUnit(BME280::PresUnit_inHg);
+            bme280.read(pres, temp, hum, tempUnit, presUnit);
+         }      
 
-      int vaction = TestSheduler(t,mflag,skiptmr);
-      mflag = 0;
+         int  pin2 = digitalRead(led);
+         DbgPrint(("Water Alarm:")); DbgPrintln((String(pin2)));
 
-      if(vaction!=0)
-      {  
-         int state = 0;
-         if(vaction>0) state = 1;
-         curstate = relay.SetState(state);
-      }
+         if(mflag==1 || mflag==2) skiptmr = true;
+         if(mflag==3) skiptmr = false;
 
-      tflag=false;
-      timer.once_ms(1000,alarm); // timer rearm
-   }
-   delay(20);
+         int vaction = TestSheduler(t,mflag,skiptmr);
+         mflag = 0;
+
+         if(vaction!=0)
+         {  
+           int state = 0;
+           if(vaction>0) state = 1;
+           curstate = relay.SetState(state);
+         }
+      } break;
+
+      default: { delay(10); }// idle
+
+   }   
 }
 

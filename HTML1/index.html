@@ -1,0 +1,137 @@
+<html>
+   <head>
+   <meta name='viewport' content='width=device-width; initial-scale=1.0; maximum-scale=2.0;'>
+
+  <style  type='text/css'>
+
+   body { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
+   form { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
+   
+  #tabs { padding: 10px 10px 4px 0px; margin: 0px; clear: both; }
+  #tabs-title { padding: 10px 10px 4px 10px; margin: 0px; clear: both; border-bottom: 1px solid #fc0;}
+
+  #tabs-title { background: #fff; height: 20px; font: 12px verdana, arial, sans-serif; }
+
+  .tab-title { border: 1px solid #fc0; cursor: pointer; background: #fc0; margin-right: 3px; padding: 4px 5px; list-style: none; float: left; }
+
+  .selected-li { border-bottom: 1px solid #fff; border-right: 1px solid #fc0; border-left: 1px solid #fc0; border-top: 1px solid #fc0; background: #fff; }
+
+  #tabs-title li:hover { background: #fff; }
+
+  .tab { padding: 1px; display: none; background: #fff; text-align: justify; }
+
+  .selected { display: block; }
+
+  .maintable { width:100%; border-spacing: 0px; border-right: 1px solid #fc0; border-left: 1px solid #fc0;}
+
+  #sidebar { width: 200px; float: left; }
+
+  #container { width: 100%; }
+
+  #ptitle { padding: 3px; }
+
+
+  </style>
+  
+  <script type="text/javascript">
+  var tabCount = 4;
+
+  function SelectTab(idx)
+  {
+    for (var i = 1; i <= tabCount; ++i)
+    {
+      var _tab = document.getElementById("tab"+i);
+      var _tabTitle = document.getElementById("tab-title"+i);
+      if (idx != i)
+      {
+        _tab.setAttribute("class", "tab");
+        _tabTitle.setAttribute("class", "tab-title");
+      }
+      else
+      {
+        _tab.setAttribute("class", "tab selected");
+        _tabTitle.setAttribute("class", "tab-title selected-li");
+      }
+    }
+  }
+  </script>
+  
+  </head>
+  <body>
+
+  <table class="maintable">
+
+   <tr><td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>SHAPEsp timer v1.0</td></tr>
+
+   <tr>
+   <td>
+
+  <ul id="tabs-title">
+    <li id="tab-title1" onclick="SelectTab(1);" class="tab-title selected-li">Status</li>
+    <li id="tab-title2" onclick="SelectTab(2);" class="tab-title">Timer</li>
+    <li id="tab-title3" onclick="SelectTab(3);" class="tab-title">Settings</li>
+    <li id="tab-title4" onclick="SelectTab(4);" class="tab-title">Security</li>
+  </ul>
+  <div id="tabs">
+
+    <div class="tab selected" id="tab1">
+      <div id="sidebar">
+         <div id="ptitle">DateTime:</div>
+         <div id="ptitle">Temperature, C:</div>
+         <div id="ptitle">Humidity, RH:</div>
+         <div id="ptitle">Pressure, mmHg:</div>
+         <div id="ptitle">WIFI mode:</div>
+         <div id="ptitle">SSID:</div>
+         <div id="ptitle">IP:</div>
+         <div id="ptitle">RSSI:</div>
+         <div id="ptitle">Voltage:</div>
+         <div id="ptitle">Valve mode:</div>
+         <div id="ptitle">Valve status:</div>
+      </div>
+
+      <div id="container">поле основного текста</div>
+
+    </div>
+
+    <div class="tab" id="tab2">
+    Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка
+    Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка
+    Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка
+    Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка
+    Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка
+    Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка
+    Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка
+    Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка Вторая вкладка
+    </div>
+    <div class="tab" id="tab3">
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    </div>
+    <div class="tab" id="tab4">
+    Xtndthnfz вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    Третья вкладка Третья вкладка Третья вкладка Третья вкладка Третья вкладка
+    </div>
+
+  </div>
+ </td>
+   </tr>
+
+   <tr>
+   <td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>&nbsp</td>
+   </tr>
+
+</table>  
+  </body>
+</html>
