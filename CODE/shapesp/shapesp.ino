@@ -144,6 +144,7 @@ float temp,hum,pres;
 IPAddress apIP(192, 168, 4, 1);
 
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
 
 Relay relay(14,12,13,R_VALVE,1);
 
@@ -168,21 +169,7 @@ void setup()
 
    time_t tm = now();
    DbgPrint(("NOW: ")); DbgPrintln((strDateTime(tm)));
-/*
-   sysevent *ev = new sysevent();
-   ev->payload = "test";
-   sysqueue.push(ev);
 
-   ev = new sysevent();
-   ev->payload = "test1";
-   sysqueue.push(ev);
-   
-
-   genevent *e = sysqueue.front();
-   sysqueue.pop();
-   delete (sysevent *)e;
-   DbgPrint((((sysevent *)e)->payload));
-*/  
    randomSeed(second());
 
    SPIFFS.begin();
@@ -249,7 +236,10 @@ void setup()
 
    //if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
    //else server.on("/"     , handleLogin);
-    
+
+   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+
+   /*
    server.on("/"     , handleLogin);
 
    server.on("/login", handleLogin);
@@ -258,9 +248,13 @@ void setup()
    server.on("/index3", handleWiFiSettings); //wifi settings
    server.on("/index4", handleSecurity); // pwd change
    server.on("/index5", handleLogoff);
-
+*/
    server.on("/favicon.ico", handleFavicon);
    server.onNotFound(handleNotFound);
+
+   ws.onEvent(onWsEvent);
+   server.addHandler(&ws);
+
 
    // ssdp
    ///server.on("/description.xml", HTTP_GET, [](AsyncWebServerRequest *request)){
@@ -309,6 +303,80 @@ void setup()
    timer.attach_ms(1000,alarm); // start sheduler&timout timer
 }
 
+
+void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
+  if(type == WS_EVT_CONNECT){
+    Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
+    //client->printf("Hello Client %u :)", client->id());
+    client->ping();
+  } else if(type == WS_EVT_DISCONNECT){
+    Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
+  } else if(type == WS_EVT_ERROR){
+    Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+  } else if(type == WS_EVT_PONG){
+    Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+  } else if(type == WS_EVT_DATA){
+    AwsFrameInfo * info = (AwsFrameInfo*)arg;
+    String msg = "";
+    if(info->final && info->index == 0 && info->len == len){
+      //the whole message is in a single frame and we got all of it's data
+      Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len);
+
+      if(info->opcode == WS_TEXT){
+        for(size_t i=0; i < info->len; i++) {
+          msg += (char) data[i];
+        }
+      } else {
+        char buff[3];
+        for(size_t i=0; i < info->len; i++) {
+          sprintf(buff, "%02x ", (uint8_t) data[i]);
+          msg += buff ;
+        }
+      }
+      Serial.printf("%s\n",msg.c_str());
+
+      if(info->opcode == WS_TEXT)
+        client->text("I got your text message");
+      else
+        client->binary("I got your binary message");
+    } else {
+      //message is comprised of multiple frames or the frame is split into multiple packets
+      if(info->index == 0){
+        if(info->num == 0)
+          Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
+        Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
+      }
+
+      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT)?"text":"binary", info->index, info->index + len);
+
+      if(info->opcode == WS_TEXT){
+        for(size_t i=0; i < info->len; i++) {
+          msg += (char) data[i];
+        }
+      } else {
+        char buff[3];
+        for(size_t i=0; i < info->len; i++) {
+          sprintf(buff, "%02x ", (uint8_t) data[i]);
+          msg += buff ;
+        }
+      }
+      Serial.printf("%s\n",msg.c_str());
+
+      if((info->index + len) == info->len){
+        Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
+        if(info->final){
+          Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
+          if(info->message_opcode == WS_TEXT)
+            client->text("I got your text message");
+          else
+            client->binary("I got your binary message");
+        }
+      }
+    }
+  }
+}
+
+
 void loop()
 {
    uint32_t evt = 0; // include
@@ -322,6 +390,8 @@ void loop()
       {
          DbgPrint(("Queue size: ")); DbgPrintln((String(sysqueue.size())));
          DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
+
+         HandleStatus();
 
          uint16_t adc = analogRead(A0);
          volt = adc*15.63/1024.0; //1000 15.98
@@ -356,3 +426,28 @@ void loop()
    }   
 }
 
+void HandleStatus(void)
+{
+   DynamicJsonBuffer jsonBuffer;
+   JsonObject& root = jsonBuffer.createObject();
+   
+   //root["action"] = "status";
+   root["status_dt"] = strDateTime(now());
+   root["status_temp"] = "0";
+   root["status_hum"] = "0";
+   root["status_pres"] = "0";
+   root["status_wifimode"] = "0";
+   root["status_wifissid"] = "0";
+   root["status_wifiip"] = "0";
+   root["status_wifirssi"] = "0";
+   root["status_voltage"] = "0";
+   root["status_vmode"] = "Automatic";
+   root["status_vstatus"] = "Close";
+
+   size_t len = root.measureLength();
+   AsyncWebSocketMessageBuffer * buffer = ws.makeBuffer(len); //  creates a buffer (len + 1) for you.
+   if (buffer) {
+      root.printTo((char *)buffer->get(), len + 1);
+      ws.textAll(buffer);
+   }   
+}

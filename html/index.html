@@ -1,6 +1,6 @@
 <html>
    <head>
-   <meta name='viewport' content='width=device-width; initial-scale=1.0; maximum-scale=2.0;'>
+   <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=2.0'>
 
    <style  type='text/css'>
 
@@ -63,11 +63,20 @@
          websock.onopen = function(evt) { console.log('websock open'); };
          websock.onclose = function(evt) { console.log('websock close'); };
          websock.onerror = function(evt) { console.log(evt); };
-         websock.onmessage = function(evt) {
-               console.log(evt);
-               console.log('unknown event');
-         };
+         websock.onmessage = onMessageHandler;
       }
+
+      function onMessageHandler(evt)
+      {
+         console.log(evt);
+         console.log('unknown event');
+
+         var resp = JSON.parse(evt.data,function(key,value) {
+            if(key!='action' && key!='') { document.getElementById(key).innerHTML = value; }
+            return value;
+         });
+         
+      };      
 
   </script>
   
@@ -106,17 +115,17 @@
                </div>
 
                <div id="container">
-                  <div id="status_dt" class="ptitle">1</div>
-                  <div id="status_temp" class="ptitle">2</div>
-                  <div id="status_hum" class="ptitle">3</div>
-                  <div id="status_pres" class="ptitle">4</div>
-                  <div id="status_wifimode" class="ptitle">5</div>
-                  <div id="status_wifissid" class="ptitle">6</div>
-                  <div id="status_wifiip" class="ptitle">7</div>
-                  <div id="status_wifirssi" class="ptitle">8</div>
-                  <div id="status_voltage" class="ptitle">9</div>
-                  <div id="status_vmode" class="ptitle">10</div>
-                  <div id="status_vstatus"class="ptitle">11</div>
+                  <div class="ptitle"><span id="status_dt">1</span></div>
+                  <div class="ptitle"><span id="status_temp">2</span></div>
+                  <div class="ptitle"><span id="status_hum">3</span></div>
+                  <div class="ptitle"><span id="status_pres">4</span></div>
+                  <div class="ptitle"><span id="status_wifimode">5</span></div>
+                  <div class="ptitle"><span id="status_wifissid">6</span></div>
+                  <div class="ptitle"><span id="status_wifiip">7</span></div>
+                  <div class="ptitle"><span id="status_wifirssi">9</span></div>
+                  <div class="ptitle"><span id="status_voltage">9</span></div>
+                  <div class="ptitle"><span id="status_vmode">10</span></div>
+                  <div class="ptitle"><span id="status_vstatus">11</span></div>
                </div>
             </div>
 
