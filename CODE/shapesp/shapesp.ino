@@ -5,6 +5,7 @@
 #include <EEPROM.h>
 #include <Ticker.h>
 #include <ArduinoJson.h>
+#include "WebSocketIncommingBuffer.h"
 
 #include <limits.h>
 #include <math.h>
@@ -33,9 +34,33 @@
    #define DbgPrintln(s)
 #endif
 
+#include "task.h"
 #include "relay.h"
+#include "event.h"
+
+// events
+#define EVT_1SEC 1
+#define EVT_5SEC 2
+
+std::queue<EspEvent *> sysqueue; // очередь сообщений
 
 void prototypes(void) {} // here we collect all func prototypes
+
+DECLARE_TASK(TestTask1,task1, EVT_1SEC)
+DECLARE_TASK(TestTask2,task2, EVT_1SEC)
+
+DECLARE_EVENT(evt1sec,1)
+
+EVENT_BEGIN_REGISTER_TASKS
+   EVENT_REGISTER_TASK(evt1sec,task1)
+   EVENT_REGISTER_TASK(evt1sec,task2)   
+EVENT_END_REGISTER_TASKS
+
+
+BEGIN_REGISTER_TASKS
+   REGISTER_TASK(task1)
+   REGISTER_TASK(task2)
+END_REGISTER_TASKS
 
 const int VALVE = 1; // 1 valve 0 relay
 
@@ -45,11 +70,6 @@ const char* password = "chps74qwerty";
 
 int session_id =0;
 
-// events
-#define EVT_1SEC 1
-#define EVT_5SEC 2
-
-std::queue<uint32_t> sysqueue; // очередь сообщений
 
 #pragma pack(1)
 
@@ -121,8 +141,9 @@ Ticker timer;
 void alarm()
 { 
   // tflag = true;
-   sysqueue.push(EVT_1SEC);
-   sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
+   //sysqueue.push(EVT_1SEC);
+   sysqueue.push(&evt1sec);
+   //sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
 }
 
 Ticker timerSTBY; // timer 300ms pulse to start motor
@@ -300,98 +321,59 @@ void setup()
    skiptmr=false;
    curstate=0;
 
-   timer.attach_ms(1000,alarm); // start sheduler&timout timer
+   RegisterTasks();
+   EventRegisterTasks();
+
+   timer.attach_ms(1000,alarm); // start sheduler&timeout timer
 }
 
 
-void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
-  if(type == WS_EVT_CONNECT){
-    Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
-    //client->printf("Hello Client %u :)", client->id());
-    client->ping();
-  } else if(type == WS_EVT_DISCONNECT){
-    Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
-  } else if(type == WS_EVT_ERROR){
-    Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
-  } else if(type == WS_EVT_PONG){
-    Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-  } else if(type == WS_EVT_DATA){
-    AwsFrameInfo * info = (AwsFrameInfo*)arg;
-    String msg = "";
-    if(info->final && info->index == 0 && info->len == len){
-      //the whole message is in a single frame and we got all of it's data
-      Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len);
+void wsParseHandler(AsyncWebSocketClient *client, uint8_t * payload, size_t length)
+{
+   // Get client ID
+   uint32_t client_id = client->id();
 
-      if(info->opcode == WS_TEXT){
-        for(size_t i=0; i < info->len; i++) {
-          msg += (char) data[i];
-        }
-      } else {
-        char buff[3];
-        for(size_t i=0; i < info->len; i++) {
-          sprintf(buff, "%02x ", (uint8_t) data[i]);
-          msg += buff ;
-        }
-      }
-      Serial.printf("%s\n",msg.c_str());
-
-      if(info->opcode == WS_TEXT)
-        client->text("I got your text message");
-      else
-        client->binary("I got your binary message");
-    } else {
-      //message is comprised of multiple frames or the frame is split into multiple packets
-      if(info->index == 0){
-        if(info->num == 0)
-          Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
-        Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
-      }
-
-      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT)?"text":"binary", info->index, info->index + len);
-
-      if(info->opcode == WS_TEXT){
-        for(size_t i=0; i < info->len; i++) {
-          msg += (char) data[i];
-        }
-      } else {
-        char buff[3];
-        for(size_t i=0; i < info->len; i++) {
-          sprintf(buff, "%02x ", (uint8_t) data[i]);
-          msg += buff ;
-        }
-      }
-      Serial.printf("%s\n",msg.c_str());
-
-      if((info->index + len) == info->len){
-        Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
-        if(info->final){
-          Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
-          if(info->message_opcode == WS_TEXT)
-            client->text("I got your text message");
-          else
-            client->binary("I got your binary message");
-        }
-      }
-    }
-  }
+   // Parse JSON input
+   DynamicJsonBuffer jsonBuffer;
+   JsonObject& root = jsonBuffer.parseObject((char *) payload);
+   if (!root.success()) { Serial.printf(PSTR("[WEBSOCKET] Error parsing data\n")); return; }
+   String type = root["type"];
+   if(type=="message")
+   {
+      String text = root["text"];
+      if(root["text"].as<String>() == "status") HandleStatus();
+   }
+   DbgPrintln((type));
 }
-
 
 void loop()
 {
-   uint32_t evt = 0; // include
    time_t t = now();
 
-   if(!sysqueue.empty()) { evt = sysqueue.front();  sysqueue.pop(); }
+   if(!sysqueue.empty())
+   { 
+      EspEvent *evt = sysqueue.front();
+      sysqueue.pop();
+      evt->doTasks();
+   }
 
+
+/*
+   for(int i = 0; i< _tasks.size();i++)
+   {
+      _tasks[i]->doTask(evt);
+      delay(20);
+   }
+*/   
+/*
    switch(evt)
    {
       case EVT_1SEC:
       {
-         DbgPrint(("Queue size: ")); DbgPrintln((String(sysqueue.size())));
-         DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
+         //DbgPrint(("Queue size: ")); DbgPrintln((String(sysqueue.size())));
+         //DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
 
-         HandleStatus();
+   //      HandleStatus();
 
          uint16_t adc = analogRead(A0);
          volt = adc*15.63/1024.0; //1000 15.98
@@ -424,6 +406,7 @@ void loop()
       default: { delay(10); }// idle
 
    }   
+*/   
 }
 
 void HandleStatus(void)

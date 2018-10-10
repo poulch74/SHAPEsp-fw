@@ -64,6 +64,8 @@
          websock.onclose = function(evt) { console.log('websock close'); };
          websock.onerror = function(evt) { console.log(evt); };
          websock.onmessage = onMessageHandler;
+
+         setTimeout(morestatus, 500);
       }
 
       function onMessageHandler(evt)
@@ -76,7 +78,16 @@
             return value;
          });
          
-      };      
+      };
+
+      function morestatus()
+      {
+         var msg = { type: "message", text: "status", id: 0 };
+         websock.send(JSON.stringify(msg));
+         document.getElementById('description').innerHTML = 'Processing Status';
+         setTimeout(morestatus, 1000);
+      }
+
 
   </script>
   
@@ -146,6 +157,8 @@
          <td bgcolor='#fc0' style='height:2em; padding:0 0 0 1em' align='left'>&nbsp</td>
       </tr>
    </table>  
+
+   <p id='description'> - </p>
 
    </body>
 </html>
