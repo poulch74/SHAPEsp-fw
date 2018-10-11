@@ -34,33 +34,48 @@
    #define DbgPrintln(s)
 #endif
 
-#include "task.h"
+void prototypes(void) {} // here we collect all func prototypes
+
+int wifimode;
+String softAPname;
+
 #include "relay.h"
+
+#include "task.h"
 #include "event.h"
 
 // events
 #define EVT_1SEC 1
 #define EVT_5SEC 2
 
+#define MSG_STATUS 101
+
 std::queue<EspEvent *> sysqueue; // очередь сообщений
+std::vector<EspEvent *> msglist; // список подписок websocket
 
-void prototypes(void) {} // here we collect all func prototypes
+TestTask1 task1;
+TestTask2 task2;
 
-DECLARE_TASK(TestTask1,task1, EVT_1SEC)
-DECLARE_TASK(TestTask2,task2, EVT_1SEC)
+DECLARE_EVENT(EVT_1SEC)
 
-DECLARE_EVENT(evt1sec,1)
+DECLARE_MSG(MSG_STATUS,EVT_SEND,"status")
 
 EVENT_BEGIN_REGISTER_TASKS
-   EVENT_REGISTER_TASK(evt1sec,task1)
-   EVENT_REGISTER_TASK(evt1sec,task2)   
+   EVENT_REGISTER_TASK(EVT_1SEC,task1)
+   EVENT_REGISTER_TASK(EVT_1SEC,task2)   
 EVENT_END_REGISTER_TASKS
 
+MSG_BEGIN_REGISTER_TASKS
+   MSG_REGISTER_TASK(MSG_STATUS,task1)
+   MSG_REGISTER_TASK(MSG_STATUS,task2)   
+MSG_END_REGISTER_TASKS
 
-BEGIN_REGISTER_TASKS
-   REGISTER_TASK(task1)
-   REGISTER_TASK(task2)
-END_REGISTER_TASKS
+MSG_BEGIN_STORE_VECTOR
+   MSG_STORE(MSG_STATUS)
+MSG_END_STORE_VECTOR
+
+
+
 
 const int VALVE = 1; // 1 valve 0 relay
 
@@ -132,29 +147,19 @@ typedef union __ESP_CONFIG_U
 
 const int led = 2; // led pin
 
-const int drvA1   = 14; // close pin 
-const int drvA2   = 12; // open pin
-const int drvSTBY = 13; // open pin
-
-static int sec5cnt = 0;
 Ticker timer;
 void alarm()
 { 
-  // tflag = true;
-   //sysqueue.push(EVT_1SEC);
-   sysqueue.push(&evt1sec);
+   sysqueue.push(&__evtEVT_1SEC);
    //sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
 }
 
-Ticker timerSTBY; // timer 300ms pulse to start motor
-void STBYoff() { digitalWrite(drvSTBY, LOW); }
+//Ticker timerSTBY; // timer 300ms pulse to start motor
+//void STBYoff() { digitalWrite(drvSTBY, LOW); }
 
 bool skiptmr; // пропускать таймеры если открыл вручную, не авто режим
 int mflag;
 int curstate;
-
-int wifimode;
-String softAPname;
 
 float volt;
 
@@ -167,7 +172,11 @@ IPAddress apIP(192, 168, 4, 1);
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
-Relay relay(14,12,13,R_VALVE,1);
+const int drvA1   = 14; // close pin 
+const int drvA2   = 12; // open pin
+const int drvSTBY = 13; // open pin
+
+Relay relay(drvA1,drvA1,drvSTBY,R_VALVE,1); // 1 use autostop
 
 ESP_CONFIG cfg;
 ESP_TPRG prg;
@@ -321,30 +330,14 @@ void setup()
    skiptmr=false;
    curstate=0;
 
-   RegisterTasks();
+
    EventRegisterTasks();
+   MsgRegisterTasks();
+   MsgStoreVector();
 
    timer.attach_ms(1000,alarm); // start sheduler&timeout timer
 }
 
-
-void wsParseHandler(AsyncWebSocketClient *client, uint8_t * payload, size_t length)
-{
-   // Get client ID
-   uint32_t client_id = client->id();
-
-   // Parse JSON input
-   DynamicJsonBuffer jsonBuffer;
-   JsonObject& root = jsonBuffer.parseObject((char *) payload);
-   if (!root.success()) { Serial.printf(PSTR("[WEBSOCKET] Error parsing data\n")); return; }
-   String type = root["type"];
-   if(type=="message")
-   {
-      String text = root["text"];
-      if(root["text"].as<String>() == "status") HandleStatus();
-   }
-   DbgPrintln((type));
-}
 
 void loop()
 {
@@ -352,11 +345,11 @@ void loop()
 
    if(!sysqueue.empty())
    { 
-      EspEvent *evt = sysqueue.front();
+      sysqueue.front()->doTasks();
       sysqueue.pop();
-      evt->doTasks();
+   //   evt->doTasks();
    }
-
+   delay(10);
 
 /*
    for(int i = 0; i< _tasks.size();i++)
@@ -407,30 +400,4 @@ void loop()
 
    }   
 */   
-}
-
-void HandleStatus(void)
-{
-   DynamicJsonBuffer jsonBuffer;
-   JsonObject& root = jsonBuffer.createObject();
-   
-   //root["action"] = "status";
-   root["status_dt"] = strDateTime(now());
-   root["status_temp"] = "0";
-   root["status_hum"] = "0";
-   root["status_pres"] = "0";
-   root["status_wifimode"] = "0";
-   root["status_wifissid"] = "0";
-   root["status_wifiip"] = "0";
-   root["status_wifirssi"] = "0";
-   root["status_voltage"] = "0";
-   root["status_vmode"] = "Automatic";
-   root["status_vstatus"] = "Close";
-
-   size_t len = root.measureLength();
-   AsyncWebSocketMessageBuffer * buffer = ws.makeBuffer(len); //  creates a buffer (len + 1) for you.
-   if (buffer) {
-      root.printTo((char *)buffer->get(), len + 1);
-      ws.textAll(buffer);
-   }   
 }

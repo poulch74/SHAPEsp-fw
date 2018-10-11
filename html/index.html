@@ -24,7 +24,7 @@
 
       .maintable { width:100%; border-spacing: 0px; border-right: 1px solid #fc0; border-left: 1px solid #fc0;}
 
-      #sidebar { width: 200px; float: left; }
+      #sidebar { float: left; }
 
       #container { width: 100%; }
 
@@ -74,7 +74,8 @@
          console.log('unknown event');
 
          var resp = JSON.parse(evt.data,function(key,value) {
-            if(key!='action' && key!='') { document.getElementById(key).innerHTML = value; }
+            if(key!='action' && key!='')
+               if(document.getElementById(key)!=null) document.getElementById(key).innerHTML = value;
             return value;
          });
          
@@ -113,6 +114,7 @@
             <div class="tab selected" id="tab1">
                <div id="sidebar">
                   <div class="ptitle">DateTime:</div>
+                  <div class="ptitle">Free Heap :</div>
                   <div class="ptitle">Temperature, C:</div>
                   <div class="ptitle">Humidity, RH:</div>
                   <div class="ptitle">Pressure, mmHg:</div>
@@ -127,6 +129,7 @@
 
                <div id="container">
                   <div class="ptitle"><span id="status_dt">1</span></div>
+                  <div class="ptitle"><span id="status_heap">1</span></div>
                   <div class="ptitle"><span id="status_temp">2</span></div>
                   <div class="ptitle"><span id="status_hum">3</span></div>
                   <div class="ptitle"><span id="status_pres">4</span></div>
