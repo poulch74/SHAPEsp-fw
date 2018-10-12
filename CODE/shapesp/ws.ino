@@ -1,9 +1,23 @@
+#include <MD5Builder.h>
+
+MD5Builder _md5;
+
+String md5(String str) { _md5.begin(); _md5.add(str); _md5.calculate(); return _md5.toString(); }
+
+int session_id =0;
+
+String hash;
+
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
 {
    if(type == WS_EVT_CONNECT)
    {
       Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
+
+      session_id = random(1000000);
+      hash = md5(String("root")+String("esp8266")+String(session_id));
+      DbgPrint(("Hash: ")); DbgPrintln((hash));
       client->ping();
       // send start data
       client->_tempObject = new WebSocketIncommingBuffer(&wsParseHandler, true); // буфер для принятого сообщения
@@ -44,24 +58,51 @@ void wsParseHandler(AsyncWebSocketClient *client, uint8_t * payload, size_t leng
    JsonObject& oroot = outBuffer.createObject();
 
    String type = iroot["type"];
+   
+   if(type=="message")
+   { 
+      HandleStatus(iroot,oroot);
 
-   if(type=="message") HandleStatus(iroot,oroot);
-
-   size_t len = oroot.measureLength();
-   AsyncWebSocketMessageBuffer * buffer = ws.makeBuffer(len); //  creates a buffer (len + 1) for you.
-   if (buffer)
-   {
-      oroot.printTo((char *)buffer->get(), len + 1);
-      if (client) client->text(buffer);
-      else ws.textAll(buffer);
-   }   
+      size_t len = oroot.measureLength();
+      AsyncWebSocketMessageBuffer * buffer = ws.makeBuffer(len); //  creates a buffer (len + 1) for you.
+      if (buffer)
+      {
+         oroot.printTo((char *)buffer->get(), len + 1);
+         if (client) client->text(buffer);
+         else ws.textAll(buffer);
+      }
+   }      
 }
 
 void HandleStatus(JsonObject& iroot, JsonObject& root)
 {
-   for(int i=0; i<msglist.size();i++)
+   if(iroot["text"].as<String>()=="sessionid")
    {
-      DbgPrintln(("Loop msglist"));
-      if(msglist[i]->doTasks(iroot,root)) break;
+      root["action"] = "sessionid";
+      root["sessionid"] = session_id;
+      return;
    }
+
+   if(iroot["text"].as<String>()=="validateauth")
+   {
+      root["action"] = "auth";
+      if(iroot["auth"].as<String>() == hash) root["status_auth"] = "ok";
+      else root["status_auth"] = "fail";
+      return;
+   }
+
+   if(iroot["auth"].as<String>() != hash) 
+   { 
+      DbgPrintln(("No auth!!!!"));
+      return;
+   }
+
+   if(iroot["text"].as<String>()=="status")
+   {
+      for(int i=0; i<msglist.size();i++)
+      {
+         DbgPrintln(("Loop msglist"));
+         if(msglist[i]->doTasks(iroot,root)) break;
+      }
+   }      
 }

@@ -75,15 +75,11 @@ MSG_BEGIN_STORE_VECTOR
 MSG_END_STORE_VECTOR
 
 
-
-
 const int VALVE = 1; // 1 valve 0 relay
 
 const char* ssid = "DIR-300";
 //const char* ssid = "CH1-Home";
 const char* password = "chps74qwerty";
-
-int session_id =0;
 
 
 #pragma pack(1)

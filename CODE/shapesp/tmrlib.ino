@@ -65,7 +65,7 @@ bool is_auth(AsyncWebServerRequest *request)
       DbgPrint(("Remote client!!!"));
    }
 */
-
+/*
    DbgPrintln(("Enter is_authentified"));
    if (request->hasHeader("Cookie")){   
       DbgPrint(("Found cookie: "));
@@ -83,6 +83,7 @@ bool is_auth(AsyncWebServerRequest *request)
    }
    DbgPrintln(("Authentification Failed"));
    return false; 
+*/
 }
 
 bool ReadConfig()
