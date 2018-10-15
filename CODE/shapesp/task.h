@@ -52,6 +52,9 @@ private:
    int32_t rssi;
 };
 
+TestTask1 task1;
+
+
 class TestTask2 : public EspTask
 {
 public:
@@ -66,3 +69,5 @@ public:
 
    void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
 };
+
+TestTask2 task2;

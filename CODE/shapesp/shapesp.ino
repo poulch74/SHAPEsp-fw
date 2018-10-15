@@ -53,9 +53,6 @@ String softAPname;
 std::queue<EspEvent *> sysqueue; // очередь сообщений
 std::vector<EspEvent *> msglist; // список подписок websocket
 
-TestTask1 task1;
-TestTask2 task2;
-
 DECLARE_EVENT(EVT_1SEC)
 
 DECLARE_MSG(MSG_STATUS,EVT_SEND,"status")

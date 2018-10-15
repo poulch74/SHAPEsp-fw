@@ -6,7 +6,7 @@
 
       body { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
       form { font: 100% verdana, arial, sans-serif; background-color: #fff; margin: 10px; }
-   
+
       #tabs { padding: 10px 10px 4px 0px; margin: 0px; clear: both; }
       #tabs-title { padding: 10px 10px 4px 10px; margin: 0px; clear: both; border-bottom: 1px solid #fc0;}
 
@@ -48,12 +48,18 @@
    .button24:active { background: linear-gradient(#f59500, #ffcc00) #f59500; }
 
 
-   .itext{ width: 5em; height: 2em; padding: 0 0 0 1em; width:20em;
-           border: 1px solid #fc0; outline: 0; border-radius: 4px; } 
+   .itext{ width: 5em; height: 2em; padding: 0 0 0 1em;
+           border: 1px solid #fc0; outline: 0; border-radius: 4px;} 
 
    .ctext{ width: 7em; height: 2em; padding: 0 0 0 1em;
            border: 1px solid #fc0; outline: 0; border-radius: 4px; } 
 
+   .ctext1{ width: 15em; height: 2em; padding: 0 0 0 1em;
+           border: 1px solid #fc0; outline: 0; border-radius: 4px; } 
+
+   .div1{display:table;}
+   .div2{display:table-row;}
+   .div3{display:table-cell; padding: 0 0 5px 10px; font: 12px verdana, arial, sans-serif;}
 
    </style>
   
@@ -89,18 +95,12 @@
       function A(n,t,r){return t?r?s(t,n):C(t,n):r?m(n):p(n)}'function'==typeof define&&define.amd?define(function(){return A}):
       'object'==typeof module&&module.exports?module.exports=A:n.md5=A}(this);
 
-      var tabStart = 1;
-      var tabCount = 1;
-
       var websock;
-
-      var user;
-      var paswd;
-      var sessionid;
-      var hash;
 
       function SelectTab(idx)
       {
+         var tabStart = parseInt(sessionStorage.getItem("tabStart"));
+         var tabCount = parseInt(sessionStorage.getItem("tabCount"));
          if(idx>tabCount) return;
          for (var i = tabStart; i <=tabCount; i++)
          {
@@ -119,6 +119,8 @@
          }
       }
 
+      function getRandomInt(max) { return Math.floor(Math.random() * (max-1)) + 1; }
+
       function start()
       {
          websock = new WebSocket("ws://" + window.location.hostname + "/ws");
@@ -126,6 +128,14 @@
          websock.onclose = function(evt) { console.log('websock close'); };
          websock.onerror = function(evt) { console.log(evt); };
          websock.onmessage = onMessageHandler;
+         if(sessionStorage.getItem("hash")) {
+            makelist();
+            setTimeout(morestatus,100);
+            return;
+         }
+         sessionStorage.setItem("sessionid", getRandomInt(1000000));
+         sessionStorage.setItem("tabStart", 1);
+         sessionStorage.setItem("tabCount", 1);
       }
 
       function onMessageHandler(evt)
@@ -133,20 +143,13 @@
          console.log(evt);
 
          var resp = JSON.parse(evt.data);
-         if(resp.action == "sessionid")
-         {
-             sessionid = resp.sessionid;
-             hash = md5(user+paswd+sessionid);
-             validateauth();            
-             return;
-         }
 
          if(resp.action == "auth")
          {
              if(resp.status_auth=='ok')
              {
                makelist();
-               setTimeout(morestatus, 1000);
+               setTimeout(morestatus,100);
              }               
              return;
          }
@@ -156,38 +159,38 @@
                if(document.getElementById(key)!=null) document.getElementById(key).innerHTML = value;
             return value;
          });
-         
+      
       };
 
       function reqauth()
       {
-         var msg = { type: "message", text: "sessionid", id: 0 };
-         var smsg = JSON.stringify(msg);
-         websock.send(smsg);
-         paswd = document.getElementById('pwd').value; document.getElementById('pwd').value = 'empty';
-         user = document.getElementById('un').value; document.getElementById('un').value = 'empty';
-         document.getElementById('description').innerHTML = smsg;
-      }
-
-      function validateauth()
-      {
-         var msg = { type: "message", auth: hash, text: "validateauth", id: 0 };
-         var smsg = JSON.stringify(msg);
-         websock.send(smsg);
+         var paswd = document.getElementById('pwd').value; document.getElementById('pwd').value = '';
+         var user = document.getElementById('un').value; document.getElementById('un').value = '';
+         var d = "0";
+         var hash;
+         if(sessionStorage.getItem("sessionid"))
+         {
+            d = sessionStorage.getItem("sessionid");
+            hash = md5(user+paswd+d);
+            sessionStorage.setItem("hash", hash);
+            document.getElementById('description').innerHTML = hash;
+            var msg = { type: "message", auth : hash, text: "sessionid", data : d};
+            var smsg = JSON.stringify(msg);
+            websock.send(smsg);
+         }
       }
 
       function morestatus()
       {
-         var msg = { type: "message", auth: hash, text: "status", id: 0 };
+         var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "status", id: 0 };
          var smsg = JSON.stringify(msg);
          websock.send(smsg);
-         //document.getElementById('description').innerHTML = smsg;
          setTimeout(morestatus, 1000);
       }
 
       function makelist()
       {
-         tabCount = 4;
+         sessionStorage.setItem("tabCount",4);
          var list = document.getElementById("tabs-title");
          list.innerHTML = "<li id='tab-title1' onclick='SelectTab(1);' class='tab-title selected-li'>Status</li> \
                            <li id='tab-title2' onclick='SelectTab(2);' class='tab-title'>Timer</li> \
@@ -221,48 +224,73 @@
             <div id="tabs">
 
             <div class="tab selected" id="tab0">
-               <div id="sidebar">
-                  <div class="ptitle">User:</div>
-                  <div class="ptitle">Password:</div>
-                  <div class="ptitle">&nbsp</div> 
+
+               <div class=div1'>
+                  <div class='div2'>
+                     <div class='div3'>User:</div>
+                     <div class='div3'><input type='text' class='ctext1' name='USERNAME' id='un' maxlength='20' placeholder='user name'></div>
+                  </div>
+                  <div class='div2'>
+                     <div class='div3'>Password:</div>
+                     <div class='div3'><input type='password' class='ctext1' name='PASSWORD' id='pwd' maxlength='20' placeholder='password'></div>
+                  </div>
+                  <div class='div2'>
+                     <div class='div3'></div> 
+                     <div class='div3'><button  class='button24' onclick="reqauth();">Logon</button></div>
+                  </div>
                </div>
-               <div id="container">
-                  <div class="ptitle"><input type='text' class='itext' name='USERNAME' id='un' maxlength='20' placeholder='user name'></div>
-                  <div class="ptitle"><input type='password' class='itext' name='PASSWORD' id='pwd' maxlength='20' placeholder='password'></div>
-                  <div class="ptitle"><button  class='button24' onclick="reqauth();">Logon</button></div>
-               </div>
-               
             </div>
      
             <div class="tab" id="tab1">
-               <div id="sidebar">
-                  <div class="ptitle">DateTime:</div>
-                  <div class="ptitle">Free Heap :</div>
-                  <div class="ptitle">Temperature, C:</div>
-                  <div class="ptitle">Humidity, RH:</div>
-                  <div class="ptitle">Pressure, mmHg:</div>
-                  <div class="ptitle">WIFI mode:</div>
-                  <div class="ptitle">SSID:</div>
-                  <div class="ptitle">IP:</div>
-                  <div class="ptitle">RSSI:</div>
-                  <div class="ptitle">Voltage:</div>
-                  <div class="ptitle">Valve mode:</div>
-                  <div class="ptitle">Valve status:</div>
-               </div>
-
-               <div id="container">
-                  <div class="ptitle"><span id="status_dt">1</span></div>
-                  <div class="ptitle"><span id="status_heap">1</span></div>
-                  <div class="ptitle"><span id="status_temp">2</span></div>
-                  <div class="ptitle"><span id="status_hum">3</span></div>
-                  <div class="ptitle"><span id="status_pres">4</span></div>
-                  <div class="ptitle"><span id="status_wifimode">5</span></div>
-                  <div class="ptitle"><span id="status_wifissid">6</span></div>
-                  <div class="ptitle"><span id="status_wifiip">7</span></div>
-                  <div class="ptitle"><span id="status_wifirssi">9</span></div>
-                  <div class="ptitle"><span id="status_voltage">9</span></div>
-                  <div class="ptitle"><span id="status_vmode">10</span></div>
-                  <div class="ptitle"><span id="status_vstatus">11</span></div>
+               <div class='div1'>
+                  <div class='div2'>
+                     <div class="div3">DateTime:</div>
+                     <div class="div3"><span id="status_dt">1</span></div>
+                  </div>
+                  <div class='div2'>
+                     <div class="div3">Free Heap :</div>
+                     <div class="div3"><span id="status_heap">1</span></div>
+                  </div>
+                  <div class='div2'>   
+                     <div class="div3">Temperature, C:</div>
+                     <div class="div3"><span id="status_temp">2</span></div>
+                  </div>
+                  <div class='div2'>   
+                     <div class="div3">Humidity, RH:</div>
+                     <div class="div3"><span id="status_hum">3</span></div>
+                  </div>
+                  <div class='div2'>   
+                     <div class="div3">Pressure, mmHg:</div>
+                     <div class="div3"><span id="status_pres">4</span></div>
+                  </div>
+                  <div class='div2'>
+                     <div class="div3">WIFI mode:</div>
+                     <div class="div3"><span id="status_wifimode">5</span></div>
+                  </div>
+                  <div class='div2'>
+                     <div class="div3">SSID:</div>
+                     <div class="div3"><span id="status_wifissid">6</span></div>
+                  </div>
+                  <div class='div2'>
+                     <div class="div3">IP:</div>
+                     <div class="div3"><span id="status_wifiip">7</span></div>
+                  </div>
+                  <div class='div2'>                     
+                     <div class="div3">RSSI:</div>
+                     <div class="div3"><span id="status_wifirssi">9</span></div>
+                  </div>
+                  <div class='div2'>                     
+                     <div class="div3">Voltage:</div>
+                     <div class="div3"><span id="status_voltage">9</span></div>
+                  </div>
+                  <div class='div2'>                     
+                     <div class="div3">Valve mode:</div>
+                     <div class="div3"><span id="status_vmode">10</span></div>
+                  </div>
+                  <div class='div2'>                     
+                     <div class="div3">Valve status:</div>
+                     <div class="div3"><span id="status_vstatus">11</span></div>
+                  </div>
                </div>
             </div>
 

@@ -4,7 +4,7 @@ MD5Builder _md5;
 
 String md5(String str) { _md5.begin(); _md5.add(str); _md5.calculate(); return _md5.toString(); }
 
-int session_id =0;
+//int session_id =0;
 
 String hash;
 
@@ -14,10 +14,11 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
    if(type == WS_EVT_CONNECT)
    {
       Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
-
+/*
       session_id = random(1000000);
       hash = md5(String("root")+String("esp8266")+String(session_id));
       DbgPrint(("Hash: ")); DbgPrintln((hash));
+*/      
       client->ping();
       // send start data
       client->_tempObject = new WebSocketIncommingBuffer(&wsParseHandler, true); // буфер для принятого сообщения
@@ -57,9 +58,7 @@ void wsParseHandler(AsyncWebSocketClient *client, uint8_t * payload, size_t leng
    DynamicJsonBuffer outBuffer;
    JsonObject& oroot = outBuffer.createObject();
 
-   String type = iroot["type"];
-   
-   if(type=="message")
+   if(iroot["type"].as<String>() =="message")
    { 
       HandleStatus(iroot,oroot);
 
@@ -78,24 +77,16 @@ void HandleStatus(JsonObject& iroot, JsonObject& root)
 {
    if(iroot["text"].as<String>()=="sessionid")
    {
-      root["action"] = "sessionid";
-      root["sessionid"] = session_id;
-      return;
-   }
-
-   if(iroot["text"].as<String>()=="validateauth")
-   {
-      root["action"] = "auth";
+      root["action"] = "auth";  
+      hash = md5(String("root")+String("esp8266")+iroot["data"].as<String>());
+      DbgPrint(("Hash: ")); DbgPrintln((hash));
       if(iroot["auth"].as<String>() == hash) root["status_auth"] = "ok";
       else root["status_auth"] = "fail";
       return;
    }
-
-   if(iroot["auth"].as<String>() != hash) 
-   { 
-      DbgPrintln(("No auth!!!!"));
-      return;
-   }
+  
+   // reject no auth requests
+   if(iroot["auth"].as<String>() != hash) { DbgPrintln(("No auth!!!!")); return; }
 
    if(iroot["text"].as<String>()=="status")
    {

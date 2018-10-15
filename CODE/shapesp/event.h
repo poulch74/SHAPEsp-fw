@@ -51,7 +51,9 @@ class EspEvent
          }
          return true;
       }
+
       String getMsg() { return _msg; }
+      
    public:
       int _id;
       int _type;
