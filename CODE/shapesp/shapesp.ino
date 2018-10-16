@@ -49,6 +49,7 @@ String softAPname;
 #define EVT_5SEC 2
 
 #define MSG_STATUS 101
+#define MSG_SET_TIME 102
 
 std::queue<EspEvent *> sysqueue; // очередь сообщений
 std::vector<EspEvent *> msglist; // список подписок websocket
@@ -56,6 +57,7 @@ std::vector<EspEvent *> msglist; // список подписок websocket
 DECLARE_EVENT(EVT_1SEC)
 
 DECLARE_MSG(MSG_STATUS,EVT_SEND,"status")
+DECLARE_MSG(MSG_SET_TIME,EVT_SEND,"time")
 
 EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,task1)
@@ -64,11 +66,13 @@ EVENT_END_REGISTER_TASKS
 
 MSG_BEGIN_REGISTER_TASKS
    MSG_REGISTER_TASK(MSG_STATUS,task1)
-   MSG_REGISTER_TASK(MSG_STATUS,task2)   
+   MSG_REGISTER_TASK(MSG_STATUS,task2)
+   MSG_REGISTER_TASK(MSG_SET_TIME,task3)
 MSG_END_REGISTER_TASKS
 
 MSG_BEGIN_STORE_VECTOR
    MSG_STORE(MSG_STATUS)
+   MSG_STORE(MSG_SET_TIME)
 MSG_END_STORE_VECTOR
 
 

@@ -47,6 +47,41 @@
    .button24:hover { background: linear-gradient(#ffcc00, #f5ae00) #ffcc00; }
    .button24:active { background: linear-gradient(#f59500, #ffcc00) #f59500; }
 
+   input[type="number"] {
+       width: 5em;
+       height: 2em;
+       border-radius: 4px;  
+       position: relative;
+       border: 1px solid #fc0;
+       border-color: #fc0;
+       padding: 0 0 0 1em;
+   }
+
+
+   input[type="number"].mod::-webkit-outer-spin-button, 
+   input[type="number"].mod::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      background: #FFF url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVQYlWNgwAT/sYhhKPiPT+F/LJgEsHv37v+EMGkmkuImoh2NoQAANlcun/q4OoYAAAAASUVORK5CYII=) no-repeat center center;
+      width: 1.2em;
+      border-left: 1px solid #fc0;
+      opacity: .5; /* shows Spin Buttons per default (Chrome >= 39) */
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+   }
+
+   input[type="number"].mod::-webkit-inner-spin-button:hover,
+   input[type="number"].mod::-webkit-inner-spin-button:active{
+       box-shadow: 0 0 2px #fc0;
+       opacity: .8;
+   }
+
+   input:-webkit-autofill {
+       background: black;
+       color: red;
+   } 
+
 
    .itext{ width: 5em; height: 2em; padding: 0 0 0 1em;
            border: 1px solid #fc0; outline: 0; border-radius: 4px;} 
@@ -115,6 +150,7 @@
             {
                _tab.setAttribute("class", "tab selected");
                _tabTitle.setAttribute("class", "tab-title selected-li");
+               onLoadDefaults(idx);
             }
          }
       }
@@ -152,6 +188,15 @@
                setTimeout(morestatus,100);
              }               
              return;
+         }
+
+         if(resp.action == "time")
+         {
+            var resp = JSON.parse(evt.data,function(key,value){
+               if(document.getElementById(key)!=null) document.getElementById(key).value = value;
+               return value;
+            });
+            return;
          }
 
          var resp = JSON.parse(evt.data,function(key,value){
@@ -203,6 +248,17 @@
          _tab = document.getElementById("tab1");                           
          _tab.setAttribute("class", "tab selected");
       }
+
+      function onLoadDefaults(idx)
+      {
+         if(idx==2)
+         {
+            var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", id: 0 };
+            var smsg = JSON.stringify(msg);
+            websock.send(smsg);
+         }
+      }
+
 
 
   </script>
@@ -295,6 +351,31 @@
             </div>
 
             <div class="tab" id="tab2">
+                  <table>
+                        <tr> <td></td> <td>Year</td> <td>Month</td> <td>Day</td> <td>DoW</td> <td>Hour</td> <td>Min</td> <td>Sec</td> <td></td> </tr>
+                        <tr>
+                        <td> Time: </td>
+                        <td> <input class='mod' type='number' id='time_year' name='year' min='2000' max='2032' step='1' value ='2017'> </td>
+                        <td> <input class='mod' type='number' id='time_month' name='month' min='1' max='12' step='1' value ='1'> </td>
+                        <td> <input class='mod' type='number' id='time_day' name='day' min='1' max='31' step='1' value ='1'> </td>
+                        <td>
+                        <select class=itext id='time_dow' name='dow'>
+                           <option selected value='1'>Mon</option>
+                           <option value='2'>Tue</option>
+                           <option value='3'>Wen</option>
+                           <option value='4'>Thu</option>
+                           <option value='5'>Fri</option>
+                           <option value='6'>Sat</option>
+                           <option value='7'>Sun</option>
+                        </select>
+                        </td>
+                        <td> <input class='mod' type='number' id='time_hour' name='hour' min='0' max='23' step='1' value ='0'> </td>
+                        <td> <input class='mod' type='number' id='time_min' name='min' min='0' max='59' step='1' value ='0'> </td>
+                        <td> <input class='mod' type='number' id='time_sec' name='sec' min='0' max='59' step='1' value ='0'> </td>
+                        <td><button class='button24'>Set</button></td>
+                        </tr>
+                        </table>
+                     
             </div>
 
             <div class="tab" id="tab3">

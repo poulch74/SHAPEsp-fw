@@ -13,7 +13,7 @@ public:
    TestTask1() : EspTask() {}
    void doTask(int evt)
    {
-      DbgPrintln(("DoTask1"));
+      //DbgPrintln(("DoTask1"));
       uint16_t adc = analogRead(A0);
       vcc = adc*15.63/1024.0; //1000 15.98
       heap = ESP.getFreeHeap();
@@ -22,7 +22,7 @@ public:
 
    void doSend(int evt, JsonObject &iroot, JsonObject &root)
    {
-      DbgPrintln(("sendTask1"));
+      //DbgPrintln(("sendTask1"));
       root["status_wifimode"] = String((wifimode ? "SoftAP":"Station"));
       if(wifimode)
       {
@@ -62,7 +62,7 @@ public:
    void doTask(int evt) {DbgPrintln(("DoTask2"));}
    void doSend(int evt, JsonObject &iroot, JsonObject &root)
    {
-      DbgPrintln(("sendTask2"));
+      //DbgPrintln(("sendTask2"));
       root["status_vmode"] = "Automatic";
       root["status_vstatus"] = "Close";
    }
@@ -71,3 +71,26 @@ public:
 };
 
 TestTask2 task2;
+
+class TestTask3 : public EspTask
+{
+public:
+   TestTask3() : EspTask() {}
+   void doTask(int evt) {DbgPrintln(("DoTask3"));}
+   void doSend(int evt, JsonObject &iroot, JsonObject &root)
+   {
+      DbgPrintln(("sendTask3"));
+      root["action"] = "time";  
+      root["time_year"] = 2017;
+      root["time_month"] = 10;
+      root["time_day"] = 10;
+      root["time_dow"] = 2;
+      root["time_hour"] = 11;
+      root["time_min"] = 1;
+      root["time_sec"] = 0;
+   }
+
+   void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
+};
+
+TestTask3 task3;

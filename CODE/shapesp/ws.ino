@@ -88,12 +88,14 @@ void HandleStatus(JsonObject& iroot, JsonObject& root)
    // reject no auth requests
    if(iroot["auth"].as<String>() != hash) { DbgPrintln(("No auth!!!!")); return; }
 
+   for(int i=0; i<msglist.size();i++)
+   {
+      DbgPrintln(("Loop msglist"));
+      if(msglist[i]->doTasks(iroot,root)) break;
+   }
+
+
    if(iroot["text"].as<String>()=="status")
    {
-      for(int i=0; i<msglist.size();i++)
-      {
-         DbgPrintln(("Loop msglist"));
-         if(msglist[i]->doTasks(iroot,root)) break;
-      }
    }      
 }
