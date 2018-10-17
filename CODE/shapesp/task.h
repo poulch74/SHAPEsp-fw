@@ -3,8 +3,9 @@ class EspTask
 public:
    EspTask() { }
    virtual void doTask(int evt) {}
-   virtual void doSend(int evt, JsonObject &iroot, JsonObject &root) {}
-   virtual void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
+   //virtual void doSend(int evt, JsonObject &iroot, JsonObject &root) {}
+   //virtual void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
+   virtual void doWStask(int evt, JsonObject &iroot, JsonObject &root) {}
 };
 
 class TestTask1 : public EspTask
@@ -20,9 +21,9 @@ public:
       rssi = WiFi.RSSI();
    }
 
-   void doSend(int evt, JsonObject &iroot, JsonObject &root)
+   void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      //DbgPrintln(("sendTask1"));
+      DbgPrintln(("sendTask1"));
       root["status_wifimode"] = String((wifimode ? "SoftAP":"Station"));
       if(wifimode)
       {
@@ -44,7 +45,7 @@ public:
       root["status_wifirssi"] = rssi;
    }
 
-   void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
+   //void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
 
 private:
    double vcc;
@@ -60,14 +61,14 @@ class TestTask2 : public EspTask
 public:
    TestTask2() : EspTask() {}
    void doTask(int evt) {DbgPrintln(("DoTask2"));}
-   void doSend(int evt, JsonObject &iroot, JsonObject &root)
+   void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      //DbgPrintln(("sendTask2"));
+      DbgPrintln(("sendTask2"));
       root["status_vmode"] = "Automatic";
       root["status_vstatus"] = "Close";
    }
 
-   void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
+   //void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
 };
 
 TestTask2 task2;
@@ -77,20 +78,51 @@ class TestTask3 : public EspTask
 public:
    TestTask3() : EspTask() {}
    void doTask(int evt) {DbgPrintln(("DoTask3"));}
-   void doSend(int evt, JsonObject &iroot, JsonObject &root)
+   void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       DbgPrintln(("sendTask3"));
-      root["action"] = "time";  
-      root["time_year"] = 2017;
-      root["time_month"] = 10;
-      root["time_day"] = 10;
-      root["time_dow"] = 2;
-      root["time_hour"] = 11;
-      root["time_min"] = 1;
-      root["time_sec"] = 0;
-   }
+      if(iroot["cmd"].as<String>() == "defaults")
+      {
+         time_t t = now();
+         tmElements_t tm;
+         breakTime(t,tm);
 
-   void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
+         root["action"] = "time";  
+         root["time_year"] = tmYearToCalendar(tm.Year);
+         root["time_month"] = tm.Month;
+         root["time_day"] = tm.Day;
+         root["time_dow"] = (tm.Wday-1) ? (tm.Wday-1):7;
+         root["time_hour"] = tm.Hour;
+         root["time_min"] = tm.Minute;
+         root["time_sec"] = tm.Second;
+      }
+      if(iroot["cmd"].as<String>() == "settime")
+      {
+         DbgPrintln(("settime and response"));
+         tmElements_t tm;
+         tm.Year = CalendarYrToTm(iroot["time_year"].as<int>());
+         tm.Month = iroot["time_month"].as<uint8_t>();
+         tm.Day = iroot["time_day"].as<uint8_t>();
+         tm.Wday = (iroot["time_dow"] == 7) ? 0:iroot["time_dow"].as<uint8_t>()+1;
+         tm.Hour = iroot["time_hour"].as<uint8_t>();
+         tm.Minute = iroot["time_min"].as<uint8_t>();
+         tm.Second = iroot["time_sec"].as<uint8_t>();
+
+
+         time_t t = makeTime(tm);
+         setTime_rtc(t);
+         setTime(t);
+
+         root["action"] = "time";  
+         root["time_year"] = tmYearToCalendar(tm.Year);
+         root["time_month"] = tm.Month;
+         root["time_day"] = tm.Day;
+         root["time_dow"] = (tm.Wday-1) ? (tm.Wday-1):7;
+         root["time_hour"] = tm.Hour;
+         root["time_min"] = tm.Minute;
+         root["time_sec"] = tm.Second;
+      }               
+   }
 };
 
 TestTask3 task3;

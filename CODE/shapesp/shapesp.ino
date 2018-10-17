@@ -13,6 +13,7 @@
 #include <Hash.h>
 #include <functional>
 #include <queue>
+#include <map>
 
 #include <FS.h>
 #include <ESP8266HTTPUpdateServer.h>
@@ -52,12 +53,16 @@ String softAPname;
 #define MSG_SET_TIME 102
 
 std::queue<EspEvent *> sysqueue; // очередь сообщений
-std::vector<EspEvent *> msglist; // список подписок websocket
+//std::vector<EspEvent *> msglist; // список подписок websocket
+std::map<String, EspEvent *> msglist;
 
 DECLARE_EVENT(EVT_1SEC)
-
+/*
 DECLARE_MSG(MSG_STATUS,EVT_SEND,"status")
 DECLARE_MSG(MSG_SET_TIME,EVT_SEND,"time")
+*/
+DECLARE_MSG(MSG_STATUS)
+DECLARE_MSG(MSG_SET_TIME)
 
 EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,task1)
@@ -70,10 +75,10 @@ MSG_BEGIN_REGISTER_TASKS
    MSG_REGISTER_TASK(MSG_SET_TIME,task3)
 MSG_END_REGISTER_TASKS
 
-MSG_BEGIN_STORE_VECTOR
-   MSG_STORE(MSG_STATUS)
-   MSG_STORE(MSG_SET_TIME)
-MSG_END_STORE_VECTOR
+MSG_BEGIN_SUBSCRIBE
+   MSG_SUBSCRIBE("status",MSG_STATUS)
+   MSG_SUBSCRIBE("time",MSG_SET_TIME)
+MSG_END_SUBSCRIBE
 
 
 const int VALVE = 1; // 1 valve 0 relay
@@ -330,7 +335,7 @@ void setup()
 
    EventRegisterTasks();
    MsgRegisterTasks();
-   MsgStoreVector();
+   MsgSubscribe();
 
    timer.attach_ms(1000,alarm); // start sheduler&timeout timer
 }
