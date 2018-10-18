@@ -73,6 +73,9 @@ public:
 
 TestTask2 task2;
 
+
+extern ESP_TPRG prg;
+
 class TestTask3 : public EspTask
 {
 public:
@@ -95,6 +98,18 @@ public:
          root["time_hour"] = tm.Hour;
          root["time_min"] = tm.Minute;
          root["time_sec"] = tm.Second;
+
+         for(int i=0;i<10;i++)
+         {
+            String n(i);
+            root["time_sact"+n] = (int)prg.ta.p[i].active;
+            root["time_sdmask"+n] = prg.ta.p[i].on_dowmask;
+            root["time_shour"+n] = prg.ta.p[i].on_hour;
+            root["time_smin"+n] = prg.ta.p[i].on_min;
+            root["time_edmask"+n] = prg.ta.p[i].off_dowmask;
+            root["time_ehour"+n] = prg.ta.p[i].off_hour;
+            root["time_emin"+n] = prg.ta.p[i].off_min;
+         }
       }
       if(iroot["cmd"].as<String>() == "settime")
       {
@@ -121,7 +136,38 @@ public:
          root["time_hour"] = tm.Hour;
          root["time_min"] = tm.Minute;
          root["time_sec"] = tm.Second;
+      }
+
+      if(iroot["cmd"].as<String>() == "settimer")
+      {
+         for(int i=0;i<10;i++)
+         {
+            String n(i);
+            prg.ta.p[i].active = iroot["time_sact"+n];
+            prg.ta.p[i].on_dowmask = iroot["time_sdmask"+n];
+            prg.ta.p[i].on_hour = iroot["time_shour"+n];
+            prg.ta.p[i].on_min = iroot["time_smin"+n];
+            prg.ta.p[i].on_ts = prg.ta.p[i].on_hour*60+prg.ta.p[i].on_min;
+            prg.ta.p[i].off_dowmask = iroot["time_edmask"+n];
+            prg.ta.p[i].off_hour = iroot["time_ehour"+n];
+            prg.ta.p[i].off_min = iroot["time_emin"+n];
+            prg.ta.p[i].off_ts = prg.ta.p[i].off_hour*60+prg.ta.p[i].off_min;
+         }
+
+         root["action"] = "time";  
+         for(int i=0;i<10;i++)
+         {
+            String n(i);
+            root["time_sact"+n] = (int)prg.ta.p[i].active;
+            root["time_sdmask"+n] = prg.ta.p[i].on_dowmask;
+            root["time_shour"+n] = prg.ta.p[i].on_hour;
+            root["time_smin"+n] = prg.ta.p[i].on_min;
+            root["time_edmask"+n] = prg.ta.p[i].off_dowmask;
+            root["time_ehour"+n] = prg.ta.p[i].off_hour;
+            root["time_emin"+n] = prg.ta.p[i].off_min;
+         }
       }               
+
    }
 };
 

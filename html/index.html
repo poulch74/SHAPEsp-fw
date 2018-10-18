@@ -141,8 +141,8 @@
         var val = ['127','1','2','4','8','16','32','64','31','96','63','21','42','7','56'];
         for(var i=0;i<10;i++)
         {
-          var obj = document.getElementById('sdmask'+i);
-          var obj1 = document.getElementById('edmask'+i);
+          var obj = document.getElementById('time_sdmask'+i);
+          var obj1 = document.getElementById('time_edmask'+i);
           var sel=true;
           for(var j=0;j<15;j++)
           {
@@ -155,10 +155,9 @@
 
       function maketable()
       {
+         var table = document.getElementById("timer_table"); // Получаем ссылку на таблицу
          for(var i=0;i<10;i++)
          {
-            var table = document.getElementById("timer_table"); // Получаем ссылку на таблицу
- 
             var row = table.insertRow(table.rows.length-1); // Добавляем строку
             var cell0 = row.insertCell(0);
             var cell1 = row.insertCell(1);
@@ -169,56 +168,44 @@
             var cell6 = row.insertCell(6);
             var cell7 = row.insertCell(7);
 
-            cell0.innerHTML = "<span class = 'div3'>Prg"+i+"</span>";
+            cell0.innerHTML = "<span class='div3'>Prg"+i+"</span>";
 
             var select = document.createElement("select"); // Ввод файла
-            select.className = "itext"; select.id = "sact"+i;
+            select.className = "itext"; select.id = "time_sact"+i;
             select.appendChild(new Option("No", "0"));
             select.appendChild(new Option("Yes", "1"));   
             cell1.appendChild(select);
 
             var combo1 = document.createElement("select"); // Ввод файла
-            combo1.className = "ctext"; combo1.id = "sdmask"+i;
+            combo1.className = "ctext"; combo1.id = "time_sdmask"+i;
             cell2.appendChild(combo1);
 
             var input1 = document.createElement("input"); // Ввод файла
-            input1.className = "mod"; input1.id = "shour"+i; input1.type = "number";
+            input1.className = "mod"; input1.id = "time_shour"+i; input1.type = "number";
             input1.min =  "0"; input1.max = "23"; input1.step = "1";
             input1.value = "0";
             cell3.appendChild(input1);
 
             var input2 = document.createElement("input"); // Ввод файла
-            input2.className = "mod";
-            input2.id = "smin"+i;
-            input2.type = "number";
-            input2.min =  "0";
-            input2.max = "59";
-            input2.step = "1";
+            input2.className = "mod"; input2.id = "time_smin"+i; input2.type = "number";
+            input2.min =  "0"; input2.max = "59"; input2.step = "1";
             input2.value = "0";
             cell4.appendChild(input2);
 
             var combo2 = document.createElement("select"); // Ввод файла
             combo2.className = "ctext";
-            combo2.id = "edmask"+i;
+            combo2.id = "time_edmask"+i;
             cell5.appendChild(combo2);
 
             var input3 = document.createElement("input"); // Ввод файла
-            input3.className = "mod";
-            input3.id = "ehour"+i;
-            input3.type = "number";
-            input3.min =  "0";
-            input3.max = "23";
-            input3.step = "1";
+            input3.className = "mod"; input3.id = "time_ehour"+i; input3.type = "number";
+            input3.min =  "0"; input3.max = "23"; input3.step = "1";
             input3.value = "0";
             cell6.appendChild(input3);
 
             var input4 = document.createElement("input"); // Ввод файла
-            input4.className = "mod";
-            input4.id = "emin"+i;
-            input4.type = "number";
-            input4.min =  "0";
-            input4.max = "59";
-            input4.step = "1";
+            input4.className = "mod"; input4.id = "time_emin"+i; input4.type = "number";
+            input4.min =  "0"; input4.max = "59"; input4.step = "1";
             input4.value = "0";
             cell7.appendChild(input4);
          }
@@ -375,8 +362,26 @@
                      time_min: document.getElementById("time_min").value,
                      time_sec: document.getElementById("time_sec").value,
             };
+         }
+
+         if(_cmd=="settimer")
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", cmd: _cmd, id: _id };
+            for(var i=0;i<10;i++)
+            {
+               msg['time_sact'+i] = document.getElementById('time_sact'+i).value;
+               msg['time_sdmask'+i] = document.getElementById('time_sdmask'+i).value;
+               msg['time_shour'+i] = document.getElementById('time_shour'+i).value;
+               msg['time_smin'+i] = document.getElementById('time_smin'+i).value;
+               msg['time_edmask'+i] = document.getElementById('time_edmask'+i).value;
+               msg['time_ehour'+i] = document.getElementById('time_ehour'+i).value;
+               msg['time_emin'+i] = document.getElementById('time_emin'+i).value;
+            }               
          }            
+
          websock.send(JSON.stringify(msg));
+
+         document.getElementById('description').innerHTML = JSON.stringify(msg);
       }
 
 
@@ -538,7 +543,7 @@
                -->
                   <tr>
                   <td></td>
-                  <td><button class='button24' id= 'sbtn12'>Set</button></td>
+                  <td><button class='button24' id= 'sbtn12'  onclick='onTabTimerHandler(0,"settimer")'>Set</button></td>
                   <td><button class='button24' id= 'sbtn10'>Save</button></td>
                   <td></td><td></td>
                   <td><button class='button24' id= 'sbtn11'>Reset</button></td>
