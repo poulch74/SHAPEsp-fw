@@ -1,10 +1,10 @@
-#define DECLARE_EVENT(id) EspEvent __evt##id(id,EVT_TASK);
+#define DEFINE_EVENT(id,num) const int id = num; EspEvent __evt##id(id,EVT_TASK);
 
 #define EVENT_BEGIN_REGISTER_TASKS void EventRegisterTasks() {
 #define EVENT_REGISTER_TASK(id,task) __evt##id.attach((EspTask *)&task);
 #define EVENT_END_REGISTER_TASKS }
 
-#define DECLARE_MSG(id) EspEvent __msg##id(id,EVT_MSG);
+#define DEFINE_MSG(id,num) const int id = num; EspEvent __msg##id(id,EVT_MSG);
 
 #define MSG_BEGIN_REGISTER_TASKS void MsgRegisterTasks() {
 #define MSG_REGISTER_TASK(id,task) __msg##id.attach((EspTask *)&task);
@@ -18,6 +18,13 @@
 #define EVT_TASK 1
 #define EVT_MSG 2
 
+class EspTask
+{
+public:
+   EspTask(){}
+   virtual void doTask(int evt) {}
+   virtual void doWStask(int evt, JsonObject &iroot, JsonObject &root) {}
+};
 
 class EspEvent
 {

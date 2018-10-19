@@ -1,13 +1,3 @@
-class EspTask
-{
-public:
-   EspTask() { }
-   virtual void doTask(int evt) {}
-   //virtual void doSend(int evt, JsonObject &iroot, JsonObject &root) {}
-   //virtual void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
-   virtual void doWStask(int evt, JsonObject &iroot, JsonObject &root) {}
-};
-
 class TestTask1 : public EspTask
 {
 public:
@@ -45,8 +35,6 @@ public:
       root["status_wifirssi"] = rssi;
    }
 
-   //void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
-
 private:
    double vcc;
    uint32_t heap;
@@ -64,111 +52,75 @@ public:
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       DbgPrintln(("sendTask2"));
-      root["status_vmode"] = "Automatic";
-      root["status_vstatus"] = "Close";
+      //root["status_vmode"] = "Automatic";
+      //root["status_vstatus"] = "Close";
    }
-
-   //void doRecv(int evt, JsonObject &iroot, JsonObject &root) {}
 };
 
 TestTask2 task2;
 
 
-extern ESP_TPRG prg;
 
-class TestTask3 : public EspTask
+
+extern ESP_CONFIG cfg;
+
+class TestTask4 : public EspTask
 {
 public:
-   TestTask3() : EspTask() {}
-   void doTask(int evt) {DbgPrintln(("DoTask3"));}
+   TestTask4() : EspTask() {}
+   void doTask(int evt) {DbgPrintln(("DoTask4"));}
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      DbgPrintln(("sendTask3"));
-      if(iroot["cmd"].as<String>() == "defaults")
+      String cmd = iroot["cmd"];
+
+      DbgPrintln(("sendTask4"));
+
+      if(cmd=="setwifi")
       {
-         time_t t = now();
-         tmElements_t tm;
-         breakTime(t,tm);
+         snprintf(cfg.s.sta_ssid, 33 ,iroot["wifi_ssid"].as<String>().c_str());
+         snprintf(cfg.s.sta_pwd,65, iroot["wifi_pwd"].as<String>().c_str());
+         cfg.s.sta_dhcp = iroot["wifi_dhcp"];
+         IPAddress ip;
+         ip.fromString(iroot["wifi_ipa"].as<String>()); for(int i=0;i<4; i++) cfg.s.sta_ip[i] = ip[i];
+         ip.fromString(iroot["wifi_gw"].as<String>()); for(int i=0;i<4; i++) cfg.s.sta_gw[i] = ip[i];
 
-         root["action"] = "time";  
-         root["time_year"] = tmYearToCalendar(tm.Year);
-         root["time_month"] = tm.Month;
-         root["time_day"] = tm.Day;
-         root["time_dow"] = (tm.Wday-1) ? (tm.Wday-1):7;
-         root["time_hour"] = tm.Hour;
-         root["time_min"] = tm.Minute;
-         root["time_sec"] = tm.Second;
+         int m = 32-(iroot["wifi_mask"].as<int>())&0x1F;
+         uint32_t ma = 0xFFFFFFFF<<m;
+         cfg.s.sta_subnet[0] = (ma>>24)&0xFF;
+         cfg.s.sta_subnet[1] = (ma>>16)&0xFF;
+         cfg.s.sta_subnet[2] = (ma>>8)&0xFF;
+         cfg.s.sta_subnet[3] = ma&0xFF;
+         String s; s = String(cfg.s.sta_subnet[0])+'.'+String(cfg.s.sta_subnet[1])+'.'+String(cfg.s.sta_subnet[2])+'.'+String(cfg.s.sta_subnet[3]);
+         DbgPrintln(("NetMask: "));
+         DbgPrintln((s));
 
-         for(int i=0;i<10;i++)
-         {
-            String n(i);
-            root["time_sact"+n] = (int)prg.ta.p[i].active;
-            root["time_sdmask"+n] = prg.ta.p[i].on_dowmask;
-            root["time_shour"+n] = prg.ta.p[i].on_hour;
-            root["time_smin"+n] = prg.ta.p[i].on_min;
-            root["time_edmask"+n] = prg.ta.p[i].off_dowmask;
-            root["time_ehour"+n] = prg.ta.p[i].off_hour;
-            root["time_emin"+n] = prg.ta.p[i].off_min;
-         }
-      }
-      if(iroot["cmd"].as<String>() == "settime")
-      {
-         DbgPrintln(("settime and response"));
-         tmElements_t tm;
-         tm.Year = CalendarYrToTm(iroot["time_year"].as<int>());
-         tm.Month = iroot["time_month"].as<uint8_t>();
-         tm.Day = iroot["time_day"].as<uint8_t>();
-         tm.Wday = (iroot["time_dow"] == 7) ? 0:iroot["time_dow"].as<uint8_t>()+1;
-         tm.Hour = iroot["time_hour"].as<uint8_t>();
-         tm.Minute = iroot["time_min"].as<uint8_t>();
-         tm.Second = iroot["time_sec"].as<uint8_t>();
+         cfg.s.skip_logon = iroot["wifi_tnet"];
+  
+         WriteConfig(false);
+         DbgPrintln(("write config"));
 
-
-         time_t t = makeTime(tm);
-         setTime_rtc(t);
-         setTime(t);
-
-         root["action"] = "time";  
-         root["time_year"] = tmYearToCalendar(tm.Year);
-         root["time_month"] = tm.Month;
-         root["time_day"] = tm.Day;
-         root["time_dow"] = (tm.Wday-1) ? (tm.Wday-1):7;
-         root["time_hour"] = tm.Hour;
-         root["time_min"] = tm.Minute;
-         root["time_sec"] = tm.Second;
+         cmd = "defaults";
       }
 
-      if(iroot["cmd"].as<String>() == "settimer")
+      if(cmd=="defaults")
       {
-         for(int i=0;i<10;i++)
-         {
-            String n(i);
-            prg.ta.p[i].active = iroot["time_sact"+n];
-            prg.ta.p[i].on_dowmask = iroot["time_sdmask"+n];
-            prg.ta.p[i].on_hour = iroot["time_shour"+n];
-            prg.ta.p[i].on_min = iroot["time_smin"+n];
-            prg.ta.p[i].on_ts = prg.ta.p[i].on_hour*60+prg.ta.p[i].on_min;
-            prg.ta.p[i].off_dowmask = iroot["time_edmask"+n];
-            prg.ta.p[i].off_hour = iroot["time_ehour"+n];
-            prg.ta.p[i].off_min = iroot["time_emin"+n];
-            prg.ta.p[i].off_ts = prg.ta.p[i].off_hour*60+prg.ta.p[i].off_min;
-         }
+         ReadConfig();
+         uint32_t ma = (((uint32_t)cfg.s.sta_subnet[0])<<24) + (((uint32_t)cfg.s.sta_subnet[1])<<16)
+                       +(((uint32_t)cfg.s.sta_subnet[2])<<8) + cfg.s.sta_subnet[3];
+         int m=0; while(ma!=0) { ma<<=1; m++; };
 
-         root["action"] = "time";  
-         for(int i=0;i<10;i++)
-         {
-            String n(i);
-            root["time_sact"+n] = (int)prg.ta.p[i].active;
-            root["time_sdmask"+n] = prg.ta.p[i].on_dowmask;
-            root["time_shour"+n] = prg.ta.p[i].on_hour;
-            root["time_smin"+n] = prg.ta.p[i].on_min;
-            root["time_edmask"+n] = prg.ta.p[i].off_dowmask;
-            root["time_ehour"+n] = prg.ta.p[i].off_hour;
-            root["time_emin"+n] = prg.ta.p[i].off_min;
-         }
-      }               
+         root["action"] = "wifi";
+         root["wifi_ssid"] = String(cfg.s.sta_ssid);
+         root["wifi_pwd"] = String(cfg.s.sta_pwd);
+         root["wifi_dhcp"] = cfg.s.sta_dhcp;
+         root["wifi_ipa"] = IPAddress(cfg.s.sta_ip[0],cfg.s.sta_ip[1],cfg.s.sta_ip[2],cfg.s.sta_ip[3]).toString();
+         root["wifi_gw"] = IPAddress(cfg.s.sta_gw[0],cfg.s.sta_gw[1],cfg.s.sta_gw[2],cfg.s.sta_gw[3]).toString();
+         root["wifi_mask"] = m;
+         root["wifi_tnet"] = cfg.s.skip_logon;
+      }
+
 
    }
 };
 
-TestTask3 task3;
+TestTask4 taskSettings;

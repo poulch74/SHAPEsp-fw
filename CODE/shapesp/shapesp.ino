@@ -100,44 +100,55 @@ void prototypes(void) {} // here we collect all func prototypes
 int wifimode;
 String softAPname;
 
-#include "relay.h"
+//#include "relay.h"
 
-#include "task.h"
 #include "event.h"
 
-// events
-#define EVT_1SEC 1
-#define EVT_5SEC 2
-
-#define MSG_STATUS 101
-#define MSG_SET_TIME 102
-
 std::queue<EspEvent *> sysqueue; // очередь сообщений
-//std::vector<EspEvent *> msglist; // список подписок websocket
-std::map<String, EspEvent *> msglist;
+std::map<String, EspEvent *> msglist; // список подписок websocket
 
-DECLARE_EVENT(EVT_1SEC)
-/*
-DECLARE_MSG(MSG_STATUS,EVT_SEND,"status")
-DECLARE_MSG(MSG_SET_TIME,EVT_SEND,"time")
-*/
-DECLARE_MSG(MSG_STATUS)
-DECLARE_MSG(MSG_SET_TIME)
+// events
+
+//#define EVT_5SEC 2
+
+DEFINE_EVENT(EVT_1SEC,1)
+DEFINE_EVENT(EVT_VCLOSE,3)
+DEFINE_EVENT(EVT_VOPEN,4)
+DEFINE_EVENT(EVT_VAUTO,5)
+
+DEFINE_MSG(MSG_STATUS,101)
+DEFINE_MSG(MSG_SET_TIME,102)
+DEFINE_MSG(MSG_SET_SETTINGS,103)
+
+// include tasks files
+#include "task.h"
+#include "task_timer.h"
+
 
 EVENT_BEGIN_REGISTER_TASKS
-   EVENT_REGISTER_TASK(EVT_1SEC,task1)
-   EVENT_REGISTER_TASK(EVT_1SEC,task2)   
+   EVENT_REGISTER_TASK(EVT_1SEC,task1) // периодические события
+   EVENT_REGISTER_TASK(EVT_1SEC,task2)
+   EVENT_REGISTER_TASK(EVT_1SEC,taskTimer)
+
+   EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди 
+   EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer)
+   EVENT_REGISTER_TASK(EVT_VAUTO,taskTimer)
 EVENT_END_REGISTER_TASKS
 
 MSG_BEGIN_REGISTER_TASKS
    MSG_REGISTER_TASK(MSG_STATUS,task1)
    MSG_REGISTER_TASK(MSG_STATUS,task2)
-   MSG_REGISTER_TASK(MSG_SET_TIME,task3)
+   MSG_REGISTER_TASK(MSG_STATUS,taskTimer)
+
+   MSG_REGISTER_TASK(MSG_SET_TIME,taskTimer)
+
+   MSG_REGISTER_TASK(MSG_SET_SETTINGS,taskSettings)
 MSG_END_REGISTER_TASKS
 
 MSG_BEGIN_SUBSCRIBE
    MSG_SUBSCRIBE("status",MSG_STATUS)
    MSG_SUBSCRIBE("time",MSG_SET_TIME)
+   MSG_SUBSCRIBE("wifi",MSG_SET_SETTINGS)
 MSG_END_SUBSCRIBE
 
 
@@ -161,9 +172,9 @@ void alarm()
 //Ticker timerSTBY; // timer 300ms pulse to start motor
 //void STBYoff() { digitalWrite(drvSTBY, LOW); }
 
-bool skiptmr; // пропускать таймеры если открыл вручную, не авто режим
-int mflag;
-int curstate;
+//bool skiptmr; // пропускать таймеры если открыл вручную, не авто режим
+//int mflag;
+//int curstate;
 
 float volt;
 
@@ -176,11 +187,11 @@ IPAddress apIP(192, 168, 4, 1);
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
-const int drvA1   = 14; // close pin 
-const int drvA2   = 12; // open pin
-const int drvSTBY = 13; // open pin
+//const int drvA1   = 14; // close pin 
+//const int drvA2   = 12; // open pin
+//const int drvSTBY = 13; // open pin
 
-Relay relay(drvA1,drvA1,drvSTBY,R_VALVE,1); // 1 use autostop
+//Relay relay(drvA1,drvA1,drvSTBY,R_VALVE,1); // 1 use autostop
 
 ESP_CONFIG cfg;
 ESP_TPRG prg;
@@ -196,7 +207,8 @@ void setup()
 
    Serial.begin(115200);
 
-   relay.Initialize();
+//   relay.Initialize();
+   taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
    i2c_setup(4,5,200,400);
    setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
@@ -272,17 +284,6 @@ void setup()
    //else server.on("/"     , handleLogin);
 
    server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-
-   /*
-   server.on("/"     , handleLogin);
-
-   server.on("/login", handleLogin);
-   server.on("/index1", handleIndex1); // status
-   server.on("/index2", HTTP_GET, handleIndex2); //timer settings
-   server.on("/index3", handleWiFiSettings); //wifi settings
-   server.on("/index4", handleSecurity); // pwd change
-   server.on("/index5", handleLogoff);
-*/
    server.on("/favicon.ico", handleFavicon);
    server.onNotFound(handleNotFound);
 
@@ -330,15 +331,13 @@ void setup()
    //    DbgPrintln(("Deepsleep for 10s"));
    //    ESP.deepSleep(10e6);
 
-   mflag=0;
-   skiptmr=false;
-   curstate=0;
-
+//   mflag=0;
+//   skiptmr=false;
+//   curstate=0;
 
    EventRegisterTasks();
    MsgRegisterTasks();
    MsgSubscribe();
-
    timer.attach_ms(1000,alarm); // start sheduler&timeout timer
 }
 
@@ -351,17 +350,9 @@ void loop()
    { 
       sysqueue.front()->doTasks();
       sysqueue.pop();
-   //   evt->doTasks();
    }
    delay(10);
 
-/*
-   for(int i = 0; i< _tasks.size();i++)
-   {
-      _tasks[i]->doTask(evt);
-      delay(20);
-   }
-*/   
 /*
    switch(evt)
    {

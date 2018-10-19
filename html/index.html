@@ -280,7 +280,7 @@
              return;
          }
 
-         if(resp.action == "time")
+         if((resp.action == "time") || (resp.action == "wifi"))
          {
             var resp = JSON.parse(evt.data,function(key,value){
                if(document.getElementById(key)!=null) document.getElementById(key).value = value;
@@ -364,7 +364,7 @@
             };
          }
 
-         if(_cmd=="settimer")
+         if(_cmd=="settimer" || _cmd=="savetimer" || _cmd=="resettimer")
          {
             msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", cmd: _cmd, id: _id };
             for(var i=0;i<10;i++)
@@ -385,7 +385,43 @@
       }
 
 
-      function onTabSettingsHandler(_id,_cmd) {}
+      function onTabSettingsHandler(_id,_cmd)
+      {
+         var msg;
+
+         if(_cmd=="defaults")
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "wifi", cmd: _cmd, id: _id };
+         }
+
+         if(_cmd=="setwifi")
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "wifi", cmd: _cmd, id: _id};
+
+            var IPvalue = document.getElementById('wifi_ipa').value;
+            var GWvalue = document.getElementById('wifi_gw').value;
+
+            var pattern = /(25[0-5]|2[0-4]\d|1\d{2}|\d{1,2})\.(25[0-5]|2[0-4]\d|1\d{2}|\d{1,2})\.(25[0-5]|2[0-4]\d|1\d{2}|\d{1,2})\.(25[0-5]|2[0-4]\d|1\d{2}|\d{1,2})/;
+
+            var ipArray = IPvalue.match(pattern);
+            var gwArray = GWvalue.match(pattern);
+            if(ipArray==null) { alert('Invalid IP address!!!'); return; }
+            if(gwArray==null) { alert('Invalid GW address!!!'); return; }
+
+            msg['wifi_ssid'] =  document.getElementById('wifi_ssid').value;
+            msg['wifi_pwd'] =  document.getElementById('wifi_pwd').value;
+            msg['wifi_dhcp'] =  document.getElementById('wifi_dhcp').value;
+            msg['wifi_ipa'] =  IPvalue;
+            msg['wifi_gw'] =  GWvalue;
+            msg['wifi_mask'] =  document.getElementById('wifi_mask').value;
+            msg['wifi_tnet'] =  document.getElementById('wifi_tnet').value;
+         }
+
+         websock.send(JSON.stringify(msg));
+
+         document.getElementById('description').innerHTML = JSON.stringify(msg);
+      }
+
       function onTabSecurityHandler(_id,_cmd) {}
 
 
@@ -543,10 +579,10 @@
                -->
                   <tr>
                   <td></td>
-                  <td><button class='button24' id= 'sbtn12'  onclick='onTabTimerHandler(0,"settimer")'>Set</button></td>
-                  <td><button class='button24' id= 'sbtn10'>Save</button></td>
+                  <td><button class='button24' id= 'sbtn12' onclick='onTabTimerHandler(0,"settimer")'>Set</button></td>
+                  <td><button class='button24' id= 'sbtn10' onclick='onTabTimerHandler(0,"savetimer")'>Save</button></td>
                   <td></td><td></td>
-                  <td><button class='button24' id= 'sbtn11'>Reset</button></td>
+                  <td><button class='button24' id= 'sbtn11' onclick='onTabTimerHandler(0,"resettimer")'>Reset</button></td>
                   <td></td><td></td></tr>
                </table>
             </div>
@@ -557,21 +593,21 @@
                   <div class='div2'>
                      <div class='div3'>SSID:</div>
                      <div class='div3'>
-                        <input type='text' class = 'iptext' name='n_ssid' id='i_ssid' value='DIR-300'>
+                        <input type='text' class = 'iptext' name='n_ssid' id='wifi_ssid' value='DIR-300'>
                      </div>
                   </div>
 
                   <div class='div2'>
                      <div class='div3'>PWD:</div>
                      <div class='div3'>
-                        <input type='text' class = 'iptext' name='n_pwd' id='i_pwd' value=''>
+                        <input type='text' class = 'iptext' name='n_pwd' id='wifi_pwd' value=''>
                      </div>
                   </div>
                            
                   <div class='div2'>
                      <div class='div3'>DHCP:</div>
                      <div class='div3'>
-                        <select class = 'iptext' id='i_dhcp' name='n_dhcp'>
+                        <select class = 'iptext' id='wifi_dhcp' name='n_dhcp'>
                            <option value='0'>No</option>
                            <option selected value='1'>Yes</option>
                         </select>
@@ -581,21 +617,21 @@
                   <div class='div2'>
                      <div class='div3'>IP address:</div>
                      <div class='div3'>
-                        <input type='text' class = 'iptext' name='nipa' id='i_ipa' required value ='' title = 'Input ip address d.d.d.d'>
+                        <input type='text' class = 'iptext' name='nipa' id='wifi_ipa' required value ='' title = 'Input ip address d.d.d.d'>
                      </div>
                   </div>
                         
                   <div class='div2'>
                      <div class='div3'>Gateway:</div>
                      <div class='div3'>
-                        <input type='text' class = 'iptext' name='ngw' id='i_gw' required value ='' title = 'Input gateway address d.d.d.d'>
+                        <input type='text' class = 'iptext' name='ngw' id='wifi_gw' required value ='' title = 'Input gateway address d.d.d.d'>
                      </div>
                   </div>
                               
                   <div class='div2'>
                      <div class='div3'>Subnet:</div>
                      <div class='div3'>
-                        <select class = 'iptext' id='i_mask' name='nmask'>
+                        <select class = 'iptext' id='wifi_mask' name='nmask'>
                            <option selected value='24'>&nbsp/24</option>
                            <option value='23'>&nbsp/23</option>
                            <option value='22'>&nbsp/22</option>
@@ -612,7 +648,7 @@
                   <div class='div2'>
                      <div class='div3'>Trusted Net:</div>
                      <div class='div3'>
-                        <select class = 'iptext' id='i_tnet' name='n_tnet'>
+                        <select class = 'iptext' id='wifi_tnet' name='n_tnet'>
                            <option selected value='0'>No</option>
                            <option value='1'>Yes</option>
                         </select>
@@ -622,7 +658,7 @@
                   <div class='div2'>
                      <div class='div3'></div>
                      <div class='div3'>
-                        <button class=button24 onclick='sendbutton(1)'>Apply</button>
+                        <button class=button24 onclick='onTabSettingsHandler(0,"setwifi")'>Apply</button>
                      </div>
                   </div>
                               
