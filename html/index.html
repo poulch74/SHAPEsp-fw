@@ -345,28 +345,28 @@
       // settime settimer savetimer clearall
       function onTabTimerHandler(_id,_cmd)
       {
-         var msg;
-         if(_cmd=="defaults")
+         var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", id: _id };
+         if((_cmd=="defaults") || (_cmd=="open") || (_cmd=="close") || (_cmd=="auto"))
          {
-            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", cmd: _cmd, id: _id };
+            msg['cmd'] = _cmd;
          }
 
          if(_cmd=="settime")
          {
-            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", cmd: _cmd, id: _id,
-                     time_year: document.getElementById("time_year").value,
-                     time_month: document.getElementById("time_month").value,
-                     time_day: document.getElementById("time_day").value,
-                     time_dow: document.getElementById("time_dow").value,
-                     time_hour: document.getElementById("time_hour").value,
-                     time_min: document.getElementById("time_min").value,
-                     time_sec: document.getElementById("time_sec").value,
-            };
+             msg['cmd'] = _cmd;
+             msg['time_year'] =  document.getElementById("time_year").value;
+             msg['time_month'] =  document.getElementById("time_month").value;
+             msg['time_day'] =  document.getElementById("time_day").value;
+             msg['time_dow'] =  document.getElementById("time_dow").value;
+             msg['time_hour'] =  document.getElementById("time_hour").value;
+             msg['time_min'] =  document.getElementById("time_min").value;
+             msg['time_sec'] =  document.getElementById("time_sec").value;
+
          }
 
          if(_cmd=="settimer" || _cmd=="savetimer" || _cmd=="resettimer")
          {
-            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", cmd: _cmd, id: _id };
+            msg['cmd'] = _cmd;
             for(var i=0;i<10;i++)
             {
                msg['time_sact'+i] = document.getElementById('time_sact'+i).value;
@@ -425,8 +425,8 @@
       function onTabSecurityHandler(_id,_cmd) {}
 
 
-  </script>
-  
+   </script>
+
    </head>
 
    <body onload="javascript:start();">
@@ -456,11 +456,11 @@
                   </div>
                   <div class='div2'>
                      <div class='div3'></div> 
-                     <div class='div3'><button  class='button24' onclick="reqauth();">Logon</button></div>
+                     <div class='div3'><button autofocus type='button' class='button24' onclick="reqauth();">Logon</button></div>
                   </div>
                </div>
             </div>
-     
+
             <div class='tab' id='tab1'>
                <div class='div1'>
                   <div class='div2'>
@@ -471,15 +471,15 @@
                      <div class='div3'>Free Heap :</div>
                      <div class='div3'><span id="status_heap">1</span></div>
                   </div>
-                  <div class='div2'>   
+                  <div class='div2'>
                      <div class='div3'>Temperature, C:</div>
                      <div class='div3'><span id="status_temp">2</span></div>
                   </div>
-                  <div class='div2'>   
+                  <div class='div2'>
                      <div class='div3'>Humidity, RH:</div>
                      <div class='div3'><span id="status_hum">3</span></div>
                   </div>
-                  <div class='div2'>   
+                  <div class='div2'>
                      <div class='div3'>Pressure, mmHg:</div>
                      <div class='div3'><span id="status_pres">4</span></div>
                   </div>
@@ -495,21 +495,26 @@
                      <div class='div3'>IP:</div>
                      <div class='div3'><span id="status_wifiip">7</span></div>
                   </div>
-                  <div class='div2'>                     
+                  <div class='div2'>
                      <div class='div3'>RSSI:</div>
                      <div class='div3'><span id="status_wifirssi">9</span></div>
                   </div>
-                  <div class='div2'>                     
+                  <div class='div2'>
                      <div class='div3'>Voltage:</div>
                      <div class='div3'><span id="status_voltage">9</span></div>
                   </div>
-                  <div class='div2'>                     
+                  <div class='div2'>
                      <div class='div3'>Valve mode:</div>
                      <div class='div3'><span id="status_vmode">10</span></div>
                   </div>
-                  <div class='div2'>                     
+                  <div class='div2'>
                      <div class='div3'>Valve status:</div>
                      <div class='div3'><span id="status_vstatus">11</span></div>
+                  </div>
+                  <div class='div2'>
+                     <div class='div3'> <button class='button24' onclick='onTabTimerHandler(0,"open")'>Open</button></div>
+                     <div class='div3'> <button class='button24' onclick='onTabTimerHandler(0,"close")'>Close</button></div>
+                     <div class='div3'> <button class='button24' onclick='onTabTimerHandler(0,"auto")'>Auto</button></div>
                   </div>
                </div>
             </div>
@@ -561,7 +566,7 @@
                      <td><span class = 'div3'>eHour</span></td>
                      <td><span class = 'div3'>eMin</span></td>
                    </tr>
-               
+
                <!--
                   <tr><td>Prg0:</td>
                   <td><select class='itext' id=  'sact0'><option selected value='0'>No</option><option value='1'>Yes</option></select></td>
@@ -603,7 +608,7 @@
                         <input type='text' class = 'iptext' name='n_pwd' id='wifi_pwd' value=''>
                      </div>
                   </div>
-                           
+
                   <div class='div2'>
                      <div class='div3'>DHCP:</div>
                      <div class='div3'>
@@ -613,21 +618,21 @@
                         </select>
                      </div>
                   </div>
-                        
+
                   <div class='div2'>
                      <div class='div3'>IP address:</div>
                      <div class='div3'>
                         <input type='text' class = 'iptext' name='nipa' id='wifi_ipa' required value ='' title = 'Input ip address d.d.d.d'>
                      </div>
                   </div>
-                        
+
                   <div class='div2'>
                      <div class='div3'>Gateway:</div>
                      <div class='div3'>
                         <input type='text' class = 'iptext' name='ngw' id='wifi_gw' required value ='' title = 'Input gateway address d.d.d.d'>
                      </div>
                   </div>
-                              
+
                   <div class='div2'>
                      <div class='div3'>Subnet:</div>
                      <div class='div3'>
@@ -644,7 +649,7 @@
                         </select>
                      </div>
                   </div>
-                           
+
                   <div class='div2'>
                      <div class='div3'>Trusted Net:</div>
                      <div class='div3'>
@@ -654,14 +659,14 @@
                         </select>
                      </div>
                   </div>
-                           
+
                   <div class='div2'>
                      <div class='div3'></div>
                      <div class='div3'>
                         <button class=button24 onclick='onTabSettingsHandler(0,"setwifi")'>Apply</button>
                      </div>
                   </div>
-                              
+
                </div>
             </div>
 

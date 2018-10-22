@@ -13,7 +13,7 @@ public:
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      DbgPrintln(("sendTask1"));
+      //DbgPrintln(("sendTask1"));
       root["status_wifimode"] = String((wifimode ? "SoftAP":"Station"));
       if(wifimode)
       {
@@ -27,7 +27,7 @@ public:
          }
 
       root["status_dt"] = strDateTime(now());
-      root["status_voltage"] = vcc;
+      root["status_voltage"] = String(vcc,3);
       root["status_heap"] = heap;
       root["status_temp"] = "0";
       root["status_hum"] = "0";
@@ -48,10 +48,13 @@ class TestTask2 : public EspTask
 {
 public:
    TestTask2() : EspTask() {}
-   void doTask(int evt) {DbgPrintln(("DoTask2"));}
+   void doTask(int evt)
+   {
+   //   DbgPrintln(("DoTask2"));
+   }
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      DbgPrintln(("sendTask2"));
+      //DbgPrintln(("sendTask2"));
       //root["status_vmode"] = "Automatic";
       //root["status_vstatus"] = "Close";
    }

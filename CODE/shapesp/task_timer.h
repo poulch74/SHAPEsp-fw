@@ -18,7 +18,7 @@ public:
       valvemode = true; // manual auto;      
       skiptmr = false;
 
-      relay = new Relay(drvA1,drvA1,drvSTBY,R_VALVE,1); // 1 use autostop
+      relay = new Relay(drvA1,drvA2,drvSTBY,R_VALVE,1); // 1 use autostop
       relay->Initialize();
    }
 
@@ -31,7 +31,7 @@ public:
    {
       int vstate = 0;
 
-      DbgPrintln(("DoTask3"));
+      //DbgPrintln(("DoTask3"));
       
       if(evt == EVT_VCLOSE) { skiptmr = true; vstate = -1; }
       if(evt == EVT_VOPEN) { skiptmr = true; vstate =  1; }
@@ -50,12 +50,7 @@ public:
             if((prg.ta.p[i].active)&&(tcur==prg.ta.p[i].off_ts)&&(cdow&prg.ta.p[i].off_dowmask)) { vstate = -1; break;}
       }
 
-      if(vstate!=0)
-      {  
-         int state = 0;
-         if(vstate>0) state = 1;
-         relay->SetState(state);
-      }
+      if(vstate!=0) { relay->SetState(((vstate>0) ? 1:0)); }
    }
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
@@ -67,13 +62,17 @@ public:
 
       if(event == "status") // событие статуса
       {
-         root["status_vmode"] = "Automatic--";
-         root["status_vstatus"] = "Close---";
+         root["status_vmode"] = skiptmr ? "Manual":"Auto";
+         root["status_vstatus"] = relay->GetState() ? "Open":"Close";
          return;
       }
 
       if(event== "time")
       {
+         if(cmd=="auto") { sysqueue.push(&__evtEVT_VAUTO); DbgPrintln(("SCHEDULE AUTO"));}
+         if(cmd=="close") { sysqueue.push(&__evtEVT_VCLOSE); DbgPrintln(("SCHEDULE CLOSE"));}
+         if(cmd=="open") { sysqueue.push(&__evtEVT_VOPEN); DbgPrintln(("SCHEDULE OPEN"));}
+
          if(cmd == "settime")
          {
             DbgPrintln(("settime and response"));

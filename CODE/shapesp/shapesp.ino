@@ -214,7 +214,7 @@ void setup()
    setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
 
    time_t tm = now();
-   DbgPrint(("NOW: ")); DbgPrintln((strDateTime(tm)));
+   DbgPrintln(("NOW: ")); DbgPrintln((strDateTime(tm)));
 
    randomSeed(second());
 
@@ -331,10 +331,6 @@ void setup()
    //    DbgPrintln(("Deepsleep for 10s"));
    //    ESP.deepSleep(10e6);
 
-//   mflag=0;
-//   skiptmr=false;
-//   curstate=0;
-
    EventRegisterTasks();
    MsgRegisterTasks();
    MsgSubscribe();
@@ -345,7 +341,6 @@ void setup()
 void loop()
 {
    time_t t = now();
-
    if(!sysqueue.empty())
    { 
       sysqueue.front()->doTasks();
@@ -354,18 +349,6 @@ void loop()
    delay(10);
 
 /*
-   switch(evt)
-   {
-      case EVT_1SEC:
-      {
-         //DbgPrint(("Queue size: ")); DbgPrintln((String(sysqueue.size())));
-         //DbgPrint(("DateTime: ")); DbgPrintln((strDateTime(t)));
-
-   //      HandleStatus();
-
-         uint16_t adc = analogRead(A0);
-         volt = adc*15.63/1024.0; //1000 15.98
-
          /////////////bme280
          if(bmepresent)
          {
@@ -376,22 +359,6 @@ void loop()
 
          int  pin2 = digitalRead(led);
          DbgPrint(("Water Alarm:")); DbgPrintln((String(pin2)));
-
-         if(mflag==1 || mflag==2) skiptmr = true;
-         if(mflag==3) skiptmr = false;
-
-         int vaction = TestSheduler(t,mflag,skiptmr);
-         mflag = 0;
-
-         if(vaction!=0)
-         {  
-           int state = 0;
-           if(vaction>0) state = 1;
-           curstate = relay.SetState(state);
-         }
-      } break;
-
-      default: { delay(10); }// idle
 
    }   
 */   
