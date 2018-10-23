@@ -28,11 +28,11 @@
 #define PDEBUG
 
 #ifdef PDEBUG
-   #define DbgPrintln(s) Serial.println s
-   #define DbgPrint(s) Serial.print s
+    #define DEBUG_MSG(...) debugSend(__VA_ARGS__)
+    #define DEBUG_MSG_P(...) debugSend_P(__VA_ARGS__)
 #else
-   #define DbgPrint(s)
-   #define DbgPrintln(s)
+    #define DEBUG_MSG(...)
+    #define DEBUG_MSG_P(...)
 #endif
 
 #pragma pack(1)
@@ -127,7 +127,6 @@ DEFINE_MSG(MSG_SET_SETTINGS,103)
 
 EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,task1) // периодические события
-   EVENT_REGISTER_TASK(EVT_1SEC,task2)
    EVENT_REGISTER_TASK(EVT_1SEC,taskTimer)
 
    EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди 
@@ -137,7 +136,6 @@ EVENT_END_REGISTER_TASKS
 
 MSG_BEGIN_REGISTER_TASKS
    MSG_REGISTER_TASK(MSG_STATUS,task1)
-   MSG_REGISTER_TASK(MSG_STATUS,task2)
    MSG_REGISTER_TASK(MSG_STATUS,taskTimer)
 
    MSG_REGISTER_TASK(MSG_SET_TIME,taskTimer)
@@ -159,7 +157,6 @@ const char* ssid = "DIR-300";
 const char* password = "chps74qwerty";
 
 
-
 const int led = 2; // led pin
 
 Ticker timer;
@@ -169,12 +166,6 @@ void alarm()
    //sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
 }
 
-//Ticker timerSTBY; // timer 300ms pulse to start motor
-//void STBYoff() { digitalWrite(drvSTBY, LOW); }
-
-//bool skiptmr; // пропускать таймеры если открыл вручную, не авто режим
-//int mflag;
-//int curstate;
 
 float volt;
 
@@ -186,12 +177,6 @@ IPAddress apIP(192, 168, 4, 1);
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
-
-//const int drvA1   = 14; // close pin 
-//const int drvA2   = 12; // open pin
-//const int drvSTBY = 13; // open pin
-
-//Relay relay(drvA1,drvA1,drvSTBY,R_VALVE,1); // 1 use autostop
 
 ESP_CONFIG cfg;
 ESP_TPRG prg;
@@ -207,30 +192,33 @@ void setup()
 
    Serial.begin(115200);
 
-//   relay.Initialize();
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
    i2c_setup(4,5,200,400);
    setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
 
    time_t tm = now();
-   DbgPrintln(("NOW: ")); DbgPrintln((strDateTime(tm)));
+   DEBUG_MSG_P(PSTR("NOW: %s \n"),strDateTime(tm).c_str());
 
    randomSeed(second());
 
    SPIFFS.begin();
 
+   info();
+
+   i2cScan();
+
    bmepresent = bme280.begin();
 
    if(!ReadConfig())
    { 
-      DbgPrintln(("Failed read config!!! Trying write default..."));
+      DEBUG_MSG("Failed read config!!! Trying write default...");
       WriteConfig(true);
-      DbgPrintln(("Done."));
+      DEBUG_MSG("Done. \n");
    }
   
-   DbgPrint(("User: ")); DbgPrintln((cfg.s.user));
-   DbgPrint(("Pwd: ")); DbgPrintln((cfg.s.pwd));
+   DEBUG_MSG("User: %s \n",cfg.s.user);
+   DEBUG_MSG("Pwd: %s \n", cfg.s.pwd);
 
    WiFi.mode(WIFI_STA);
    WiFi.hostname("test_host");
@@ -276,9 +264,9 @@ void setup()
       Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
    }
   
-   Serial.println("write cfg ");
+   DEBUG_MSG("write cfg \n");
    if(false) WriteConfig(true); // if pin pushed write def config
-   Serial.println("write cfg end");
+   DEBUG_MSG("write cfg end \n");
 
    //if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
    //else server.on("/"     , handleLogin);
@@ -302,8 +290,9 @@ void setup()
      
    // Start the server
    server.begin();
+   delay(10);
 
-   DbgPrintln(("Server started"));
+   DEBUG_MSG("Server started \n");
 /*
    DbgPrintln(("Starting SSDP...\n"));
 
@@ -322,9 +311,9 @@ void setup()
 */
    if(!ReadTmrPrg())
    { 
-      DbgPrintln(("Failed read tmr config!!! Trying write default..."));
+      DEBUG_MSG("Failed read tmr config!!! Trying write default...");
       SaveTmrPrg(true);
-      DbgPrintln(("Done."));
+      DEBUG_MSG("Done.\n");
    }
 
    // test deepsleep
@@ -346,7 +335,8 @@ void loop()
       sysqueue.front()->doTasks();
       sysqueue.pop();
    }
-   delay(10);
+   yield();
+}
 
 /*
          /////////////bme280
@@ -362,4 +352,3 @@ void loop()
 
    }   
 */   
-}

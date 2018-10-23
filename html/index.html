@@ -272,11 +272,22 @@
 
          if(resp.action == "auth")
          {
-             if(resp.status_auth=='ok')
-             {
+            if(resp.status_auth=='ok')
+            {
                makelist();
                setTimeout(morestatus,100);
-             }               
+               document.getElementById('description').innerHTML = "status ok";
+            }
+            else 
+            {
+               sessionStorage.removeItem("hash");
+               sessionStorage.setItem("sessionid", getRandomInt(1000000));
+               sessionStorage.setItem("tabStart", 1);
+               sessionStorage.setItem("tabCount", 1);
+               document.getElementById('description').innerHTML = "status error";
+               window.location.reload();
+               document.getElementById('description').innerHTML = "status error";
+             }
              return;
          }
 
@@ -297,7 +308,7 @@
       
       };
 
-      function reqauth()
+      function reqauth(f)
       {
          var paswd = document.getElementById('pwd').value; document.getElementById('pwd').value = '';
          var user = document.getElementById('un').value; document.getElementById('un').value = '';
@@ -313,6 +324,7 @@
             var smsg = JSON.stringify(msg);
             websock.send(smsg);
          }
+         return false;
       }
 
       function morestatus()
@@ -444,21 +456,22 @@
             <div id="tabs">
 
             <div class="tab selected" id="tab0">
-
-               <div class=div1'>
-                  <div class='div2'>
-                     <div class='div3'>User:</div>
-                     <div class='div3'><input type='text' class='ctext1' name='USERNAME' id='un' maxlength='20' placeholder='user name'></div>
-                  </div>
-                  <div class='div2'>
-                     <div class='div3'>Password:</div>
-                     <div class='div3'><input type='password' class='ctext1' name='PASSWORD' id='pwd' maxlength='20' placeholder='password'></div>
-                  </div>
-                  <div class='div2'>
-                     <div class='div3'></div> 
-                     <div class='div3'><button autofocus type='button' class='button24' onclick="reqauth();">Logon</button></div>
-                  </div>
-               </div>
+               <form name='logf' method='POST' onsubmit='return reqauth(this);'>
+                  <table>
+                     <tr>
+                        <td align='right'><span class = 'div3'>User:</span></td>
+                        <td align='centre'><input type='text' class='ctext1' name='USERNAME' id='un' maxlength='20' placeholder='user name'></td>
+                     </tr>
+                     <tr>
+                        <td align='right'><span class = 'div3'>Password:</span></td>
+                        <td align='center'><input type='password' class='ctext1' name='PASSWORD' id='pwd' maxlength='20' placeholder='password'></td>
+                     </tr>
+                     <tr>
+                        <td></td>
+                        <td style='height:2em' align='center'><input type='submit' class='button24' name='SUBMIT' value='Login'></td>
+                     </tr>
+                  </table>
+               </form>
             </div>
 
             <div class='tab' id='tab1'>

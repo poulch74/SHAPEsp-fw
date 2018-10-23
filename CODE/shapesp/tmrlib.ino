@@ -1,5 +1,9 @@
-//#include "tmrlib.h"
+extern "C" {
+    #include "spi_flash.h"
+}
 
+//#include "tmrlib.h"
+/*
 String DbgArgMsg(AsyncWebServerRequest *request)
 {
    String message;
@@ -12,7 +16,7 @@ String DbgArgMsg(AsyncWebServerRequest *request)
    }
    return message;  
 }
-
+*/
 uint16_t crc16(const uint8_t *msg, int msg_len)
 {
    uint16_t crc = 0;
@@ -25,8 +29,9 @@ uint16_t crc16(const uint8_t *msg, int msg_len)
    return crc;
 }
 
-void handleNotFound(AsyncWebServerRequest *request) {
-    request->send(404, "text/plain", "Not found");
+void handleNotFound(AsyncWebServerRequest *request)
+{
+   request->send(404, "text/plain", "Not found");
 }
 
 
@@ -146,4 +151,101 @@ void SaveTmrPrg(bool def)
    EEPROM.begin(4096);    
    for(uint16_t i=0; i<sizeof(ESP_TPRG); i++) { EEPROM.write(512+i,prg.b[i]);/*rtc.eeprom_write(512+i,prg.b[i]);*/ }
    EEPROM.end();
+}
+
+
+extern "C" uint32_t _SPIFFS_start;
+extern "C" uint32_t _SPIFFS_end;
+
+String getCoreVersion() {
+    String version = ESP.getCoreVersion();
+    #ifdef ARDUINO_ESP8266_RELEASE
+        if (version.equals("00000000")) {
+            version = String(ARDUINO_ESP8266_RELEASE);
+        }
+    #endif
+    version.replace("_", ".");
+    return version;
+}
+
+String getCoreRevision() {
+    #ifdef ARDUINO_ESP8266_GIT_VER
+        return String(ARDUINO_ESP8266_GIT_VER);
+    #else
+        return String("");
+    #endif
+}
+
+unsigned int info_bytes2sectors(size_t size) { return (int) (size + SPI_FLASH_SEC_SIZE - 1) / SPI_FLASH_SEC_SIZE; }
+
+unsigned long info_ota_space() { return (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000; }
+
+unsigned long info_filesystem_space() { return ((uint32_t)&_SPIFFS_end - (uint32_t)&_SPIFFS_start); }
+
+unsigned long info_eeprom_space() {
+    return EEPROM.length();
+}
+
+void _info_print_memory_layout_line(const char * name, unsigned long bytes, bool reset) {
+    static unsigned long index = 0;
+    if (reset) index = 0;
+    if (0 == bytes) return;
+    unsigned int _sectors = info_bytes2sectors(bytes);
+    DEBUG_MSG_P(PSTR("[INIT] %-20s: %8lu bytes / %4d sectors (%4d to %4d)\n"), name, bytes, _sectors, index, index + _sectors - 1);
+    index += _sectors;
+}
+
+void _info_print_memory_layout_line(const char * name, unsigned long bytes) {
+    _info_print_memory_layout_line(name, bytes, false);
+}
+
+
+void info()
+{
+   //DEBUG_MSG_P(buf,PSTR("[INIT] %s %s\n"), (char *) APP_NAME, (char *) APP_VERSION);
+   //DEBUG_MSG_P(buf,PSTR("[INIT] %s\n"), (char *) APP_AUTHOR);
+   //DEBUG_MSG_P(buf,PSTR("[INIT] %s\n\n"), (char *) APP_WEBSITE);
+   DEBUG_MSG_P(PSTR("[INIT] CPU chip ID: 0x%06X\n"), ESP.getChipId());
+   DEBUG_MSG_P(PSTR("[INIT] CPU frequency: %u MHz\n"), ESP.getCpuFreqMHz());
+   DEBUG_MSG_P(PSTR("[INIT] SDK version: %s\n"), ESP.getSdkVersion());
+   DEBUG_MSG_P(PSTR("[INIT] Core version: %s\n"), getCoreVersion().c_str());
+   DEBUG_MSG_P(PSTR("[INIT] Core revision: %s\n"), getCoreRevision().c_str());
+    
+
+   // -------------------------------------------------------------------------
+
+   FlashMode_t mode = ESP.getFlashChipMode();
+
+   DEBUG_MSG_P(PSTR("[INIT] Flash chip ID: 0x%06X\n"), ESP.getFlashChipId());
+   DEBUG_MSG_P(PSTR("[INIT] Flash speed: %u Hz\n"), ESP.getFlashChipSpeed());
+   DEBUG_MSG_P(PSTR("[INIT] Flash mode: %s\n\n"), mode == FM_QIO ? "QIO" : mode == FM_QOUT ? "QOUT" : mode == FM_DIO ? "DIO" : mode == FM_DOUT ? "DOUT" : "UNKNOWN");
+
+   _info_print_memory_layout_line("Flash size (CHIP)", ESP.getFlashChipRealSize(), true);
+   _info_print_memory_layout_line("Flash size (SDK)", ESP.getFlashChipSize(), true);
+   _info_print_memory_layout_line("Reserved", 1 * SPI_FLASH_SEC_SIZE, true);
+   _info_print_memory_layout_line("Firmware size", ESP.getSketchSize());
+   _info_print_memory_layout_line("Max OTA size", info_ota_space());
+   _info_print_memory_layout_line("SPIFFS size", info_filesystem_space());
+   _info_print_memory_layout_line("EEPROM size", info_eeprom_space());
+   _info_print_memory_layout_line("Reserved", 4 * SPI_FLASH_SEC_SIZE);
+   DEBUG_MSG_P(PSTR("\n"));
+
+   
+    // -------------------------------------------------------------------------
+
+   FSInfo fs_info;
+   bool fs = SPIFFS.info(fs_info);
+   if (fs)
+   {
+      DEBUG_MSG_P(PSTR("[INIT] SPIFFS total size: %8u bytes / %4d sectors\n"), fs_info.totalBytes, fs_info.totalBytes/SPI_FLASH_SEC_SIZE);
+      DEBUG_MSG_P(PSTR("[INIT]        used size:  %8u bytes\n"), fs_info.usedBytes);
+      DEBUG_MSG_P(PSTR("[INIT]        block size: %8u bytes\n"), fs_info.blockSize);
+      DEBUG_MSG_P(PSTR("[INIT]        page size:  %8u bytes\n"), fs_info.pageSize);
+      DEBUG_MSG_P(PSTR("[INIT]        max files:  %8u\n"), fs_info.maxOpenFiles);
+      DEBUG_MSG_P(PSTR("[INIT]        max length: %8u\n\n"), fs_info.maxPathLength);
+   }
+   else
+   {
+      DEBUG_MSG_P(PSTR("[INIT] No SPIFFS partition\n\n"));
+   }
 }

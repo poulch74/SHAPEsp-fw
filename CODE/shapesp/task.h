@@ -27,7 +27,7 @@ public:
          }
 
       root["status_dt"] = strDateTime(now());
-      root["status_voltage"] = String(vcc,3);
+      root["status_voltage"] = String(vcc,2);
       root["status_heap"] = heap;
       root["status_temp"] = "0";
       root["status_hum"] = "0";
@@ -44,39 +44,18 @@ private:
 TestTask1 task1;
 
 
-class TestTask2 : public EspTask
-{
-public:
-   TestTask2() : EspTask() {}
-   void doTask(int evt)
-   {
-   //   DbgPrintln(("DoTask2"));
-   }
-   void doWStask(int evt, JsonObject &iroot, JsonObject &root)
-   {
-      //DbgPrintln(("sendTask2"));
-      //root["status_vmode"] = "Automatic";
-      //root["status_vstatus"] = "Close";
-   }
-};
-
-TestTask2 task2;
-
-
-
-
 extern ESP_CONFIG cfg;
 
 class TestTask4 : public EspTask
 {
 public:
    TestTask4() : EspTask() {}
-   void doTask(int evt) {DbgPrintln(("DoTask4"));}
+   void doTask(int evt) {DEBUG_MSG("DoTask4\n");}
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       String cmd = iroot["cmd"];
 
-      DbgPrintln(("sendTask4"));
+      DEBUG_MSG("sendTask4\n");
 
       if(cmd=="setwifi")
       {
@@ -94,13 +73,13 @@ public:
          cfg.s.sta_subnet[2] = (ma>>8)&0xFF;
          cfg.s.sta_subnet[3] = ma&0xFF;
          String s; s = String(cfg.s.sta_subnet[0])+'.'+String(cfg.s.sta_subnet[1])+'.'+String(cfg.s.sta_subnet[2])+'.'+String(cfg.s.sta_subnet[3]);
-         DbgPrintln(("NetMask: "));
-         DbgPrintln((s));
+         DEBUG_MSG("NetMask: %s \n",s.c_str());
+
 
          cfg.s.skip_logon = iroot["wifi_tnet"];
   
          WriteConfig(false);
-         DbgPrintln(("write config"));
+         DEBUG_MSG("write config\n");
 
          cmd = "defaults";
       }

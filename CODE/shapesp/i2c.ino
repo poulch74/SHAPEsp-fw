@@ -170,3 +170,30 @@ void i2c_setup(uint8_t sda, uint8_t scl, uint32_t cst, uint32_t freq)
 
 
 }
+
+bool i2cCheck(unsigned char address)
+{
+   #if I2C_USE_BRZO
+      brzo_i2c_start_transaction(address, _i2c_scl_frequency);
+      brzo_i2c_ACK_polling(1000);
+      return brzo_i2c_end_transaction();
+   #else
+      Wire.beginTransmission(address);
+      return Wire.endTransmission();
+   #endif
+}
+
+void i2cScan()
+{
+   unsigned char nDevices = 0;
+   for (unsigned char address = 1; address < 127; address++)
+   {
+      unsigned char error = i2cCheck(address);
+      if (error == 0)
+      {
+         DEBUG_MSG_P(PSTR("[I2C] Device found at address 0x%02X\n"), address);
+         nDevices++;
+      }
+   }
+   if (nDevices == 0) DEBUG_MSG_P(PSTR("[I2C] No devices found\n"));
+}

@@ -42,13 +42,13 @@ public:
          if(rmode==R_VALVE)
          {
             timer.once_ms(5100, alarm1, this);
-            if(state==1) { a1=HIGH; a2=LOW;  DbgPrintln(("on valve start")); }
-            if(state==0) { a1=LOW;  a2=HIGH; DbgPrintln(("off valve start"));}
+            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG("on valve start\n"); }
+            if(state==0) { a1=LOW;  a2=HIGH; DEBUG_MSG("off valve start\n");}
          }
          else
          {
-            if(state==1) { a1=HIGH; a2=LOW;  DbgPrintln(("on relay"));  }
-            if(state==0) { a1=LOW;  a2=LOW;  DbgPrintln(("off relay")); }
+            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG("on relay\n"); }
+            if(state==0) { a1=LOW;  a2=LOW;  DEBUG_MSG("off relay\n"); }
          }               
         
          digitalWrite(pinA1, a1);
@@ -72,7 +72,6 @@ public:
    int pinSTBY;
    Ticker timer;
 
-//friend void alarm1(Relay *r);
 };
 
 void alarm1(Relay *r)
@@ -82,5 +81,5 @@ void alarm1(Relay *r)
       digitalWrite(r->pinA1, LOW);
       digitalWrite(r->pinA2, LOW);
    }
-   DbgPrintln(("OFF relay"));
+   DEBUG_MSG("OFF relay\n");
 }

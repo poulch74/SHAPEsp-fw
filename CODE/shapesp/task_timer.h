@@ -6,8 +6,6 @@ const int drvA1   = 14; // close pin
 const int drvA2   = 12; // open pin
 const int drvSTBY = 13; // open pin
 
-//Relay relay(drvA1,drvA1,drvSTBY,R_VALVE,1); // 1 use autostop
-
 
 class TimerTask : public EspTask
 {
@@ -15,16 +13,13 @@ public:
    TimerTask() : EspTask() { }
    void Initialize()
    {
-      valvemode = true; // manual auto;      
       skiptmr = false;
-
       relay = new Relay(drvA1,drvA2,drvSTBY,R_VALVE,1); // 1 use autostop
       relay->Initialize();
    }
 
 public:
    Relay *relay;
-   bool valvemode; // manual auto;
    bool skiptmr;
 
    void doTask(int evt)
@@ -55,7 +50,7 @@ public:
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      DbgPrintln(("sendTask3"));
+      DEBUG_MSG("sendTask3 \n");
 
       String cmd = iroot["cmd"];
       String event = iroot["text"];
@@ -69,21 +64,21 @@ public:
 
       if(event== "time")
       {
-         if(cmd=="auto") { sysqueue.push(&__evtEVT_VAUTO); DbgPrintln(("SCHEDULE AUTO"));}
-         if(cmd=="close") { sysqueue.push(&__evtEVT_VCLOSE); DbgPrintln(("SCHEDULE CLOSE"));}
-         if(cmd=="open") { sysqueue.push(&__evtEVT_VOPEN); DbgPrintln(("SCHEDULE OPEN"));}
+         if(cmd=="auto") { sysqueue.push(&__evtEVT_VAUTO); DEBUG_MSG("SCHEDULE AUTO\n");}
+         if(cmd=="close") { sysqueue.push(&__evtEVT_VCLOSE); DEBUG_MSG("SCHEDULE CLOSE\n");}
+         if(cmd=="open") { sysqueue.push(&__evtEVT_VOPEN); DEBUG_MSG("SCHEDULE OPEN\n");}
 
          if(cmd == "settime")
          {
-            DbgPrintln(("settime and response"));
+            DEBUG_MSG("settime and response");
             tmElements_t tm;
             tm.Year = CalendarYrToTm(iroot["time_year"].as<int>());
-            tm.Month = iroot["time_month"].as<uint8_t>();
-            tm.Day = iroot["time_day"].as<uint8_t>();
+            tm.Month = iroot["time_month"];//.as<uint8_t>();
+            tm.Day = iroot["time_day"];//.as<uint8_t>();
             tm.Wday = (iroot["time_dow"] == 7) ? 0:iroot["time_dow"].as<uint8_t>()+1;
-            tm.Hour = iroot["time_hour"].as<uint8_t>();
-            tm.Minute = iroot["time_min"].as<uint8_t>();
-            tm.Second = iroot["time_sec"].as<uint8_t>();
+            tm.Hour = iroot["time_hour"];//.as<uint8_t>();
+            tm.Minute = iroot["time_min"];//.as<uint8_t>();
+            tm.Second = iroot["time_sec"];//.as<uint8_t>();
 
             time_t t = makeTime(tm);
             setTime_rtc(t);
@@ -100,10 +95,12 @@ public:
             {
                String n(i);
                prg.ta.p[i].active = iroot["time_sact"+n];
+
                prg.ta.p[i].on_dowmask = iroot["time_sdmask"+n];
                prg.ta.p[i].on_hour = iroot["time_shour"+n];
                prg.ta.p[i].on_min = iroot["time_smin"+n];
                prg.ta.p[i].on_ts = prg.ta.p[i].on_hour*60+prg.ta.p[i].on_min;
+
                prg.ta.p[i].off_dowmask = iroot["time_edmask"+n];
                prg.ta.p[i].off_hour = iroot["time_ehour"+n];
                prg.ta.p[i].off_min = iroot["time_emin"+n];

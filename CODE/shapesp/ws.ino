@@ -4,38 +4,28 @@ MD5Builder _md5;
 
 String md5(String str) { _md5.begin(); _md5.add(str); _md5.calculate(); return _md5.toString(); }
 
-//int session_id =0;
-
 String hash;
-
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
 {
    if(type == WS_EVT_CONNECT)
    {
-      Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
-/*
-      session_id = random(1000000);
-      hash = md5(String("root")+String("esp8266")+String(session_id));
-      DbgPrint(("Hash: ")); DbgPrintln((hash));
-*/      
+      DEBUG_MSG("ws[%s][%u] connect\n", server->url(), client->id());
       client->ping();
-      // send start data
       client->_tempObject = new WebSocketIncommingBuffer(&wsParseHandler, true); // буфер для принятого сообщения
    }
    else if(type == WS_EVT_DISCONNECT)
    {
-      Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
+      DEBUG_MSG("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
       if(client->_tempObject) delete (WebSocketIncommingBuffer *)client->_tempObject;
    }
-
    else if(type == WS_EVT_ERROR)
    {
-      Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+      DEBUG_MSG("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
    }
    else if(type == WS_EVT_PONG)
    {
-      Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
+      DEBUG_MSG("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
    }
    else if(type == WS_EVT_DATA)
    {
@@ -53,7 +43,7 @@ void wsParseHandler(AsyncWebSocketClient *client, uint8_t * payload, size_t leng
    // Parse JSON input
    DynamicJsonBuffer inputBuffer;
    JsonObject& iroot = inputBuffer.parseObject((char *) payload);
-   if (!iroot.success()) { Serial.printf(PSTR("[WEBSOCKET] Error parsing data\n")); return; }
+   if (!iroot.success()) { DEBUG_MSG("[WEBSOCKET] Error parsing data\n"); return; }
 
    DynamicJsonBuffer outBuffer;
    JsonObject& oroot = outBuffer.createObject();
@@ -79,14 +69,15 @@ void HandleStatus(JsonObject& iroot, JsonObject& root)
    {
       root["action"] = "auth";  
       hash = md5(String("root")+String("esp8266")+iroot["data"].as<String>());
-      DbgPrint(("Hash: ")); DbgPrintln((hash));
-      if(iroot["auth"].as<String>() == hash) root["status_auth"] = "ok";
-      else root["status_auth"] = "fail";
+      DEBUG_MSG("Hash server: %s \n",hash.c_str());
+      DEBUG_MSG("Hash client: %s \n",iroot["auth"].as<String>().c_str());
+      if(iroot["auth"].as<String>() == hash) { root["status_auth"] = "ok"; DEBUG_MSG("Auth OK\n");}
+      else { root["status_auth"] = "fail";  DEBUG_MSG("Auth FAIL\n"); }
       return;
    }
   
    // reject no auth requests
-   if(iroot["auth"].as<String>() != hash) { DbgPrintln(("No auth!!!!")); return; }
+   if(iroot["auth"].as<String>() != hash) { DEBUG_MSG("No auth!!!!"); return; }
 
 
    String t = iroot["text"].as<String>();
