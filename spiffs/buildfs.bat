@@ -1,1 +1,1 @@
-mkspiffs --create ../HTML -d 5 -b 0x1000 -p 0x100 -s 0x20000 spiffs.bin
+mkspiffs --create ../HTML1 -d 5 -b 0x1000 -p 0x100 -s 0x20000 spiffs.bin

@@ -1,14 +1,35 @@
+extern BME280I2C_BRZO bme280;
+extern bool bmepresent;
+
 class TestTask1 : public EspTask
 {
 public:
    TestTask1() : EspTask() {}
    void doTask(int evt)
    {
-      //DbgPrintln(("DoTask1"));
+      if(evt == EVT_60SEC)
+      {
+         time_t t = getUptime();
+         int day = (t/86400);
+         int hr =  (t/3600)%24;
+         int min = (t%3600)/60;
+         snprintf(uptime,32,"%dd:%02dh:%02dm\n",day,hr,min);
+         DEBUG_MSG("Uptime: %s",uptime);
+         return;
+      }
+
       uint16_t adc = analogRead(A0);
       vcc = adc*15.63/1024.0; //1000 15.98
       heap = ESP.getFreeHeap();
       rssi = WiFi.RSSI();
+
+      if(bmepresent)
+      {
+         BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+         BME280::PresUnit presUnit(BME280::PresUnit_inHg);
+         bme280.read(pres, temp, hum, tempUnit, presUnit);
+      }      
+
    }
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
@@ -25,20 +46,28 @@ public:
             root["status_wifiip"] = WiFi.localIP().toString();
             root["status_wifissid"] = WiFi.SSID();
          }
-
-      root["status_dt"] = strDateTime(now());
+      time_t t = now();
+      root["status_date"] = strDate(t);
+      root["status_time"] = strTime(t);
+      root["status_uptime"] = String(uptime);
       root["status_voltage"] = String(vcc,2);
       root["status_heap"] = heap;
       root["status_temp"] = "0";
       root["status_hum"] = "0";
       root["status_pres"] = "0";
       root["status_wifirssi"] = rssi;
+      root["status_temp"] = temp;
+      root["status_hum"] = hum;
+      root["status_pres"] = pres*25.4;
    }
 
 private:
    double vcc;
    uint32_t heap;
    int32_t rssi;
+   char uptime[32];
+
+   float temp,hum,pres;
 };
 
 TestTask1 task1;

@@ -50,8 +50,6 @@ public:
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      DEBUG_MSG("sendTask3 \n");
-
       String cmd = iroot["cmd"];
       String event = iroot["text"];
 
@@ -82,8 +80,8 @@ public:
 
             time_t t = makeTime(tm);
             setTime_rtc(t);
-            setTime(t);
-
+            setTimeUptime(t); // set time and correct uptime
+            
             cmd = "defaults";
          }
 

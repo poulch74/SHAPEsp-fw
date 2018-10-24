@@ -171,7 +171,7 @@ void i2c_setup(uint8_t sda, uint8_t scl, uint32_t cst, uint32_t freq)
 
 }
 
-bool i2cCheck(unsigned char address)
+unsigned char i2cCheck(unsigned char address)
 {
    #if I2C_USE_BRZO
       brzo_i2c_start_transaction(address, _i2c_scl_frequency);

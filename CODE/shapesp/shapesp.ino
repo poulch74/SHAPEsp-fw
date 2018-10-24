@@ -100,10 +100,7 @@ void prototypes(void) {} // here we collect all func prototypes
 int wifimode;
 String softAPname;
 
-//#include "relay.h"
-
 #include "event.h"
-
 std::queue<EspEvent *> sysqueue; // очередь сообщений
 std::map<String, EspEvent *> msglist; // список подписок websocket
 
@@ -112,6 +109,7 @@ std::map<String, EspEvent *> msglist; // список подписок websocket
 //#define EVT_5SEC 2
 
 DEFINE_EVENT(EVT_1SEC,1)
+DEFINE_EVENT(EVT_60SEC,2)
 DEFINE_EVENT(EVT_VCLOSE,3)
 DEFINE_EVENT(EVT_VOPEN,4)
 DEFINE_EVENT(EVT_VAUTO,5)
@@ -124,9 +122,11 @@ DEFINE_MSG(MSG_SET_SETTINGS,103)
 #include "task.h"
 #include "task_timer.h"
 
+static int sec60cnt = 0;
 
 EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,task1) // периодические события
+   EVENT_REGISTER_TASK(EVT_60SEC,task1) // обновление
    EVENT_REGISTER_TASK(EVT_1SEC,taskTimer)
 
    EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди 
@@ -156,7 +156,6 @@ const char* ssid = "DIR-300";
 //const char* ssid = "CH1-Home";
 const char* password = "chps74qwerty";
 
-
 const int led = 2; // led pin
 
 Ticker timer;
@@ -164,14 +163,13 @@ void alarm()
 { 
    sysqueue.push(&__evtEVT_1SEC);
    //sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
+   sec60cnt++; if(sec60cnt == 60) { sysqueue.push(&__evtEVT_60SEC); sec60cnt = 0; }
 }
 
 
-float volt;
-
 BME280I2C_BRZO bme280;
 bool bmepresent;
-float temp,hum,pres;
+
 
 IPAddress apIP(192, 168, 4, 1);
 
@@ -185,20 +183,27 @@ void setup()
 {
    wifimode = 0; // station
    bmepresent=0;
-   temp=0;
-   hum=0;
-   pres=0;
-   volt=0;
 
    Serial.begin(115200);
 
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
    i2c_setup(4,5,200,400);
-   setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
+   
+   if(i2cCheck(0x68)==0)
+   {
+      DEBUG_MSG_P(PSTR("DS3231 found at address 0x68. Setting SyncProvider... \n"));
+      setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
+   }
+   else 
+   {
+      DEBUG_MSG_P(PSTR("RTC clock not found! Setting fake millis() SyncProvider... \n"));
+      setSyncProvider(getTime_stub);
+   }
 
-   time_t tm = now();
-   DEBUG_MSG_P(PSTR("NOW: %s \n"),strDateTime(tm).c_str());
+   time_t startup = startUptime(); // start uptime calculation
+
+   DEBUG_MSG_P(PSTR("Startup at: %s \n"),strDateTime(startup).c_str());
 
    randomSeed(second());
 
@@ -329,7 +334,7 @@ void setup()
 
 void loop()
 {
-   time_t t = now();
+   //time_t t = now();
    if(!sysqueue.empty())
    { 
       sysqueue.front()->doTasks();
