@@ -18,8 +18,8 @@
 
       #tabs-title li:hover { background: #fff; }
 
-      .tab { height: 500px; padding: 1px; display: none; background: #fff; text-align: justify; }
-
+      .tab { height: 500px; overflow-y:auto; padding: 1px; display: none; background: #fff; text-align: justify; }
+      
       .selected {  height: 500px; display: block; }
 
       .maintable { width:100%; border-spacing: 0px; border-right: 1px solid #fc0; border-left: 1px solid #fc0;}
@@ -305,7 +305,7 @@
                if(document.getElementById(key)!=null) document.getElementById(key).innerHTML = value;
             return value;
          });
-      
+
       };
 
       function reqauth(f)
@@ -351,6 +351,15 @@
          _tab.setAttribute("class", "tab selected");
       }
 
+      function makesensor()
+      {
+         var div = document.getElementById("tab1div1");
+         var ndiv = document.createElement('div');
+         ndiv.className = "div2";
+         ndiv.innerHTML="<span>test</span>";
+         div.appendChild(ndiv);
+      }      
+
       function onTabStatusHandler(_id,_cmd) {}
 
       // defaults
@@ -361,6 +370,7 @@
          if((_cmd=="defaults") || (_cmd=="open") || (_cmd=="close") || (_cmd=="auto"))
          {
             msg['cmd'] = _cmd;
+            makesensor();
          }
 
          if(_cmd=="settime")
@@ -475,7 +485,7 @@
             </div>
 
             <div class='tab' id='tab1'>
-               <div class='div1'>
+               <div class='div1' id='tab1div1'>
                   <div class='div2'>
                      <div class='div3'>Date:</div>
                      <div class='div3'><span id="status_date">1</span></div>
@@ -532,6 +542,7 @@
                      <div class='div3'>Valve status:</div>
                      <div class='div3'><span id="status_vstatus">11</span></div>
                   </div>
+
                   <div class='div2'>
                      <div class='div3'> <button class='button24' onclick='onTabTimerHandler(0,"open")'>Open</button></div>
                      <div class='div3'> <button class='button24' onclick='onTabTimerHandler(0,"close")'>Close</button></div>
