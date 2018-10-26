@@ -256,6 +256,7 @@
          websock.onmessage = onMessageHandler;
          if(sessionStorage.getItem("hash")) {
             makelist();
+            makesensor();
             setTimeout(morestatus,100);
             return;
          }
@@ -281,14 +282,20 @@
             else 
             {
                sessionStorage.removeItem("hash");
+               sessionStorage.removeItem("sensCount");
                sessionStorage.setItem("sessionid", getRandomInt(1000000));
                sessionStorage.setItem("tabStart", 1);
                sessionStorage.setItem("tabCount", 1);
-               document.getElementById('description').innerHTML = "status error";
                window.location.reload();
-               document.getElementById('description').innerHTML = "status error";
              }
              return;
+         }
+
+         if((resp.action == "senscnt"))
+         {
+            sessionStorage.setItem("sensCount", resp.sens_cnt);
+            makesensor();
+            return;
          }
 
          if((resp.action == "time") || (resp.action == "wifi"))
@@ -329,10 +336,21 @@
 
       function morestatus()
       {
-         var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "status", id: 0 };
+         var msg;
+         var tout;
+         if(sessionStorage.getItem("sensCount"))
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "status", id: 0 };
+            tout=1000;
+         }
+         else
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "senscnt", id: 0 };
+            tout=100;
+         }
          var smsg = JSON.stringify(msg);
          websock.send(smsg);
-         setTimeout(morestatus, 1000);
+         setTimeout(morestatus, tout);
       }
 
       function makelist()
@@ -354,10 +372,13 @@
       function makesensor()
       {
          var div = document.getElementById("tab1div1");
-         var ndiv = document.createElement('div');
-         ndiv.className = "div2";
-         ndiv.innerHTML="<span>test</span>";
-         div.appendChild(ndiv);
+         var temp="";
+         var sensCount = parseInt(sessionStorage.getItem("sensCount"));
+         for(var i=0;i<sensCount;i++)
+         {
+            temp += "<div class='div2'><div class='div3'><span id='tsensor_"+i+"'>Sensor"+i+":</span></div><div class='div3'><span id='vsensor_"+i+"'>N/A</span></div></div>";
+         }
+         div.innerHTML = temp;
       }      
 
       function onTabStatusHandler(_id,_cmd) {}
@@ -485,7 +506,7 @@
             </div>
 
             <div class='tab' id='tab1'>
-               <div class='div1' id='tab1div1'>
+               <div class='div1'>
                   <div class='div2'>
                      <div class='div3'>Date:</div>
                      <div class='div3'><span id="status_date">1</span></div>
@@ -548,6 +569,8 @@
                      <div class='div3'> <button class='button24' onclick='onTabTimerHandler(0,"close")'>Close</button></div>
                      <div class='div3'> <button class='button24' onclick='onTabTimerHandler(0,"auto")'>Auto</button></div>
                   </div>
+               </div>
+               <div class='div1' id='tab1div1'>
                </div>
             </div>
 

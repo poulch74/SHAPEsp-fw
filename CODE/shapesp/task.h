@@ -1,6 +1,3 @@
-extern BME280I2C_BRZO bme280;
-extern bool bmepresent;
-
 class TestTask1 : public EspTask
 {
 public:
@@ -22,13 +19,6 @@ public:
       vcc = adc*15.63/1024.0; //1000 15.98
       heap = ESP.getFreeHeap();
       rssi = WiFi.RSSI();
-
-      if(bmepresent)
-      {
-         BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-         BME280::PresUnit presUnit(BME280::PresUnit_inHg);
-         bme280.read(pres, temp, hum, tempUnit, presUnit);
-      }      
 
    }
 
@@ -52,13 +42,10 @@ public:
       root["status_uptime"] = String(uptime);
       root["status_voltage"] = String(vcc,2);
       root["status_heap"] = heap;
-      root["status_temp"] = "0";
-      root["status_hum"] = "0";
-      root["status_pres"] = "0";
       root["status_wifirssi"] = rssi;
-      root["status_temp"] = temp;
-      root["status_hum"] = hum;
-      root["status_pres"] = pres*25.4;
+//      root["status_temp"] = temp;
+//      root["status_hum"] = hum;
+//      root["status_pres"] = pres*25.4;
    }
 
 private:
@@ -66,8 +53,7 @@ private:
    uint32_t heap;
    int32_t rssi;
    char uptime[32];
-
-   float temp,hum,pres;
+ 
 };
 
 TestTask1 task1;

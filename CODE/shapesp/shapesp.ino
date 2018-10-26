@@ -21,7 +21,6 @@
 #include "TimeLib.h"
 
 #include "brzo_i2c.h"
-#include "BME280I2C_BRZO.h"
 
 #define I2C_USE_BRZO 1
 
@@ -117,10 +116,14 @@ DEFINE_EVENT(EVT_VAUTO,5)
 DEFINE_MSG(MSG_STATUS,101)
 DEFINE_MSG(MSG_SET_TIME,102)
 DEFINE_MSG(MSG_SET_SETTINGS,103)
+DEFINE_MSG(MSG_SENSORS,104)
 
 // include tasks files
 #include "task.h"
 #include "task_timer.h"
+
+#include "sensor.h"
+#include "task_sens.h"
 
 static int sec60cnt = 0;
 
@@ -137,16 +140,20 @@ EVENT_END_REGISTER_TASKS
 MSG_BEGIN_REGISTER_TASKS
    MSG_REGISTER_TASK(MSG_STATUS,task1)
    MSG_REGISTER_TASK(MSG_STATUS,taskTimer)
+   MSG_REGISTER_TASK(MSG_STATUS,sens_task)
 
    MSG_REGISTER_TASK(MSG_SET_TIME,taskTimer)
 
    MSG_REGISTER_TASK(MSG_SET_SETTINGS,taskSettings)
+
+   MSG_REGISTER_TASK(MSG_SENSORS, sens_task)
 MSG_END_REGISTER_TASKS
 
 MSG_BEGIN_SUBSCRIBE
    MSG_SUBSCRIBE("status",MSG_STATUS)
    MSG_SUBSCRIBE("time",MSG_SET_TIME)
    MSG_SUBSCRIBE("wifi",MSG_SET_SETTINGS)
+   MSG_SUBSCRIBE("senscnt",MSG_SENSORS)
 MSG_END_SUBSCRIBE
 
 
@@ -167,10 +174,6 @@ void alarm()
 }
 
 
-BME280I2C_BRZO bme280;
-bool bmepresent;
-
-
 IPAddress apIP(192, 168, 4, 1);
 
 AsyncWebServer server(80);
@@ -182,8 +185,7 @@ ESP_TPRG prg;
 void setup()
 {
    wifimode = 0; // station
-   bmepresent=0;
-
+  
    Serial.begin(115200);
 
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
@@ -210,10 +212,7 @@ void setup()
    SPIFFS.begin();
 
    info();
-
    i2cScan();
-
-   bmepresent = bme280.begin();
 
    if(!ReadConfig())
    { 
