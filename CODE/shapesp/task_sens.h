@@ -19,6 +19,7 @@ public:
             sensors[i]->init();
             sens_count+=sensors[i]->getTagCount();
          }
+         DEBUG_MSG("sensor cnt %d %d\n", cnt, sens_count);
       }
    }
 
@@ -50,11 +51,14 @@ public:
             int cnt = sensors[i]->getTagCount();
             for(int j=0;j<cnt;j++)
             {
-               String jname = String("sensor_")+String(k++);
-               String sname = sensors[i]->getName();
+               String tsensor = String("tsensor_")+String(k);
+               String vsensor = String("vsensor_")+String(k);
+               String sname = String("Sensor") + String(k) + String(": ") + sensors[i]->getName();
                String vname = sensors[i]->getTag(j);
                String value = sensors[i]->getValueAsStr(j);
-               root[jname] = sname+ "::" + vname + " ->"+ value;
+               root[tsensor] = sname+ "::" + vname + " ->";
+               root[vsensor] = value;
+               k++;
             }
          }
       }

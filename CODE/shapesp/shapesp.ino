@@ -272,6 +272,9 @@ void setup()
    if(false) WriteConfig(true); // if pin pushed write def config
    DEBUG_MSG("write cfg end \n");
 
+   // Init sensors
+   sens_task.Initialize();
+
    //if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
    //else server.on("/"     , handleLogin);
 
