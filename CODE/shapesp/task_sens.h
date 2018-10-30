@@ -13,13 +13,12 @@ public:
 
       if(!sensors.empty())
       {
-         int cnt = sensors.size();
-         for(int i=0;i<cnt;i++) 
+         for(int i=0;i<sensors.size();i++) 
          { 
             sensors[i]->init();
             sens_count+=sensors[i]->getTagCount();
          }
-         DEBUG_MSG("sensor cnt %d %d\n", cnt, sens_count);
+         DEBUG_MSG("sensor cnt %d %d\n", sensors.size(), sens_count);
       }
    }
 
@@ -44,20 +43,17 @@ public:
 
       if(!sensors.empty())
       {
-         DEBUG_MSG("sensor reply \n");
          int k=0;
          for(int i=0;i<sensors.size();i++)
          {
-            int cnt = sensors[i]->getTagCount();
-            for(int j=0;j<cnt;j++)
+            for(int j=0;j<sensors[i]->getTagCount();j++)
             {
-               String tsensor = String("tsensor_")+String(k);
-               String vsensor = String("vsensor_")+String(k);
-               String sname = String("Sensor") + String(k) + String(": ") + sensors[i]->getName();
-               String vname = sensors[i]->getTag(j);
-               String value = sensors[i]->getValueAsStr(j);
-               root[tsensor] = sname+ "::" + vname + " ->";
-               root[vsensor] = value;
+               char tsensor[16]; snprintf(tsensor,16,"tsensor_%d",k);
+               char vsensor[16]; snprintf(vsensor,16,"vsensor_%d",k);
+               char nsensor[16]; snprintf(nsensor,16,"Sensor%d: ",k);
+               String sname = String(nsensor) + sensors[i]->getName();
+               root[String(tsensor)] = sname + "::" +sensors[i]->getTag(j);
+               root[String(vsensor)] = sensors[i]->getValueAsStr(j);
                k++;
             }
          }

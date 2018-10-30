@@ -131,6 +131,7 @@ EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,task1) // периодические события
    EVENT_REGISTER_TASK(EVT_60SEC,task1) // обновление
    EVENT_REGISTER_TASK(EVT_1SEC,taskTimer)
+   EVENT_REGISTER_TASK(EVT_1SEC,sens_task)
 
    EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди 
    EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer)

@@ -32,8 +32,10 @@ class BME280Sensor: public Sensor
       int end() {return 0;};
       int run()
       {
+         DEBUG_MSG("sensor run\n");
          if(f_ok)
          {
+            DEBUG_MSG("sensor run OK\n");
             BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
             BME280::PresUnit presUnit(BME280::PresUnit_inHg);
             bme280.read(pres, temp, hum, tempUnit, presUnit);
@@ -57,6 +59,7 @@ class BME280Sensor: public Sensor
       {
          if(f_ready)
          {
+            DEBUG_MSG("get value OK\n");
             switch(idx)
             {
                case 0: return String(pres,1);
