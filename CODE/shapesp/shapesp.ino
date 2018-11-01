@@ -22,6 +22,8 @@
 
 #include "brzo_i2c.h"
 
+#include "AsyncMqttClient.h"
+
 #define I2C_USE_BRZO 1
 
 #define PDEBUG
@@ -125,6 +127,8 @@ DEFINE_MSG(MSG_SENSORS,104)
 #include "sensor.h"
 #include "task_sens.h"
 
+#include "task_mqtt.h"
+
 static int sec60cnt = 0;
 
 EVENT_BEGIN_REGISTER_TASKS
@@ -132,6 +136,7 @@ EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_60SEC,task1) // обновление
    EVENT_REGISTER_TASK(EVT_1SEC,taskTimer)
    EVENT_REGISTER_TASK(EVT_1SEC,sens_task)
+   EVENT_REGISTER_TASK(EVT_1SEC,mqtt_task)
 
    EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди 
    EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer)
@@ -275,6 +280,8 @@ void setup()
 
    // Init sensors
    sens_task.Initialize();
+
+   if(wifimode==0) mqtt_task.Initialize();
 
    //if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
    //else server.on("/"     , handleLogin);
