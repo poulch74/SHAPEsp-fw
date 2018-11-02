@@ -153,6 +153,27 @@ void SaveTmrPrg(bool def)
    EEPROM.end();
 }
 
+bool ReadMqttSettings()
+{
+   memset(&mqttset,0,sizeof(ESP_MQTT));
+   EEPROM.begin(4096);
+   for(uint16_t i=0; i<sizeof(ESP_MQTT); i++) mqttset.b[i] = EEPROM.read(1024+i);
+   EEPROM.end();    
+   uint16_t c_crc = crc16(&(mqttset.b[2]),sizeof(ESP_MQTT)-2);
+   if(mqttset.s.crc!=c_crc) return false;
+   return true;
+}
+
+void SaveMqttSettings(bool def)
+{
+   if(def) { memset(&mqttset,0,sizeof(ESP_MQTT)); }    
+   mqttset.s.crc = crc16(&(mqttset.b[2]),sizeof(ESP_MQTT)-2);
+   EEPROM.begin(4096);    
+   for(uint16_t i=0; i<sizeof(ESP_MQTT); i++) { EEPROM.write(1024+i,mqttset.b[i]); }
+   EEPROM.end();
+}
+
+
 
 extern "C" uint32_t _SPIFFS_start;
 extern "C" uint32_t _SPIFFS_end;

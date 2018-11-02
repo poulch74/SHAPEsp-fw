@@ -298,7 +298,7 @@
             return;
          }
 
-         if((resp.action == "time") || (resp.action == "wifi"))
+         if((resp.action == "time") || (resp.action == "wifi") || (resp.action == "mqtt"))
          {
             var resp = JSON.parse(evt.data,function(key,value){
                if(document.getElementById(key)!=null) document.getElementById(key).value = value;
@@ -353,22 +353,6 @@
          setTimeout(morestatus, tout);
       }
 
-      function makelist()
-      {
-         sessionStorage.setItem("tabCount",4);
-         var list = document.getElementById("tabs-title");
-         list.innerHTML = "<li id='tab-title1' onclick='SelectTab(1);' class='tab-title selected-li'>Status</li> \
-                           <li id='tab-title2' onclick='SelectTab(2);' class='tab-title'>Timer</li> \
-                           <li id='tab-title3' onclick='SelectTab(3);' class='tab-title'>Settings</li> \
-                           <li id='tab-title4' onclick='SelectTab(4);' class='tab-title'>Security</li>";
-
-         var _tab = document.getElementById("tab0");
-         _tab.setAttribute("class", "tab");
-
-         _tab = document.getElementById("tab1");
-         _tab.setAttribute("class", "tab selected");
-      }
-
       function makesensor()
       {
          var div = document.getElementById("tab1div1");
@@ -391,7 +375,6 @@
          if((_cmd=="defaults") || (_cmd=="open") || (_cmd=="close") || (_cmd=="auto"))
          {
             msg['cmd'] = _cmd;
-            makesensor();
          }
 
          if(_cmd=="settime")
@@ -465,8 +448,45 @@
          document.getElementById('description').innerHTML = JSON.stringify(msg);
       }
 
-      function onTabSecurityHandler(_id,_cmd) {}
+      function onTabMqttHandler(_id,_cmd)
+      {
+         var msg;
 
+         if(_cmd=="defaults")
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "mqtt", cmd: _cmd, id: _id };
+         }
+
+         if(_cmd=="setmqtt")
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "mqtt", cmd: _cmd, id: _id};
+
+            msg['mqtt_vcc'] =  document.getElementById('mqtt_vcc').value;
+            msg['mqtt_status'] =  document.getElementById('mqtt_status').value;
+            msg['mqtt_value'] =  document.getElementById('mqtt_mode').value;
+         }
+
+         websock.send(JSON.stringify(msg));
+
+         document.getElementById('description').innerHTML = JSON.stringify(msg);
+      }
+
+
+      function makelist()
+      {
+         sessionStorage.setItem("tabCount",4);
+         var list = document.getElementById("tabs-title");
+         list.innerHTML = "<li id='tab-title1' onclick='SelectTab(1);' class='tab-title selected-li'>Status</li> \
+                           <li id='tab-title2' onclick='SelectTab(2);' class='tab-title'>Timer</li> \
+                           <li id='tab-title3' onclick='SelectTab(3);' class='tab-title'>Settings</li> \
+                           <li id='tab-title4' onclick='SelectTab(4);' class='tab-title'>MQTT</li>";
+
+         var _tab = document.getElementById("tab0");
+         _tab.setAttribute("class", "tab");
+
+         _tab = document.getElementById("tab1");
+         _tab.setAttribute("class", "tab selected");
+      }
 
    </script>
 
@@ -716,8 +736,40 @@
             </div>
 
             <div class="tab" id="tab4">
+               <div class='div1'>
+
+                  <div class='div2'>
+                     <div class='div3'>Vcc IDX:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_vcc' id='mqtt_vcc' value='N/A'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                        <div class='div3'>Status IDX:</div>
+                        <div class='div3'>
+                           <input type='text' class = 'iptext' name='_mqtt_status' id='mqtt_status' value='N/A'>
+                        </div>
+                  </div>
+
+                  <div class='div2'>
+                        <div class='div3'>Mode IDX:</div>
+                        <div class='div3'>
+                           <input type='text' class = 'iptext' name='_mqtt_mode' id='mqtt_mode' value='N/A'>
+                        </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'></div>
+                        <div class='div3'>
+                           <button class=button24 onclick='onTabMqttHandler(0,"setmqtt")'>Apply</button>
+                        </div>
+                  </div>
+   
+               </div>>
             </div>
-           </div>
+
+            </div>
 
          </td>
       </tr>

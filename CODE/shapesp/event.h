@@ -24,6 +24,7 @@ public:
    EspTask(){}
    virtual void doTask(int evt) {}
    virtual void doWStask(int evt, JsonObject &iroot, JsonObject &root) {}
+   virtual void doMqttTask(int evt, String &payload) {}
 };
 
 class EspEvent
@@ -36,6 +37,18 @@ class EspEvent
          for(int i = 0; i< _tasks.size();i++) _tasks[i]->doTask(_id);
          return true;
       }
+
+      bool doTasks(std::vector<String> &payload)
+      {
+         String buf;
+         for(int i = 0; i< _tasks.size();i++)
+         {
+             _tasks[i]->doMqttTask(_id, buf);
+             payload.push_back(buf);
+         }
+         return true;
+      }
+
 
       void doTasks(JsonObject& iroot, JsonObject& root)
       {

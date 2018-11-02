@@ -93,6 +93,25 @@ typedef union __ESP_CONFIG_U
    uint8_t      b[512];
 } ESP_CONFIG;
 
+
+typedef struct _ESP_MQTT_S
+{
+   uint16_t crc;
+   char     user[21];
+   char     pwd[21];
+   uint32_t idx_vcc;
+   uint32_t idx_status;
+   uint32_t idx_mode;
+   uint32_t idx_sens[16];
+} ESP_MQTT_S;
+
+typedef union __ESP_MQTT_U
+{
+   ESP_MQTT_S s;
+   uint8_t    b[512];
+} ESP_MQTT;
+
+
 #pragma pack()
 
 
@@ -114,6 +133,8 @@ DEFINE_EVENT(EVT_60SEC,2)
 DEFINE_EVENT(EVT_VCLOSE,3)
 DEFINE_EVENT(EVT_VOPEN,4)
 DEFINE_EVENT(EVT_VAUTO,5)
+
+DEFINE_EVENT(EVT_MQTT,6)
 
 DEFINE_MSG(MSG_STATUS,101)
 DEFINE_MSG(MSG_SET_TIME,102)
@@ -141,6 +162,9 @@ EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди 
    EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer)
    EVENT_REGISTER_TASK(EVT_VAUTO,taskTimer)
+
+   EVENT_REGISTER_TASK(EVT_MQTT,task1)
+
 EVENT_END_REGISTER_TASKS
 
 MSG_BEGIN_REGISTER_TASKS
@@ -187,6 +211,8 @@ AsyncWebSocket ws("/ws");
 
 ESP_CONFIG cfg;
 ESP_TPRG prg;
+
+ESP_MQTT mqttset;
 
 void setup()
 {
@@ -280,6 +306,13 @@ void setup()
 
    // Init sensors
    sens_task.Initialize();
+
+   if(!ReadMqttSettings())
+   { 
+      DEBUG_MSG("Failed read mqtt settings!!! Trying write default...");
+      SaveMqttSettings(true);
+      DEBUG_MSG("Done. \n");
+   }
 
    if(wifimode==0) mqtt_task.Initialize();
 

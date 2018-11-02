@@ -19,7 +19,21 @@ public:
       vcc = adc*15.63/1024.0; //1000 15.98
       heap = ESP.getFreeHeap();
       rssi = WiFi.RSSI();
+   }
 
+   void doMqttTask(int evt, String& payload)
+   {
+      if(evt == EVT_MQTT)
+      {
+         DynamicJsonBuffer outBuffer;
+         JsonObject& oroot = outBuffer.createObject();
+         oroot["command"] = "udevice";
+         oroot["idx"] = 1;
+         oroot["nvalue"] = 0;
+         oroot["svalue"] = String(vcc);
+         oroot.printTo(payload);
+         Serial.println(payload);
+      }
    }
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
@@ -43,9 +57,6 @@ public:
       root["status_voltage"] = String(vcc,2);
       root["status_heap"] = heap;
       root["status_wifirssi"] = rssi;
-//      root["status_temp"] = temp;
-//      root["status_hum"] = hum;
-//      root["status_pres"] = pres*25.4;
    }
 
 private:
