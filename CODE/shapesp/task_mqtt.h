@@ -63,7 +63,7 @@ public:
          for(int i=0;i<payload.size();i++)
          {
             uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, payload[i].c_str());
-            Serial.print("Publishing at QoS 1, packetId: ");
+            Serial.println("Publishing at QoS 1");
          }
       }
       else
@@ -93,7 +93,7 @@ public:
 
          if(cmd == "defaults") // send reply
          {
-            root["action"] = "mqtt";  
+            root["action"] = "mqtt";
             root["mqtt_vcc"] = mqttset.s.idx_vcc;
             root["mqtt_status"] = mqttset.s.idx_status;
             root["mqtt_mode"] = mqttset.s.idx_mode;

@@ -11,6 +11,8 @@ public:
    virtual String getValueAsStr(int idx){};
    virtual double getValueAsDbl(int idx){};
    virtual int    getValueAsInt(int idx){};
+   virtual String getMqttPayload(int v) {}; // variants of mqtt payload 
+
 
    int    getTagCount(){ return tcnt;};
    bool   ok() {return f_ok;}
@@ -37,7 +39,7 @@ class BME280Sensor: public Sensor
          {
             DEBUG_MSG("sensor run OK\n");
             BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-            BME280::PresUnit presUnit(BME280::PresUnit_inHg);
+            BME280::PresUnit presUnit(BME280::PresUnit_hPa);
             bme280.read(pres, temp, hum, tempUnit, presUnit);
             f_ready = true;
             return 0;
@@ -69,6 +71,23 @@ class BME280Sensor: public Sensor
          }
          return String("none");
       };
+
+      String getMqttPayload(int v) // only for domoticz now, add v case for over
+      {
+         if(f_ready)
+         {
+            String buf;
+            DynamicJsonBuffer outBuffer;
+            JsonObject& oroot = outBuffer.createObject();
+            oroot["command"] = "udevice";
+            oroot["idx"] = 4;
+            oroot["nvalue"] = 0;
+            oroot["svalue"] = String(temp,1) +";"+ String(hum,1) +";0;"+ String(pres,1)+";0";
+            oroot.printTo(buf);
+            return buf;
+         }
+         return String("");
+      }
 
       double getValueAsDbl(int idx){ return 0.0;};
       int    getValueAsInt(int idx){ return 0;};

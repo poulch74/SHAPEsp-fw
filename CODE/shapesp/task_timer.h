@@ -48,6 +48,41 @@ public:
       if(vstate!=0) { relay->SetState(((vstate>0) ? 1:0)); }
    }
 
+   void doMqttTask(int evt, std::vector<String> &payload)
+   {
+      if(evt == EVT_MQTT)
+      {
+         do
+         {
+            String buf;
+            DynamicJsonBuffer outBuffer;
+            JsonObject& oroot = outBuffer.createObject();
+            oroot["command"] = "udevice";
+            oroot["idx"] = 2;
+            oroot["nvalue"] = 0;
+            oroot["svalue"] = skiptmr ? "Manual":"Auto";
+            oroot.printTo(buf);
+            payload.push_back(buf);
+            Serial.println(buf);
+         } while(0);
+
+         do
+         {
+            String buf;
+            DynamicJsonBuffer outBuffer;
+            JsonObject& oroot = outBuffer.createObject();
+            oroot["command"] = "udevice";
+            oroot["idx"] = 3;
+            oroot["nvalue"] = 0;
+            oroot["svalue"] = relay->GetState() ? "Open":"Close";
+            oroot.printTo(buf);
+            payload.push_back(buf);
+            Serial.println(buf);
+         } while(0);
+      }
+   }
+
+
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       String cmd = iroot["cmd"];

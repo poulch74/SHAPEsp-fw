@@ -21,18 +21,23 @@ public:
       rssi = WiFi.RSSI();
    }
 
-   void doMqttTask(int evt, String& payload)
+   void doMqttTask(int evt, std::vector<String> &payload)
    {
+      String buf;
       if(evt == EVT_MQTT)
       {
-         DynamicJsonBuffer outBuffer;
-         JsonObject& oroot = outBuffer.createObject();
-         oroot["command"] = "udevice";
-         oroot["idx"] = 1;
-         oroot["nvalue"] = 0;
-         oroot["svalue"] = String(vcc);
-         oroot.printTo(payload);
-         Serial.println(payload);
+         do
+         {
+            DynamicJsonBuffer outBuffer;
+            JsonObject& oroot = outBuffer.createObject();
+            oroot["command"] = "udevice";
+            oroot["idx"] = 1;
+            oroot["nvalue"] = 0;
+            oroot["svalue"] = String(vcc);
+            oroot.printTo(buf);
+            payload.push_back(buf);
+            Serial.println(buf);
+         } while(0);
       }
    }
 

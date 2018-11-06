@@ -33,6 +33,19 @@ public:
       }
    }
 
+   void doMqttTask(int evt, std::vector<String> &payload)
+   {
+      if(evt == EVT_MQTT)
+      {
+         for(int i=0;i<sensors.size();i++)
+         {
+            String buf = sensors[i]->getMqttPayload(0);
+            payload.push_back(buf);
+            Serial.println(buf);
+         }
+      }
+   }
+
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       if(iroot["text"].as<String>()=="senscnt")
@@ -50,7 +63,7 @@ public:
             {
                char tsensor[16]; snprintf(tsensor,16,"tsensor_%d",k);
                char vsensor[16]; snprintf(vsensor,16,"vsensor_%d",k);
-               char nsensor[16]; snprintf(nsensor,16,"Sensor%d: ",k);
+               char nsensor[16]; snprintf(nsensor,16,"Sensor%d: ",i);
                String sname = String(nsensor) + sensors[i]->getName();
                root[String(tsensor)] = sname + "::" +sensors[i]->getTag(j);
                root[String(vsensor)] = sensors[i]->getValueAsStr(j);
