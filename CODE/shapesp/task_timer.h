@@ -54,37 +54,23 @@ public:
    {
       if(evt == EVT_MQTT)
       {
+         char buf[128];
          do
          {
-            char buf[128];
             snprintf(buf, sizeof(buf), 
                      "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
                      mqttset.s.idx_mode, "0", (skiptmr ? "Manual":"Auto")
                     );
-/*
-            String buf;
-            DynamicJsonBuffer outBuffer;
-            JsonObject& oroot = outBuffer.createObject();
-            oroot["command"] = "udevice";
-            oroot["idx"] = mqttset.idx_mode;
-            oroot["nvalue"] = 0;
-            oroot["svalue"] = skiptmr ? "Manual":"Auto";
-            oroot.printTo(buf);
-*/            
             payload.push_back(buf);
             Serial.println(buf);
          } while(0);
 
          do
          {
-            String buf;
-            DynamicJsonBuffer outBuffer;
-            JsonObject& oroot = outBuffer.createObject();
-            oroot["command"] = "udevice";
-            oroot["idx"] = mqttset.s.idx_status;
-            oroot["nvalue"] = 0;
-            oroot["svalue"] = relay->GetState() ? "Open":"Close";
-            oroot.printTo(buf);
+            snprintf(buf, sizeof(buf), 
+                     "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
+                     mqttset.s.idx_status, "0", (relay->GetState() ? "Open":"Close")
+                    );
             payload.push_back(buf);
             Serial.println(buf);
          } while(0);

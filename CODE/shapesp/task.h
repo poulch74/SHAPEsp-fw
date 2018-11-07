@@ -25,18 +25,16 @@ public:
 
    void doMqttTask(int evt, std::vector<String> &payload)
    {
-      String buf;
+      
       if(evt == EVT_MQTT)
       {
+         char buf[128];
          do
          {
-            DynamicJsonBuffer outBuffer;
-            JsonObject& oroot = outBuffer.createObject();
-            oroot["command"] = "udevice";
-            oroot["idx"] = mqttset.s.idx_vcc;
-            oroot["nvalue"] = 0;
-            oroot["svalue"] = String(vcc);
-            oroot.printTo(buf);
+            snprintf(buf, sizeof(buf), 
+                     "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
+                     mqttset.s.idx_vcc, "0", String(vcc,1).c_str()
+                    );
             payload.push_back(buf);
             Serial.println(buf);
          } while(0);

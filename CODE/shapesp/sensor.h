@@ -76,15 +76,15 @@ class BME280Sensor: public Sensor
       {
          if(f_ready)
          {
-            String buf;
-            DynamicJsonBuffer outBuffer;
-            JsonObject& oroot = outBuffer.createObject();
-            oroot["command"] = "udevice";
-            oroot["idx"] = 1;
-            oroot["nvalue"] = 0;
-            oroot["svalue"] = String(temp,1) +";"+ String(hum,1) +";0;"+ String(pres,1)+";0";
-            oroot.printTo(buf);
-            return buf;
+            char buf[128];
+            mqttset.s.idx_sens[0] = 4;
+            String str = String(temp,1) +";"+ String(hum,1) +";0;"+ String(pres,1)+";0";
+            snprintf(buf, sizeof(buf), 
+                     "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
+                     mqttset.s.idx_sens[0], "0", str.c_str()
+                    );
+            Serial.println(buf);
+            return String(buf);
          }
          return String("");
       }
