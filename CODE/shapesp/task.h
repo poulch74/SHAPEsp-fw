@@ -1,3 +1,5 @@
+extern ESP_MQTT mqttset;
+
 class TestTask1 : public EspTask
 {
 public:
@@ -31,7 +33,7 @@ public:
             DynamicJsonBuffer outBuffer;
             JsonObject& oroot = outBuffer.createObject();
             oroot["command"] = "udevice";
-            oroot["idx"] = 1;
+            oroot["idx"] = mqttset.s.idx_vcc;
             oroot["nvalue"] = 0;
             oroot["svalue"] = String(vcc);
             oroot.printTo(buf);

@@ -14,6 +14,8 @@
 #define MSG_SUBSCRIBE(msg,id) msglist[msg] = (EspEvent *)&__msg##id;
 #define MSG_END_SUBSCRIBE }
 
+#define GetEvent(id) __evt##id
+#define GetMsg(id)   __msg##id
 
 #define EVT_TASK 1
 #define EVT_MSG 2
@@ -50,14 +52,7 @@ class EspEvent
 
       void doTasks(JsonObject& iroot, JsonObject& root)
       {
-         if(_type == EVT_TASK)
-         {
-            for(int i = 0; i< _tasks.size();i++) _tasks[i]->doTask(_id);
-         }
-         else
-         {
-            for(int i = 0; i< _tasks.size();i++) _tasks[i]->doWStask(_id, iroot, root);
-         }
+         for(int i = 0; i< _tasks.size();i++) _tasks[i]->doWStask(_id, iroot, root);
       }
       
    public:

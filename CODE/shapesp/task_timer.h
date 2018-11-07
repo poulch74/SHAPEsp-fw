@@ -2,6 +2,8 @@
 
 extern ESP_TPRG prg;
 
+extern ESP_MQTT mqttset;
+
 const int drvA1   = 14; // close pin 
 const int drvA2   = 12; // open pin
 const int drvSTBY = 13; // open pin
@@ -54,14 +56,21 @@ public:
       {
          do
          {
+            char buf[128];
+            snprintf(buf, sizeof(buf), 
+                     "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
+                     mqttset.s.idx_mode, "0", (skiptmr ? "Manual":"Auto")
+                    );
+/*
             String buf;
             DynamicJsonBuffer outBuffer;
             JsonObject& oroot = outBuffer.createObject();
             oroot["command"] = "udevice";
-            oroot["idx"] = 2;
+            oroot["idx"] = mqttset.idx_mode;
             oroot["nvalue"] = 0;
             oroot["svalue"] = skiptmr ? "Manual":"Auto";
             oroot.printTo(buf);
+*/            
             payload.push_back(buf);
             Serial.println(buf);
          } while(0);
@@ -72,7 +81,7 @@ public:
             DynamicJsonBuffer outBuffer;
             JsonObject& oroot = outBuffer.createObject();
             oroot["command"] = "udevice";
-            oroot["idx"] = 3;
+            oroot["idx"] = mqttset.s.idx_status;
             oroot["nvalue"] = 0;
             oroot["svalue"] = relay->GetState() ? "Open":"Close";
             oroot.printTo(buf);

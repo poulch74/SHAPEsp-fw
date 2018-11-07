@@ -59,10 +59,10 @@ public:
       if(mqttClient.connected())
       {
          std::vector<String> payload;
-         __evtEVT_MQTT.doTasks(payload);
+         GetEvent(EVT_MQTT).doTasks(payload);
          for(int i=0;i<payload.size();i++)
          {
-            uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, payload[i].c_str());
+            uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, false, payload[i].c_str());
             Serial.println("Publishing at QoS 1");
          }
       }

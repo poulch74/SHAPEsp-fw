@@ -80,7 +80,7 @@ class BME280Sensor: public Sensor
             DynamicJsonBuffer outBuffer;
             JsonObject& oroot = outBuffer.createObject();
             oroot["command"] = "udevice";
-            oroot["idx"] = 4;
+            oroot["idx"] = 1;
             oroot["nvalue"] = 0;
             oroot["svalue"] = String(temp,1) +";"+ String(hum,1) +";0;"+ String(pres,1)+";0";
             oroot.printTo(buf);

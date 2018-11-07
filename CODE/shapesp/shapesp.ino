@@ -121,6 +121,7 @@ int wifimode;
 String softAPname;
 
 #include "event.h"
+
 std::queue<EspEvent *> sysqueue; // очередь сообщений
 std::map<String, EspEvent *> msglist; // список подписок websocket
 
@@ -151,7 +152,7 @@ DEFINE_MSG(MSG_MQTT,105)
 
 #include "task_mqtt.h"
 
-static int sec60cnt = 0;
+//static int sec60cnt = 0;
 
 EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,task1) // периодические события
@@ -203,9 +204,10 @@ const int led = 2; // led pin
 Ticker timer;
 void alarm()
 { 
-   sysqueue.push(&__evtEVT_1SEC);
+   sysqueue.push(&GetEvent(EVT_1SEC));
    //sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
-   sec60cnt++; if(sec60cnt == 60) { sysqueue.push(&__evtEVT_60SEC); sec60cnt = 0; }
+   static int sec60cnt = 0;
+   sec60cnt++; if(sec60cnt == 60) { sysqueue.push(&GetEvent(EVT_60SEC)); sec60cnt = 0; }
 }
 
 
@@ -390,18 +392,3 @@ void loop()
    }
    yield();
 }
-
-/*
-         /////////////bme280
-         if(bmepresent)
-         {
-            BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
-            BME280::PresUnit presUnit(BME280::PresUnit_inHg);
-            bme280.read(pres, temp, hum, tempUnit, presUnit);
-         }      
-
-         int  pin2 = digitalRead(led);
-         DbgPrint(("Water Alarm:")); DbgPrintln((String(pin2)));
-
-   }   
-*/   

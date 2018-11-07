@@ -461,9 +461,9 @@
          {
             msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "mqtt", cmd: _cmd, id: _id};
 
-            msg['mqtt_vcc'] =  document.getElementById('mqtt_vcc').value;
-            msg['mqtt_status'] =  document.getElementById('mqtt_status').value;
-            msg['mqtt_value'] =  document.getElementById('mqtt_mode').value;
+            msg['mqtt_vcc'] = document.getElementById('mqtt_vcc').value;
+            msg['mqtt_status'] = document.getElementById('mqtt_status').value;
+            msg['mqtt_mode'] = document.getElementById('mqtt_mode').value;
          }
 
          websock.send(JSON.stringify(msg));
