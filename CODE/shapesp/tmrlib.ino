@@ -173,6 +173,17 @@ void SaveMqttSettings(bool def)
    EEPROM.end();
 }
 
+String FmtMqttMessage(int idx, int nvalue, const char *svalue)
+{
+   char buf[128];
+   snprintf(buf, sizeof(buf), 
+            "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%d,\"svalue\":\"%s\"}", 
+            idx, nvalue, svalue
+           );
+   return String(buf);
+}
+
+
 
 
 extern "C" uint32_t _SPIFFS_start;

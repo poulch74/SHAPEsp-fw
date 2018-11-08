@@ -39,9 +39,8 @@ public:
       {
          for(int i=0;i<sensors.size();i++)
          {
-            String buf = sensors[i]->getMqttPayload(0);
-            payload.push_back(buf);
-            Serial.println(buf);
+            String buf = sensors[i]->getMqttPayload(i,0);
+            if(buf.length()!=0) payload.push_back(buf);
          }
       }
    }

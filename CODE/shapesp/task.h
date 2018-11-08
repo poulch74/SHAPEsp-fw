@@ -28,15 +28,10 @@ public:
       
       if(evt == EVT_MQTT)
       {
-         char buf[128];
          do
          {
-            snprintf(buf, sizeof(buf), 
-                     "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
-                     mqttset.s.idx_vcc, "0", String(vcc,1).c_str()
-                    );
+            String buf = FmtMqttMessage(mqttset.s.idx_vcc,0, String(vcc,1).c_str());
             payload.push_back(buf);
-            Serial.println(buf);
          } while(0);
       }
    }

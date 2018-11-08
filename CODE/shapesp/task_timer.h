@@ -54,25 +54,16 @@ public:
    {
       if(evt == EVT_MQTT)
       {
-         char buf[128];
          do
          {
-            snprintf(buf, sizeof(buf), 
-                     "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
-                     mqttset.s.idx_mode, "0", (skiptmr ? "Manual":"Auto")
-                    );
+            String buf = FmtMqttMessage(mqttset.s.idx_mode,0, (skiptmr ? "Manual":"Auto"));
             payload.push_back(buf);
-            Serial.println(buf);
          } while(0);
 
          do
          {
-            snprintf(buf, sizeof(buf), 
-                     "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
-                     mqttset.s.idx_status, "0", (relay->GetState() ? "Open":"Close")
-                    );
+            String buf = FmtMqttMessage(mqttset.s.idx_status,0, (relay->GetState() ? "Open":"Close"));
             payload.push_back(buf);
-            Serial.println(buf);
          } while(0);
       }
    }

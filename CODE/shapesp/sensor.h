@@ -11,7 +11,7 @@ public:
    virtual String getValueAsStr(int idx){};
    virtual double getValueAsDbl(int idx){};
    virtual int    getValueAsInt(int idx){};
-   virtual String getMqttPayload(int v) {}; // variants of mqtt payload 
+   virtual String getMqttPayload(int sens, int v) {}; // variants of mqtt payload 
 
 
    int    getTagCount(){ return tcnt;};
@@ -34,10 +34,10 @@ class BME280Sensor: public Sensor
       int end() {return 0;};
       int run()
       {
-         DEBUG_MSG("sensor run\n");
+         //DEBUG_MSG("sensor run\n");
          if(f_ok)
          {
-            DEBUG_MSG("sensor run OK\n");
+            //DEBUG_MSG("sensor run OK\n");
             BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
             BME280::PresUnit presUnit(BME280::PresUnit_hPa);
             bme280.read(pres, temp, hum, tempUnit, presUnit);
@@ -72,19 +72,12 @@ class BME280Sensor: public Sensor
          return String("none");
       };
 
-      String getMqttPayload(int v) // only for domoticz now, add v case for over
+      String getMqttPayload(int snum, int v) // only for domoticz now, add v case for over
       {
          if(f_ready)
          {
-            char buf[128];
-            mqttset.s.idx_sens[0] = 4;
             String str = String(temp,1) +";"+ String(hum,1) +";0;"+ String(pres,1)+";0";
-            snprintf(buf, sizeof(buf), 
-                     "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%s,\"svalue\":\"%s\"}", 
-                     mqttset.s.idx_sens[0], "0", str.c_str()
-                    );
-            Serial.println(buf);
-            return String(buf);
+            return FmtMqttMessage(mqttset.s.idx_sens[snum],0, str.c_str());
          }
          return String("");
       }

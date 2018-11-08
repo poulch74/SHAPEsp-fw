@@ -99,10 +99,12 @@ typedef struct _ESP_MQTT_S
    uint16_t crc;
    char     user[21];
    char     pwd[21];
+   uint32_t idx_relay;
    uint32_t idx_vcc;
    uint32_t idx_status;
    uint32_t idx_mode;
-   uint32_t idx_sens[16];
+   uint32_t idx_cmd[4];
+   uint32_t idx_sens[8];
 } ESP_MQTT_S;
 
 typedef union __ESP_MQTT_U

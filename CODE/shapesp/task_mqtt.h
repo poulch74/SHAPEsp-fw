@@ -27,31 +27,31 @@ public:
 
    static void onMqttConnect(bool sessionPresent)
    {
-      Serial.println("Connected to MQTT.");
-      Serial.print("Session present: ");
-      Serial.println(sessionPresent);
+      DEBUG_MSG("Connected to MQTT.\n");
+      DEBUG_MSG("Session present: %d\n",sessionPresent);
       uint16_t packetIdSub = mqttClient.subscribe("domoticz/out", 2);
-      Serial.print("Subscribing at QoS 2, packetId: ");
-      Serial.println(packetIdSub);
    }
 
    static void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
    {
-      Serial.println("Publish received.");
-      Serial.print("  topic: ");
-      Serial.println(topic);
-      Serial.print("  qos: ");
-      Serial.println(properties.qos);
-      Serial.print("  dup: ");
-      Serial.println(properties.dup);
-      Serial.print("  retain: ");
-      Serial.println(properties.retain);
-      Serial.print("  len: ");
-      Serial.println(len);
-      Serial.print("  index: ");
-      Serial.println(index);
-      Serial.print("  total: ");
-      Serial.println(total);
+      DEBUG_MSG("Publish received. \n");
+      DEBUG_MSG("  topic: %s\n",topic);
+      DEBUG_MSG("  qos: %d \n",properties.qos);
+      DEBUG_MSG("  dup: %d\n",properties.dup);
+      DEBUG_MSG("  retain: %d\n",properties.retain);
+      DEBUG_MSG("  len: %d\n", len);
+      DEBUG_MSG("  index: %d\n",index);
+      DEBUG_MSG("  total: %d\n",total);
+
+      DynamicJsonBuffer jsonBuffer;
+      JsonObject& root = jsonBuffer.parseObject((char *) payload);
+      if (!root.success()) { DEBUG_MSG("[DOMOTICZ] Error parsing data\n");}
+      else
+      {
+         unsigned int idx = root["idx"];
+         unsigned char value = root["nvalue"];
+         DEBUG_MSG("[DOMOTICZ] Received value %u for IDX %u\n", value, idx);
+      }
    }
 
    void doTask(int evt)
@@ -62,8 +62,7 @@ public:
          GetEvent(EVT_MQTT).doTasks(payload);
          for(int i=0;i<payload.size();i++)
          {
-            uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, false, payload[i].c_str());
-            Serial.println("Publishing at QoS 1");
+            uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, payload[i].c_str());
          }
       }
       else
@@ -82,9 +81,13 @@ public:
          if(cmd == "setmqtt")
          {
             DEBUG_MSG("setmqtt and response");
+            mqttset.s.idx_relay = iroot["mqtt_relay"];
             mqttset.s.idx_vcc = iroot["mqtt_vcc"];
             mqttset.s.idx_status = iroot["mqtt_status"];
             mqttset.s.idx_mode = iroot["mqtt_mode"];
+            mqttset.s.idx_sens[0] = iroot["mqtt_sens0"];
+            mqttset.s.idx_sens[1] = iroot["mqtt_sens1"];
+            mqttset.s.idx_sens[2] = iroot["mqtt_sens2"];
             
             SaveMqttSettings(false);
             
@@ -94,9 +97,13 @@ public:
          if(cmd == "defaults") // send reply
          {
             root["action"] = "mqtt";
+            root["mqtt_relay"] = mqttset.s.idx_relay;
             root["mqtt_vcc"] = mqttset.s.idx_vcc;
             root["mqtt_status"] = mqttset.s.idx_status;
             root["mqtt_mode"] = mqttset.s.idx_mode;
+            root["mqtt_sens0"] = mqttset.s.idx_sens[0];
+            root["mqtt_sens1"] = mqttset.s.idx_sens[1];
+            root["mqtt_sens2"] = mqttset.s.idx_sens[2];
          }
       }
    }
