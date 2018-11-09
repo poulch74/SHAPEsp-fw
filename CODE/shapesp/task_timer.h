@@ -4,6 +4,8 @@ extern ESP_TPRG prg;
 
 extern ESP_MQTT mqttset;
 
+extern AsyncMqttClient mqttClient;
+
 const int drvA1   = 14; // close pin 
 const int drvA2   = 12; // open pin
 const int drvSTBY = 13; // open pin
@@ -24,15 +26,31 @@ public:
    Relay *relay;
    bool skiptmr;
 
+   void sendMqttDefaults()
+   {
+      if(mqttset.s.idx_relay)
+      {
+         String buf = FmtMqttMessage(mqttset.s.idx_relay, relay->GetState(), "Status");
+         uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, buf.c_str());
+      }
+
+      if(mqttset.s.idx_mbtn)
+      {
+         String buf = FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status");
+         uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, buf.c_str());
+      }
+   }
+
    void doTask(int evt)
    {
       int vstate = 0;
-
-      //DbgPrintln(("DoTask3"));
+      bool updatemode = false;
       
-      if(evt == EVT_VCLOSE) { skiptmr = true; vstate = -1; }
-      if(evt == EVT_VOPEN) { skiptmr = true; vstate =  1; }
-      if(evt == EVT_VAUTO)  { skiptmr =  false; }
+      if(evt == EVT_VSTARTUP) { sendMqttDefaults(); return;}
+      
+      if(evt == EVT_VCLOSE) { skiptmr = true; vstate = -1; updatemode = true;}
+      if(evt == EVT_VOPEN) { skiptmr = true; vstate = 1; updatemode = true;}
+      if(evt == EVT_VAUTO) { skiptmr =  false; updatemode = true;}
 
       if(!skiptmr)
       {
@@ -47,24 +65,40 @@ public:
             if((prg.ta.p[i].active)&&(tcur==prg.ta.p[i].off_ts)&&(cdow&prg.ta.p[i].off_dowmask)) { vstate = -1; break;}
       }
 
-      if(vstate!=0) { relay->SetState(((vstate>0) ? 1:0)); }
+      if(vstate!=0)
+      { 
+         relay->SetState(((vstate>0) ? 1:0));
+
+         // publish relay status to keep tracking
+         std::vector<String> payload;
+         payload.push_back(FmtMqttMessage(mqttset.s.idx_relay, relay->GetState(), "Status"));
+         GetEvent(EVT_MQTTPUB).doTasks(payload);
+         //uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, buf.c_str());
+      }
+
+      if(updatemode)
+      {
+         // publish mode to keep tracking
+         String buf = FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status");
+         uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, buf.c_str());
+      }
    }
 
    void doMqttTask(int evt, std::vector<String> &payload)
    {
       if(evt == EVT_MQTT)
       {
-         do
+         if(mqttset.s.idx_mode) // non zero -> publish
          {
             String buf = FmtMqttMessage(mqttset.s.idx_mode,0, (skiptmr ? "Manual":"Auto"));
             payload.push_back(buf);
-         } while(0);
+         }
 
-         do
+         if(mqttset.s.idx_status)
          {
-            String buf = FmtMqttMessage(mqttset.s.idx_status,0, (relay->GetState() ? "Open":"Close"));
+            String buf = FmtMqttMessage(mqttset.s.idx_status, relay->GetState(), (relay->GetState() ? "Open":"Close"));
             payload.push_back(buf);
-         } while(0);
+         }
       }
    }
 
@@ -83,9 +117,9 @@ public:
 
       if(event== "time")
       {
-         if(cmd=="auto") { sysqueue.push(&__evtEVT_VAUTO); DEBUG_MSG("SCHEDULE AUTO\n");}
-         if(cmd=="close") { sysqueue.push(&__evtEVT_VCLOSE); DEBUG_MSG("SCHEDULE CLOSE\n");}
-         if(cmd=="open") { sysqueue.push(&__evtEVT_VOPEN); DEBUG_MSG("SCHEDULE OPEN\n");}
+         if(cmd=="auto") { sysqueue.push(&GetEvent(EVT_VAUTO)); DEBUG_MSG("SCHEDULE AUTO\n");}
+         if(cmd=="close") { sysqueue.push(&GetEvent(EVT_VCLOSE)); DEBUG_MSG("SCHEDULE CLOSE\n");}
+         if(cmd=="open") { sysqueue.push(&GetEvent(EVT_VOPEN)); DEBUG_MSG("SCHEDULE OPEN\n");}
 
          if(cmd == "settime")
          {

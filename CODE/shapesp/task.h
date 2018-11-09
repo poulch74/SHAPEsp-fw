@@ -21,18 +21,20 @@ public:
       vcc = adc*15.63/1024.0; //1000 15.98
       heap = ESP.getFreeHeap();
       rssi = WiFi.RSSI();
+      int vcc10 = (int)(vcc*10.0);
+      battery = 10 + (vcc10-minbat)*80/(maxbat-minbat);
+      if(battery>100) battery = 100;
    }
 
    void doMqttTask(int evt, std::vector<String> &payload)
    {
-      
       if(evt == EVT_MQTT)
       {
-         do
+         if(mqttset.s.idx_vcc)
          {
-            String buf = FmtMqttMessage(mqttset.s.idx_vcc,0, String(vcc,1).c_str());
+            String buf = FmtMqttMessage(mqttset.s.idx_vcc, 0, String(vcc,1).c_str());
             payload.push_back(buf);
-         } while(0);
+         }
       }
    }
 
@@ -62,9 +64,7 @@ public:
 private:
    double vcc;
    uint32_t heap;
-   int32_t rssi;
    char uptime[32];
- 
 };
 
 TestTask1 task1;

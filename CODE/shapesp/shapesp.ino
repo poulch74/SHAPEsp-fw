@@ -100,6 +100,7 @@ typedef struct _ESP_MQTT_S
    char     user[21];
    char     pwd[21];
    uint32_t idx_relay;
+   uint32_t idx_mbtn;
    uint32_t idx_vcc;
    uint32_t idx_status;
    uint32_t idx_mode;
@@ -122,6 +123,11 @@ void prototypes(void) {} // here we collect all func prototypes
 int wifimode;
 String softAPname;
 
+int rssi = 50; // store global, so any can access this
+int battery = 100; // 0-100 percentage 10.8 - 12.5 map to 10-90%
+int minbat = 108;
+int maxbat = 140;
+
 #include "event.h"
 
 std::queue<EspEvent *> sysqueue; // очередь сообщений
@@ -137,7 +143,11 @@ DEFINE_EVENT(EVT_VCLOSE,3)
 DEFINE_EVENT(EVT_VOPEN,4)
 DEFINE_EVENT(EVT_VAUTO,5)
 
-DEFINE_EVENT(EVT_MQTT,6) // выделенное событие, его mqtt_task перебирает когда вызывается
+DEFINE_EVENT(EVT_VSTARTUP,6)
+
+DEFINE_EVENT(EVT_MQTTPUB,7) // посылка msg
+
+DEFINE_EVENT(EVT_MQTT,8) // выделенное событие, его mqtt_task перебирает когда вызывается
 
 DEFINE_MSG(MSG_STATUS,101)
 DEFINE_MSG(MSG_SET_TIME,102)
@@ -167,11 +177,16 @@ EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer)
    EVENT_REGISTER_TASK(EVT_VAUTO,taskTimer)
 
+   EVENT_REGISTER_TASK(EVT_VSTARTUP,taskTimer) //загрузка значение по умолчанию
+
+   EVENT_REGISTER_TASK(EVT_MQTTPUB, mqtt_task) //загрузка значение по умолчанию
+
    EVENT_REGISTER_TASK(EVT_MQTT,task1)
    EVENT_REGISTER_TASK(EVT_MQTT,taskTimer)
    EVENT_REGISTER_TASK(EVT_MQTT,sens_task)
 EVENT_END_REGISTER_TASKS
 
+// обмен с web интерфейсом
 MSG_BEGIN_REGISTER_TASKS
    MSG_REGISTER_TASK(MSG_STATUS,task1)
    MSG_REGISTER_TASK(MSG_STATUS,taskTimer)
@@ -211,7 +226,6 @@ void alarm()
    static int sec60cnt = 0;
    sec60cnt++; if(sec60cnt == 60) { sysqueue.push(&GetEvent(EVT_60SEC)); sec60cnt = 0; }
 }
-
 
 IPAddress apIP(192, 168, 4, 1);
 

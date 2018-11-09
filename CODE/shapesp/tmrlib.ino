@@ -177,8 +177,8 @@ String FmtMqttMessage(int idx, int nvalue, const char *svalue)
 {
    char buf[128];
    snprintf(buf, sizeof(buf), 
-            "{\"command\":\"udevice\",\"idx\":%u,\"nvalue\":%d,\"svalue\":\"%s\"}", 
-            idx, nvalue, svalue
+            "{\"command\":\"udevice\",\"idx\":%d,\"RSSI\":%d,\"Battery\":%d,\"nvalue\":%d,\"svalue\":\"%s\"}", 
+            idx, abs(rssi/10), battery, nvalue, svalue
            );
    return String(buf);
 }
