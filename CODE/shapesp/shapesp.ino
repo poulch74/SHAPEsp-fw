@@ -36,26 +36,29 @@
     #define DEBUG_MSG_P(...)
 #endif
 
-#pragma pack(1)
+#pragma pack(push,1)
 
 typedef struct _ESP_TPRG_S
 {
    uint8_t on_dowmask;
    uint8_t on_hour;
    uint8_t on_min;
+   uint8_t reserved1;
    uint16_t on_ts;
 
    uint8_t off_dowmask;
    uint8_t off_hour;
    uint8_t off_min;
+   uint8_t reserved2;
    uint16_t  off_ts;
 
-   bool active;
+   uint32_t active;
 } ESP_TPRG_S;
 
 typedef struct _ESP_TPRG_A
 {
    uint16_t crc;
+   uint16_t reserved;
    ESP_TPRG_S p[10]; 
 } ESP_TPRG_A;
 
@@ -97,16 +100,31 @@ typedef union __ESP_CONFIG_U
 typedef struct _ESP_MQTT_S
 {
    uint16_t crc;
-   char     user[21];
-   char     pwd[21];
+   uint16_t reserved;
+
    uint32_t idx_relay;
    uint32_t idx_mbtn;
    uint32_t idx_vcc;
    uint32_t idx_status;
    uint32_t idx_mode;
    uint32_t idx_cmd[4];
-   uint32_t idx_sens[8];
-} ESP_MQTT_S;
+   uint32_t idx_sens[8]; //72
+
+   uint16_t port;
+   uint16_t keepAlive;
+   uint8_t  qos;
+   uint8_t  retain;      //78
+   
+   char     user[21];
+   char     pwd[21];
+
+   char     server[65];
+   char     clientID[33];
+   char     inTopic[65];
+   char     outTopic[65];
+   char     willTopic[65];
+
+} ESP_MQTT_S; // 413 bytes
 
 typedef union __ESP_MQTT_U
 {
@@ -115,7 +133,7 @@ typedef union __ESP_MQTT_U
 } ESP_MQTT;
 
 
-#pragma pack()
+#pragma pack(pop)
 
 
 void prototypes(void) {} // here we collect all func prototypes
@@ -134,9 +152,6 @@ std::queue<EspEvent *> sysqueue; // очередь сообщений
 std::map<String, EspEvent *> msglist; // список подписок websocket
 
 // events
-
-//#define EVT_5SEC 2
-
 DEFINE_EVENT(EVT_1SEC,1)
 DEFINE_EVENT(EVT_60SEC,2)
 DEFINE_EVENT(EVT_VCLOSE,3)
@@ -145,7 +160,7 @@ DEFINE_EVENT(EVT_VAUTO,5)
 
 DEFINE_EVENT(EVT_VSTARTUP,6)
 
-DEFINE_EVENT(EVT_MQTTPUB,7) // посылка msg
+DEFINE_EVENT(EVT_MQTTPUB,7) // ipc посылка msg
 
 DEFINE_EVENT(EVT_MQTT,8) // выделенное событие, его mqtt_task перебирает когда вызывается
 
@@ -234,7 +249,6 @@ AsyncWebSocket ws("/ws");
 
 ESP_CONFIG cfg;
 ESP_TPRG prg;
-
 ESP_MQTT mqttset;
 
 void setup()
@@ -267,6 +281,7 @@ void setup()
    SPIFFS.begin();
 
    info();
+
    i2cScan();
 
    if(!ReadConfig())
@@ -280,7 +295,10 @@ void setup()
    DEBUG_MSG("Pwd: %s \n", cfg.s.pwd);
 
    WiFi.mode(WIFI_STA);
-   WiFi.hostname("test_host");
+   String mac = WiFi.macAddress();
+   String hostname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
+
+   WiFi.hostname(hostname);
 
    WiFi.begin(cfg.s.sta_ssid, cfg.s.sta_pwd);
 
@@ -342,7 +360,8 @@ void setup()
    //if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
    //else server.on("/"     , handleLogin);
 
-   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+   server.rewrite("/","/index.html");
+   server.on("/index.html", handleIndex);
    server.on("/favicon.ico", handleFavicon);
    server.onNotFound(handleNotFound);
 
@@ -394,13 +413,13 @@ void setup()
    EventRegisterTasks();
    MsgRegisterTasks();
    MsgSubscribe();
+
    timer.attach_ms(1000,alarm); // start sheduler&timeout timer
 }
 
 
 void loop()
 {
-   //time_t t = now();
    if(!sysqueue.empty())
    { 
       sysqueue.front()->doTasks();

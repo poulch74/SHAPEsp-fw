@@ -1,6 +1,7 @@
 
 #define MQTT_HOST IPAddress(192, 168, 137, 1)
 #define MQTT_PORT 1883
+String MQTT_HOST_S("192.168.137.1");
 
 extern ESP_MQTT mqttset;
 
@@ -14,14 +15,28 @@ public:
    void Initialize()
    {
       DEBUG_MSG("Init MQTT task.\n");
-      mqttClient.onConnect(onMqttConnect);
-      //mqttClient.onDisconnect(onMqttDisconnect);
-      //mqttClient.onSubscribe(onMqttSubscribe);
-      //mqttClient.onUnsubscribe(onMqttUnsubscribe);
-      mqttClient.onMessage(onMqttMessage);
-      //mqttClient.onPublish(onMqttPublish);
+      DEBUG_MSG(" Host: %s\n",mqttset.s.server);
+      DEBUG_MSG(" Port: %d\n",mqttset.s.port);
+      DEBUG_MSG(" ClientID: %s\n",mqttset.s.clientID);
+      DEBUG_MSG(" keepAlive: %d\n",mqttset.s.keepAlive);
+      DEBUG_MSG(" User: %s\n",mqttset.s.user);
+      DEBUG_MSG(" Password: %s\n",mqttset.s.pwd);
+      DEBUG_MSG(" QoS: %d\n",mqttset.s.qos);
+      DEBUG_MSG(" Retain: %d\n",mqttset.s.retain);
+      DEBUG_MSG(" Will topic: %s\n",mqttset.s.willTopic);
+      DEBUG_MSG(" In topic: %s\n",mqttset.s.inTopic);
+      DEBUG_MSG(" Out topic: %s\n",mqttset.s.outTopic);
 
-      mqttClient.setServer(MQTT_HOST, MQTT_PORT);
+      mqttClient.onConnect(onMqttConnect);
+      mqttClient.onMessage(onMqttMessage);
+
+      mqttClient.setServer(mqttset.s.server, mqttset.s.port);
+      if(strlen(mqttset.s.clientID) > 0) mqttClient.setClientId(mqttset.s.clientID);
+      mqttClient.setKeepAlive(15);//mqttset.s.keepAlive);
+      mqttClient.setCleanSession(false);
+      if(strlen(mqttset.s.willTopic) > 0) mqttClient.setWill(mqttset.s.willTopic, mqttset.s.qos, mqttset.s.retain, "0");
+      if ((strlen(mqttset.s.user) > 0) && (strlen(mqttset.s.pwd) > 0)) mqttClient.setCredentials(mqttset.s.user, mqttset.s.pwd);
+
       mqttClient.connect();
    }
 
@@ -29,9 +44,11 @@ public:
    {
       DEBUG_MSG("Connected to MQTT.\n");
       DEBUG_MSG("Session present: %d\n",sessionPresent);
-      uint16_t packetIdSub = mqttClient.subscribe("domoticz/out", 2);
-
-      // послать тут состояния выключателей
+      if(mqttClient.connected() && (strlen(mqttset.s.outTopic)>0))
+      {
+         uint16_t packetIdSub = mqttClient.subscribe(mqttset.s.outTopic, mqttset.s.qos);
+      }
+      // initial state
       GetEvent(EVT_VSTARTUP).doTasks();
    }
 
@@ -85,11 +102,6 @@ public:
          std::vector<String> payload;
          GetEvent(EVT_MQTT).doTasks(payload);
          doMqttTask(evt, payload);
-         /*
-         for(int i=0;i<payload.size();i++)
-         {
-            uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, payload[i].c_str());
-         }*/
       }
       else
       {
@@ -100,9 +112,12 @@ public:
    // task то send mqtt msg from other tasks GetEvent(EVT_MQTTPUB).doTasks(payload);
    void doMqttTask(int evt, std::vector<String> &payload )
    {
-      for(int i=0;i<payload.size();i++)
+      if(mqttClient.connected() && (strlen(mqttset.s.inTopic)>0))
       {
-         uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, payload[i].c_str());
+         for(int i=0;i<payload.size();i++)
+         {
+            uint16_t packetIdPub1 = mqttClient.publish(mqttset.s.inTopic, mqttset.s.qos, mqttset.s.retain, payload[i].c_str());
+         }
       }
    }
 
@@ -116,6 +131,17 @@ public:
          if(cmd == "setmqtt")
          {
             DEBUG_MSG("setmqtt and response");
+            snprintf(mqttset.s.server,64,"%s",iroot["mqtt_server"].as<String>().c_str());
+            mqttset.s.port = iroot["mqtt_port"];
+            snprintf(mqttset.s.user,20,"%s",iroot["mqtt_user"].as<String>().c_str());
+            snprintf(mqttset.s.pwd,20,"%s",iroot["mqtt_pwd"].as<String>().c_str());
+            snprintf(mqttset.s.inTopic,64,"%s",iroot["mqtt_intopic"].as<String>().c_str());
+            snprintf(mqttset.s.outTopic,64,"%s",iroot["mqtt_outtopic"].as<String>().c_str());
+            snprintf(mqttset.s.willTopic,64,"%s",iroot["mqtt_willtopic"].as<String>().c_str());
+            snprintf(mqttset.s.clientID,32,"%s",iroot["mqtt_clientid"].as<String>().c_str());
+            mqttset.s.qos = iroot["mqtt_qos"];
+            mqttset.s.keepAlive = iroot["mqtt_keepalive"];
+            mqttset.s.retain = iroot["mqtt_retain"];
             mqttset.s.idx_relay = iroot["mqtt_relay"];
             mqttset.s.idx_mbtn = iroot["mqtt_mbtn"];
             mqttset.s.idx_vcc = iroot["mqtt_vcc"];
@@ -132,7 +158,19 @@ public:
 
          if(cmd == "defaults") // send reply
          {
+            DEBUG_MSG("defaults");
             root["action"] = "mqtt";
+            root["mqtt_server"] = String(mqttset.s.server);
+            root["mqtt_port"] = mqttset.s.port;
+            root["mqtt_user"] = String(mqttset.s.user);
+            root["mqtt_pwd"] = String(mqttset.s.pwd);
+            root["mqtt_intopic"] = String(mqttset.s.inTopic);
+            root["mqtt_outtopic"] = String(mqttset.s.outTopic);
+            root["mqtt_willtopic"] = String(mqttset.s.willTopic);
+            root["mqtt_clientid"] = String(mqttset.s.clientID);
+            root["mqtt_qos"] = mqttset.s.qos;
+            root["mqtt_keepalive"] = mqttset.s.keepAlive;
+            root["mqtt_retain"] = mqttset.s.retain;
             root["mqtt_relay"] = mqttset.s.idx_relay;
             root["mqtt_mbtn"] = mqttset.s.idx_mbtn;
             root["mqtt_vcc"] = mqttset.s.idx_vcc;

@@ -461,14 +461,30 @@
          {
             msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "mqtt", cmd: _cmd, id: _id};
 
+            msg['mqtt_server'] =   document.getElementById('mqtt_server').value;
+            msg['mqtt_port'] =     document.getElementById('mqtt_port').value;
+
+            msg["mqtt_user"] = document.getElementById('mqtt_user').value;
+            msg["mqtt_pwd"] = document.getElementById('mqtt_pwd').value;
+
+            msg['mqtt_intopic'] =  document.getElementById('mqtt_intopic').value;
+            msg['mqtt_outtopic'] = document.getElementById('mqtt_outtopic').value;
+            msg["mqtt_willtopic"] = document.getElementById('mqtt_willtopic').value;
+            msg["mqtt_clientid"] = document.getElementById('mqtt_clientid').value;
+
+            msg["mqtt_qos"] = document.getElementById('mqtt_qos').value;
+            msg["mqtt_keepalive"] = document.getElementById('mqtt_keepalive').value;
+            msg["mqtt_retain"] = document.getElementById('mqtt_retain').value;
+
+
             msg['mqtt_relay'] =  document.getElementById('mqtt_relay').value;
-            msg['mqtt_mbtn'] =  document.getElementById('mqtt_mbtn').value;
+            msg['mqtt_mbtn'] =   document.getElementById('mqtt_mbtn').value;
             msg['mqtt_vcc'] =    document.getElementById('mqtt_vcc').value;
             msg['mqtt_status'] = document.getElementById('mqtt_status').value;
             msg['mqtt_mode'] =   document.getElementById('mqtt_mode').value;
-            msg['mqtt_sens0'] =   document.getElementById('mqtt_sens0').value;
-            msg['mqtt_sens1'] =   document.getElementById('mqtt_sens1').value;
-            msg['mqtt_sens2'] =   document.getElementById('mqtt_sens2').value;
+            msg['mqtt_sens0'] =  document.getElementById('mqtt_sens0').value;
+            msg['mqtt_sens1'] =  document.getElementById('mqtt_sens1').value;
+            msg['mqtt_sens2'] =  document.getElementById('mqtt_sens2').value;
          }
 
          websock.send(JSON.stringify(msg));
@@ -742,6 +758,91 @@
 
             <div class="tab" id="tab4">
                <div class='div1'>
+
+                  <div class='div2'>
+                     <div class='div3'>Host:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_server' id='mqtt_server' maxlength='32' value='N/A'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>Port:</div>
+                     <div class='div3'>
+                        <input type='number' class = 'iptext' name='_mqtt_port' id='mqtt_port' min='0' max='65535' value='0'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>User:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_user' id='mqtt_user' maxlength='20' value='N/A'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>Password:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_pwd' id='mqtt_pwd' maxlength='20' value='N/A'>
+                     </div>
+                  </div>
+
+
+                  <div class='div2'>
+                     <div class='div3'>In topic:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_intopic' id='mqtt_intopic' maxlength='64' value='N/A'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>Out topic:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_outtopic' id='mqtt_outtopic' maxlength='64' value='N/A'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>Will topic:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_willtopic' id='mqtt_willtopic' maxlength='64' value='N/A'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>ClientID:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_clientid' id='mqtt_clientid' maxlength='32' value='N/A'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>QoS:</div>
+                     <div class='div3'>
+                        <select class = 'iptext'  name='_mqtt_qos' id='mqtt_qos'>
+                           <option selected value='0'>0</option>
+                           <option value='1'>1</option>
+                           <option value='2'>2</option>
+                        </select>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>keepAlive:</div>
+                     <div class='div3'>
+                        <input type='text' class = 'iptext' name='_mqtt_keepalive' id='mqtt_keepalive' value='N/A'>
+                     </div>
+                  </div>
+
+                  <div class='div2'>
+                     <div class='div3'>Retain:</div>
+                     <div class='div3'>
+                        <select class = 'iptext'  name='_mqtt_retain' id='mqtt_retain'>
+                           <option value='0'>0</option>
+                           <option selected value='1'>1</option>
+                        </select>
+                     </div>
+                  </div>
 
                   <div class='div2'>
                      <div class='div3'>Relay IDX:</div>

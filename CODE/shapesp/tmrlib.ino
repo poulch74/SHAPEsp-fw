@@ -35,10 +35,22 @@ void handleNotFound(AsyncWebServerRequest *request)
 }
 
 
+void handleIndex(AsyncWebServerRequest *request)
+{
+   AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/index.html.gz","text/html");
+   response->addHeader("Content-Encoding", "gzip");
+//        response->addHeader("Last-Modified", _last_modified);
+   response->addHeader("X-XSS-Protection", "1; mode=block");
+   response->addHeader("X-Content-Type-Options", "nosniff");
+   response->addHeader("X-Frame-Options", "deny");
+   request->send(response);
+}
+
 void handleFavicon(AsyncWebServerRequest *request)
 {
    request->send(SPIFFS, "/favicon.ico","image/ico");
 }
+
 
 
 bool is_auth(AsyncWebServerRequest *request)
@@ -146,7 +158,7 @@ bool ReadTmrPrg()
 
 void SaveTmrPrg(bool def)
 {
-   if(def) { memset(&prg,0,sizeof(ESP_TPRG)); }    
+   if(def) { memset(&prg,0,sizeof(ESP_TPRG)); }
    prg.ta.crc = crc16(&(prg.b[2]),sizeof(ESP_TPRG)-2);
    EEPROM.begin(4096);    
    for(uint16_t i=0; i<sizeof(ESP_TPRG); i++) { EEPROM.write(512+i,prg.b[i]);/*rtc.eeprom_write(512+i,prg.b[i]);*/ }
@@ -158,7 +170,7 @@ bool ReadMqttSettings()
    memset(&mqttset,0,sizeof(ESP_MQTT));
    EEPROM.begin(4096);
    for(uint16_t i=0; i<sizeof(ESP_MQTT); i++) mqttset.b[i] = EEPROM.read(1024+i);
-   EEPROM.end();    
+   EEPROM.end();
    uint16_t c_crc = crc16(&(mqttset.b[2]),sizeof(ESP_MQTT)-2);
    if(mqttset.s.crc!=c_crc) return false;
    return true;
@@ -166,7 +178,22 @@ bool ReadMqttSettings()
 
 void SaveMqttSettings(bool def)
 {
-   if(def) { memset(&mqttset,0,sizeof(ESP_MQTT)); }    
+   if(def)
+   { 
+      memset(&mqttset,0,sizeof(ESP_MQTT)); 
+      snprintf(mqttset.s.user,20,"");
+      snprintf(mqttset.s.pwd,20,"");
+      snprintf(mqttset.s.server,64,"localhost");
+      snprintf(mqttset.s.clientID,32,"");
+      snprintf(mqttset.s.inTopic,64,"domoticz/in");
+      snprintf(mqttset.s.outTopic,64,"domoticz/out");
+      snprintf(mqttset.s.willTopic,64,"domoticz/out");
+      mqttset.s.port = 1883;
+      mqttset.s.keepAlive = 15;
+      mqttset.s.qos = 0;
+      mqttset.s.retain = 0;
+   }
+
    mqttset.s.crc = crc16(&(mqttset.b[2]),sizeof(ESP_MQTT)-2);
    EEPROM.begin(4096);    
    for(uint16_t i=0; i<sizeof(ESP_MQTT); i++) { EEPROM.write(1024+i,mqttset.b[i]); }

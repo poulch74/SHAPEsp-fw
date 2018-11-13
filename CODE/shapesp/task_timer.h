@@ -4,7 +4,7 @@ extern ESP_TPRG prg;
 
 extern ESP_MQTT mqttset;
 
-extern AsyncMqttClient mqttClient;
+//extern AsyncMqttClient mqttClient;
 
 const int drvA1   = 14; // close pin 
 const int drvA2   = 12; // open pin
@@ -28,17 +28,19 @@ public:
 
    void sendMqttDefaults()
    {
+      std::vector<String> payload;
+
       if(mqttset.s.idx_relay)
       {
-         String buf = FmtMqttMessage(mqttset.s.idx_relay, relay->GetState(), "Status");
-         uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, buf.c_str());
+         payload.push_back(FmtMqttMessage(mqttset.s.idx_relay, relay->GetState(), "Status"));
       }
 
       if(mqttset.s.idx_mbtn)
       {
-         String buf = FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status");
-         uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, buf.c_str());
+         payload.push_back(FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status"));
       }
+
+      if(payload.size()) GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
    }
 
    void doTask(int evt)
@@ -65,23 +67,20 @@ public:
             if((prg.ta.p[i].active)&&(tcur==prg.ta.p[i].off_ts)&&(cdow&prg.ta.p[i].off_dowmask)) { vstate = -1; break;}
       }
 
-      if(vstate!=0)
+      std::vector<String> payload;
+
+      if(vstate!=0)   // publish relay status to keep tracking
       { 
          relay->SetState(((vstate>0) ? 1:0));
-
-         // publish relay status to keep tracking
-         std::vector<String> payload;
-         payload.push_back(FmtMqttMessage(mqttset.s.idx_relay, relay->GetState(), "Status"));
-         GetEvent(EVT_MQTTPUB).doTasks(payload);
-         //uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, buf.c_str());
+         if(mqttset.s.idx_relay) payload.push_back(FmtMqttMessage(mqttset.s.idx_relay, relay->GetState(), "Status"));
       }
 
-      if(updatemode)
+      if(updatemode) // publish mode to keep tracking
       {
-         // publish mode to keep tracking
-         String buf = FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status");
-         uint16_t packetIdPub1 = mqttClient.publish("domoticz/in", 0, true, buf.c_str());
+         if(mqttset.s.idx_mbtn) payload.push_back(FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status"));
       }
+
+      if(payload.size()) GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
    }
 
    void doMqttTask(int evt, std::vector<String> &payload)
