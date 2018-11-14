@@ -4,7 +4,6 @@ extern ESP_TPRG prg;
 
 extern ESP_MQTT mqttset;
 
-//extern AsyncMqttClient mqttClient;
 
 const int drvA1   = 14; // close pin 
 const int drvA2   = 12; // open pin
@@ -40,7 +39,7 @@ public:
          payload.push_back(FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status"));
       }
 
-      if(payload.size()) GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
+      GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
    }
 
    void doTask(int evt)
@@ -71,8 +70,8 @@ public:
 
       if(vstate!=0)   // publish relay status to keep tracking
       { 
-         relay->SetState(((vstate>0) ? 1:0));
-         if(mqttset.s.idx_relay) payload.push_back(FmtMqttMessage(mqttset.s.idx_relay, relay->GetState(), "Status"));
+         int state = relay->SetState(((vstate>0) ? 1:0));
+         if(mqttset.s.idx_relay) payload.push_back(FmtMqttMessage(mqttset.s.idx_relay, state, "Status"));
       }
 
       if(updatemode) // publish mode to keep tracking
@@ -80,7 +79,7 @@ public:
          if(mqttset.s.idx_mbtn) payload.push_back(FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status"));
       }
 
-      if(payload.size()) GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
+      GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
    }
 
    void doMqttTask(int evt, std::vector<String> &payload)

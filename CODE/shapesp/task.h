@@ -3,7 +3,7 @@ extern ESP_MQTT mqttset;
 class TestTask1 : public EspTask
 {
 public:
-   TestTask1() : EspTask() {}
+   TestTask1() : EspTask() { snprintf(uptime,32,"00d:00h:00m"); }
    void doTask(int evt)
    {
       if(evt == EVT_60SEC)
@@ -12,8 +12,8 @@ public:
          int day = (t/86400);
          int hr =  (t/3600)%24;
          int min = (t%3600)/60;
-         snprintf(uptime,32,"%dd:%02dh:%02dm\n",day,hr,min);
-         DEBUG_MSG("Uptime: %s",uptime);
+         snprintf(uptime,32,"%dd:%02dh:%02dm",day,hr,min);
+         DEBUG_MSG("Uptime: %s \n",uptime);
          return;
       }
 

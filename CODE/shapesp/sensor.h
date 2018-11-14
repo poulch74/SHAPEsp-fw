@@ -76,8 +76,9 @@ class BME280Sensor: public Sensor
       {
          if(f_ready && mqttset.s.idx_sens[snum]) // ready and valid mapping
          {
-            String str = String(temp,1) +";"+ String(hum,1) +";0;"+ String(pres,1)+";0";
-            return FmtMqttMessage(mqttset.s.idx_sens[snum],0, str.c_str());
+            char str[65];
+            snprintf(str,64,"%s;%s;0;%s;0;",String(temp,1).c_str(), String(hum,1).c_str(), String(pres,1).c_str());
+            return FmtMqttMessage(mqttset.s.idx_sens[snum],0, str);
          }
          return String("");
       }

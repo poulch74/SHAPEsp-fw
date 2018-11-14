@@ -1,8 +1,3 @@
-
-#define MQTT_HOST IPAddress(192, 168, 137, 1)
-#define MQTT_PORT 1883
-String MQTT_HOST_S("192.168.137.1");
-
 extern ESP_MQTT mqttset;
 
 AsyncMqttClient mqttClient;
@@ -44,7 +39,7 @@ public:
    {
       DEBUG_MSG("Connected to MQTT.\n");
       DEBUG_MSG("Session present: %d\n",sessionPresent);
-      if(mqttClient.connected() && (strlen(mqttset.s.outTopic)>0))
+      if(strlen(mqttset.s.outTopic)>0)
       {
          uint16_t packetIdSub = mqttClient.subscribe(mqttset.s.outTopic, mqttset.s.qos);
       }

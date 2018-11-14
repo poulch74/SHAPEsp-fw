@@ -194,7 +194,7 @@ EVENT_BEGIN_REGISTER_TASKS
 
    EVENT_REGISTER_TASK(EVT_VSTARTUP,taskTimer) //загрузка значение по умолчанию
 
-   EVENT_REGISTER_TASK(EVT_MQTTPUB, mqtt_task) //загрузка значение по умолчанию
+   EVENT_REGISTER_TASK(EVT_MQTTPUB, mqtt_task) // публикация
 
    EVENT_REGISTER_TASK(EVT_MQTT,task1)
    EVENT_REGISTER_TASK(EVT_MQTT,taskTimer)
