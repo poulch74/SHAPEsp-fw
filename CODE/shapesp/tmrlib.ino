@@ -34,10 +34,12 @@ void handleNotFound(AsyncWebServerRequest *request)
    request->send(404, "text/plain", "Not found");
 }
 
+#include "index_html.h"
 
 void handleIndex(AsyncWebServerRequest *request)
 {
-   AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/index.html.gz","text/html");
+   //AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/index.html.gz","text/html");
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_htm, (size_t)8316);
    response->addHeader("Content-Encoding", "gzip");
 //        response->addHeader("Last-Modified", _last_modified);
    response->addHeader("X-XSS-Protection", "1; mode=block");
@@ -45,12 +47,6 @@ void handleIndex(AsyncWebServerRequest *request)
    response->addHeader("X-Frame-Options", "deny");
    request->send(response);
 }
-
-void handleFavicon(AsyncWebServerRequest *request)
-{
-   request->send(SPIFFS, "/favicon.ico","image/ico");
-}
-
 
 
 bool is_auth(AsyncWebServerRequest *request)

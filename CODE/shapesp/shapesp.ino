@@ -15,8 +15,8 @@
 #include <queue>
 #include <map>
 
-#include <FS.h>
-#include <ESP8266HTTPUpdateServer.h>
+//#include <FS.h>
+//#include <ESP8266HTTPUpdateServer.h>
 
 #include "TimeLib.h"
 
@@ -137,6 +137,8 @@ typedef union __ESP_MQTT_U
 
 
 void prototypes(void) {} // here we collect all func prototypes
+
+bool restartRequired = false;
 
 int wifimode;
 String softAPname;
@@ -278,7 +280,7 @@ void setup()
 
    randomSeed(second());
 
-   SPIFFS.begin();
+   //SPIFFS.begin();
 
    info();
 
@@ -362,11 +364,57 @@ void setup()
 
    server.rewrite("/","/index.html");
    server.on("/index.html", handleIndex);
-   server.on("/favicon.ico", handleFavicon);
    server.onNotFound(handleNotFound);
-
    ws.onEvent(onWsEvent);
    server.addHandler(&ws);
+
+   server.on("/update", HTTP_POST, 
+   [](AsyncWebServerRequest *request)
+   {
+      // the request handler is triggered after the upload has finished... 
+      // create the response, add header, and send response
+      //AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError())?"FAIL":"OK");
+      String str("<META http-equiv=\"refresh\" content=\"15;URL=/\">Update ");
+      str += String((Update.hasError())?"FAIL! ":"Success! ") + "Rebooting...\n";
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
+      //"<META http-equiv=\"refresh\" content=\"15;URL=/\">Update Success! Rebooting...\n");
+      restartRequired = true;  // Tell the main loop to restart the ESP
+      request->send(response);
+   },
+   [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+   {
+      //Upload handler chunks in data
+      if(!index)
+      { // if index == 0 then this is the first frame of data
+         Serial.printf("UploadStart: %s\n", filename.c_str());
+
+         Serial.setDebugOutput(true);
+      
+         // calculate sketch space required for the update
+         uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+         if(!Update.begin(maxSketchSpace))
+         {//start with max available size
+            Update.printError(Serial);
+         }
+         Update.runAsync(true); // tell the updaterClass to run in async mode
+      }
+
+      //Write chunked data to the free sketch space
+      if(Update.write(data, len) != len) { Update.printError(Serial); }
+    
+      if(final)
+      { // if the final flag is set then this is the last frame of data
+         if(Update.end(true))
+         { //true to set the size to the current progress
+            Serial.printf("Update Success: %u B\nRebooting...\n", index+len);
+         }
+         else
+         {
+            Update.printError(Serial);
+         }
+        Serial.setDebugOutput(false);
+      }
+   });   
 
 
    // ssdp
@@ -424,6 +472,13 @@ void loop()
    { 
       sysqueue.front()->doTasks();
       sysqueue.pop();
+   }
+   if(restartRequired)
+   {
+      Serial.printf("Restarting ESP\n\r");
+      restartRequired = false;
+      delay(100);
+      ESP.restart();
    }
    yield();
 }

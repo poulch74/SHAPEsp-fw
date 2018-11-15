@@ -1,5 +1,28 @@
 <html>
    <head>
+   <link href="data:image/ico;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAA
+               AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+               AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+               AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+               AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+               AAAAAAAAAAAAAAAAAP+DAP//gwD//4MA/wAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAA
+               AAAAAAAAAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAAAA/4MA/wAAAAAAAAAAAAAAAAAA
+               AAAAAAAAAAAAAAAAAAAAAAAA/4MA//+DAP//gwD/AAAAAP+DAP//gwD//4MA//+DAP//gwD//4
+               MA//+DAP8AAAAAAAAAAAAAAAAAAAAA/4MA/wAAAAD/gwD//4MA//+DAP//gwD//4MA//+DAP//
+               gwD//4MA//+DAP//gwD//4MA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP+DAP//gwD/AAAAAP
+               +DAP//gwD/AAAAAAAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD/
+               /4MA//+DAP//gwD//4MA/wAAAAAAAAAA/4MA/wAAAAD/gwD/AAAAAAAAAAAAAAAAAAAAAAAAAA
+               AAAAAA/4MA//+DAP//gwD/AAAAAP+DAP//gwD//4MA/wAAAAD/gwD//4MA//+DAP8AAAAAAAAA
+               AAAAAAAAAAAAAAAAAAAAAAD/gwD//4MA/wAAAAAAAAAA/4MA//+DAP//gwD//4MA/wAAAAD/gw
+               D/AAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD//4MA//+DAP//gwD//4MA/wAAAAAAAAAAAAAAAP+D
+               AP//gwD/AAAAAAAAAAAAAAAA/4MA//+DAP//gwD//4MA//+DAP8AAAAAAAAAAAAAAAD/gwD//4
+               MA//+DAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD/AAAAAAAAAAAAAAAA/4MA//+DAP8A
+               AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+               AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+               AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AA
+               D//wAA+M8AAOe/AADEBwAAoAMAAPJzAADwawAA8REAAPmFAADwcwAAg48AANz/AAD//wAA//8A
+               AA==" rel="icon" type="image/x-icon">
+
    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=2.0'>
 
    <style  type='text/css'>
@@ -217,7 +240,8 @@
       var handler_array = [onTabStatusHandler,
                            onTabTimerHandler,
                            onTabSettingsHandler,
-                           onTabMqttHandler];
+                           onTabMqttHandler,
+                           onTabAdminHandler];
 
       function SelectTab(idx)
       {
@@ -314,6 +338,19 @@
          });
 
       };
+
+      function reload(f)
+      {
+         sessionStorage.removeItem("hash");
+         sessionStorage.removeItem("sensCount");
+         sessionStorage.setItem("sessionid", getRandomInt(1000000));
+         sessionStorage.setItem("tabStart", 1);
+         sessionStorage.setItem("tabCount", 1);
+         f.submit();
+         window.location.reload();
+         return false;
+      }
+
 
       function reqauth(f)
       {
@@ -492,15 +529,19 @@
          document.getElementById('description').innerHTML = JSON.stringify(msg);
       }
 
+      function onTabAdminHandler(_id,_cmd)
+      {
+      }
 
       function makelist()
       {
-         sessionStorage.setItem("tabCount",4);
+         sessionStorage.setItem("tabCount",5);
          var list = document.getElementById("tabs-title");
          list.innerHTML = "<li id='tab-title1' onclick='SelectTab(1);' class='tab-title selected-li'>Status</li> \
                            <li id='tab-title2' onclick='SelectTab(2);' class='tab-title'>Timer</li> \
                            <li id='tab-title3' onclick='SelectTab(3);' class='tab-title'>Settings</li> \
-                           <li id='tab-title4' onclick='SelectTab(4);' class='tab-title'>MQTT</li>";
+                           <li id='tab-title4' onclick='SelectTab(4);' class='tab-title'>MQTT</li> \
+                           <li id='tab-title5' onclick='SelectTab(5);' class='tab-title'>Admin</li>";
 
          var _tab = document.getElementById("tab0");
          _tab.setAttribute("class", "tab");
@@ -909,6 +950,15 @@
 
                </div>
             </div>
+
+            <div class="tab" id="tab5">
+               <div class='div1'>
+                  <form method='POST' action='/update' enctype='multipart/form-data' onsubmit = 'return reload(this);'>
+                     <input type='file' name='update'><input type='submit' value='Update'>
+                  </form>
+               </div>
+            </div>
+
 
             </div>
 
