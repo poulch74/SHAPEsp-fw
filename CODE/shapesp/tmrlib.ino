@@ -29,6 +29,88 @@ uint16_t crc16(const uint8_t *msg, int msg_len)
    return crc;
 }
 
+// -----------------------------------------------------------------------------
+// Reset
+// -----------------------------------------------------------------------------
+Ticker _defer_reset;
+
+void reset() {
+    ESP.restart();
+}
+
+void deferredReset(unsigned long delay)
+{
+    _defer_reset.once_ms(delay, reset);
+}
+
+// SSDP
+const char _ssdp_template[] PROGMEM=
+    "<?xml version=\"1.0\"?>"
+    "<root xmlns=\"urn:schemas-upnp-org:device-1-0\">"
+        "<specVersion>"
+            "<major>1</major>"
+            "<minor>0</minor>"
+        "</specVersion>"
+        "<URLBase>http://%s:%u/</URLBase>"
+        "<device>"
+            "<deviceType>%s</deviceType>"
+            "<friendlyName>%s</friendlyName>"
+            "<presentationURL>/</presentationURL>"
+            "<serialNumber>%u</serialNumber>"
+            "<modelName>%s</modelName>"
+            "<modelNumber>%s</modelNumber>"
+            "<modelURL>%s</modelURL>"
+            "<manufacturer>%s</manufacturer>"
+            "<manufacturerURL>%s</manufacturerURL>"
+            "<UDN>uuid:38323636-4558-4dda-9188-cda0e6%06x</UDN>"
+        "</device>"
+    "</root>\r\n"
+    "\r\n";
+
+
+void handleSSDP(AsyncWebServerRequest *request)
+{
+   DEBUG_MSG("[SSDP] Schema request\n");
+
+   IPAddress ip = WiFi.localIP();
+   uint32_t chipId = ESP.getChipId();
+
+   char response[strlen_P(_ssdp_template) + 100];
+   snprintf_P(response, sizeof(response), _ssdp_template,
+      ip.toString().c_str(),  // ip
+      80,                          // port
+      "upnp:rootdevice",                   // device type
+      "SHAPEsp",     // friendlyName
+      chipId,                             // serialNumber
+      "SHAPEsp-async",                           // modelName
+      "01",                        // modelNumber
+      "http://www.google.com",                        // modelURL
+      "SHAPEsp",                        // manufacturer
+      "",                                 // manufacturerURL
+      chipId                              // UUID
+      );
+   request->send(200, "text/xml", response);
+}
+
+void ssdpSetup()
+{
+   SSDP.setDeviceType("upnp:rootdevice");
+   SSDP.setSchemaURL("description.xml");
+   SSDP.setHTTPPort(80);
+   SSDP.setName("SHAPEsp");
+   SSDP.setSerialNumber(String(ESP.getChipId()));
+   SSDP.setURL("/");
+   SSDP.setModelName("SHAPEsp-async");
+   SSDP.setModelNumber("01");
+   SSDP.setModelURL("http://www.google.com");
+   SSDP.setManufacturer("SHAPEsp");
+   SSDP.setManufacturerURL("");
+   SSDP.begin();
+
+   DEBUG_MSG("[SSDP] Started\n");
+}
+
+
 void handleNotFound(AsyncWebServerRequest *request)
 {
    request->send(404, "text/plain", "Not found");
@@ -39,7 +121,7 @@ void handleNotFound(AsyncWebServerRequest *request)
 void handleIndex(AsyncWebServerRequest *request)
 {
    //AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/index.html.gz","text/html");
-   AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_htm, (size_t)8316);
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_htm, (size_t)8363);
    response->addHeader("Content-Encoding", "gzip");
 //        response->addHeader("Last-Modified", _last_modified);
    response->addHeader("X-XSS-Protection", "1; mode=block");

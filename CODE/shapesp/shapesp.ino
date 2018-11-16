@@ -138,8 +138,6 @@ typedef union __ESP_MQTT_U
 
 void prototypes(void) {} // here we collect all func prototypes
 
-bool restartRequired = false;
-
 int wifimode;
 String softAPname;
 
@@ -365,6 +363,7 @@ void setup()
    server.rewrite("/","/index.html");
    server.on("/index.html", handleIndex);
    server.onNotFound(handleNotFound);
+   server.on("/description.xml", HTTP_GET, handleSSDP);
    ws.onEvent(onWsEvent);
    server.addHandler(&ws);
 
@@ -377,8 +376,8 @@ void setup()
       String str("<META http-equiv=\"refresh\" content=\"15;URL=/\">Update ");
       str += String((Update.hasError())?"FAIL! ":"Success! ") + "Rebooting...\n";
       AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
-      //"<META http-equiv=\"refresh\" content=\"15;URL=/\">Update Success! Rebooting...\n");
-      restartRequired = true;  // Tell the main loop to restart the ESP
+      //restartRequired = true;  // Tell the main loop to restart the ESP
+      deferredReset(200);
       request->send(response);
    },
    [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
@@ -416,37 +415,14 @@ void setup()
       }
    });   
 
-
-   // ssdp
-   ///server.on("/description.xml", HTTP_GET, [](AsyncWebServerRequest *request)){
-   ///   SSDP.schema(server.client());
-   ///});
-
-
-   // webupdate
-   //httpUpdater.setup(&server);
+   ssdpSetup();
      
    // Start the server
    server.begin();
    delay(10);
 
    DEBUG_MSG("Server started \n");
-/*
-   DbgPrintln(("Starting SSDP...\n"));
 
-   SSDP.setDeviceType("upnp:rootdevice");
-   SSDP.setSchemaURL("description.xml");
-   SSDP.setHTTPPort(80);
-   SSDP.setName("SHAPEsp");
-   SSDP.setSerialNumber("SHAPEsp");
-   SSDP.setURL("/");
-   SSDP.setModelName("SHAPEsp-tmr");
-   SSDP.setModelNumber("01");
-   SSDP.setModelURL("http://www.google.com");
-   SSDP.setManufacturer("SHAPEsp");
-   SSDP.setManufacturerURL("http://www.google.com");
-   SSDP.begin();
-*/
    if(!ReadTmrPrg())
    { 
       DEBUG_MSG("Failed read tmr config!!! Trying write default...");
@@ -472,13 +448,6 @@ void loop()
    { 
       sysqueue.front()->doTasks();
       sysqueue.pop();
-   }
-   if(restartRequired)
-   {
-      Serial.printf("Restarting ESP\n\r");
-      restartRequired = false;
-      delay(100);
-      ESP.restart();
    }
    yield();
 }
