@@ -11,7 +11,7 @@ Copyright (C) 2018 by Pavel Chauzov <poulch at mail dot ru>
 
 // fake millis syncprovider
 time_t getTime_stub() {
-    uint8_t data[7];
+//    uint8_t data[7];
     tmElements_t tm;
 
     tm.Second = 0;

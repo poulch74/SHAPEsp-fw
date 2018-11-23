@@ -23,6 +23,69 @@ protected:
    bool f_ready;
 };
 
+
+#include "OneWire.h"
+
+class DS1820Sensor: public Sensor
+{
+public:
+   uint8_t adr[8];
+   int step;
+   uint8_t data[12];
+   OneWire *ds;
+
+   DS1820Sensor(OneWire *bus, uint8_t addr[8]) { ds = bus; memcpy(adr,addr,8); init(); }
+   int init(){ f_ready=false; tcnt = 1; step = 2; f_ok = true;}
+
+   int begin()
+   {
+      if(step==2)
+      {
+         ds->reset();
+         ds->select(adr);
+         ds->write(0x44);
+      }
+      return 0;
+   }
+   int end() {return 0;}
+   int run()
+   {
+      if(step==2) {step--; return 0;}
+      DEBUG_MSG("sensor run\n");
+      f_ok = (ds->reset()==1)? true:false;
+      if(f_ok)
+      {
+         DEBUG_MSG("sensor run OK\n");
+         ds->select(adr);    
+         ds->write(0xBE);          
+         for (int i = 0; i < 9; i++) { data[i] = ds->read(); }
+         f_ready = true;
+         step=2;
+         return 0;
+      }
+      f_ready = false;
+      return 1;
+   }
+
+   String getName() { return String("DS1820"); }
+   String getTag(int idx)
+   {
+      return String("Temperature");
+   };
+   String getValueAsStr(int idx)
+   {
+      if(f_ready)
+      {
+         DEBUG_MSG("get value OK\n");
+         int raw = (data[1] << 8) | data[0]; 
+         if (data[7] == 0x10) raw = (raw & 0xFFF0) + 12 - data[6];  
+         return String(raw/16.0,1);
+      }
+      return String("none");
+   };
+};
+
+
 #include "BME280I2C_BRZO.h"
 
 class BME280Sensor: public Sensor
@@ -31,7 +94,7 @@ class BME280Sensor: public Sensor
       BME280Sensor() { init(); }
       int init() { f_ready=false; tcnt = 3; f_ok = bme280.begin() ? true:false;}
       int begin() { return 0;}
-      int end() {return 0;};
+      int end() {return 0;}
       int run()
       {
          //DEBUG_MSG("sensor run\n");

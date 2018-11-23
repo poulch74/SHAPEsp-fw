@@ -1,5 +1,7 @@
 std::vector<Sensor *> sensors;
 
+OneWire bus(2);
+
 class TaskSens : public EspTask
 {
 public:
@@ -9,6 +11,29 @@ public:
       BME280Sensor *bme = new BME280Sensor();
       sensors.push_back(bme);
 
+/*
+      uint8_t addr[8];
+      if(!bus.search(addr))
+      {
+         Serial.println("No more addresses.");
+         Serial.println();
+         //bus.reset_search();
+      }
+  
+      Serial.print("ROM =");
+      for( int i = 0; i < 8; i++)
+      {
+         Serial.write(' ');
+         Serial.print(addr[i], HEX);
+      }
+
+      if(OneWire::crc8(addr,7) != addr[7]) { Serial.println("CRC is not valid!"); }
+      else
+      {
+         DS1820Sensor *dss = new DS1820Sensor(&bus,addr);
+         sensors.push_back(dss);
+      }
+  */ 
       sens_count = 0;
 
       if(!sensors.empty())
