@@ -256,36 +256,6 @@ void setup()
    wifimode = 0; // station
   
    Serial.begin(115200);
-/*
-   pinMode ( led, OUTPUT );
-   digitalWrite ( led, 0 );
-   delay(3000);
-   digitalWrite ( led, 1 );
-   */
-while(1)
-{
-   bus.reset();
-    uint8_t addr[8];
-      if(!bus.search(addr))
-      {
-         //Serial.println("No more addresses.");
-         //Serial.println();
-         bus.reset_search();
-         delay(250);
-      }
-  
-      //Serial.print("ROM =");
-      for( int i = 0; i < 8; i++)
-      {
-         //Serial.write(' ');
-         //Serial.print(addr[i], HEX);
-      }
-
-      if(OneWire::crc8(addr,7) != addr[7])
-       { 
-          Serial.println("CRC is not valid!"); 
-          }
-}
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
    i2c_setup(4,5,200,400);
@@ -469,7 +439,6 @@ while(1)
 
    timer.attach_ms(1000,alarm); // start sheduler&timeout timer
 }
-
 
 void loop()
 {

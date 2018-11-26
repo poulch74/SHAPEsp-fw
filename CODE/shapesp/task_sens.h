@@ -8,32 +8,38 @@ public:
    TaskSens() : EspTask() {}
    void Initialize()
    {
-      BME280Sensor *bme = new BME280Sensor();
-      sensors.push_back(bme);
 
-/*
-      uint8_t addr[8];
-      if(!bus.search(addr))
+      if(i2cCheck(0x76)==0)
       {
-         Serial.println("No more addresses.");
-         Serial.println();
-         //bus.reset_search();
-      }
-  
-      Serial.print("ROM =");
-      for( int i = 0; i < 8; i++)
-      {
-         Serial.write(' ');
-         Serial.print(addr[i], HEX);
+         DEBUG_MSG("BME280 found at address 0x76. Adding... \n");
+         BME280Sensor *bme = new BME280Sensor(0x76);
+         sensors.push_back(bme);
       }
 
-      if(OneWire::crc8(addr,7) != addr[7]) { Serial.println("CRC is not valid!"); }
-      else
+      if(i2cCheck(0x77)==0)
       {
-         DS1820Sensor *dss = new DS1820Sensor(&bus,addr);
-         sensors.push_back(dss);
+         DEBUG_MSG("next BME280 found at address 0x77. Adding... \n");
+         BME280Sensor *bme = new BME280Sensor(0x77);
+         sensors.push_back(bme);
       }
-  */ 
+
+      uint8_t addr[8];      
+      while(bus.search(addr))
+      {
+         DEBUG_MSG("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n",
+                      addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
+
+         if(OneWire::crc8(addr,7) != addr[7]) { DEBUG_MSG("CRC is not valid! \n"); }
+         else
+         {
+            DEBUG_MSG("Add into sensors list! \n");
+            DS1820Sensor *dss = new DS1820Sensor(&bus,addr);
+            sensors.push_back(dss);
+         }
+      }
+      DEBUG_MSG("No more addresses. \n");
+      bus.reset_search();
+
       sens_count = 0;
 
       if(!sensors.empty())
