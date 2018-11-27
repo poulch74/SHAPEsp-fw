@@ -175,6 +175,8 @@ DEFINE_MSG(MSG_MQTT,105)
 #include "task_timer.h"
 
 #include "sensor.h"
+#include "bme280sens.h"
+#include "ds1820sens.h"
 #include "task_sens.h"
 
 #include "task_mqtt.h"

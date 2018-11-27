@@ -2,21 +2,7 @@ extern "C" {
     #include "spi_flash.h"
 }
 
-//#include "tmrlib.h"
-/*
-String DbgArgMsg(AsyncWebServerRequest *request)
-{
-   String message;
-   message += "URI: " + request->url();
-   message += "\nMethod: " + String((request->method() == HTTP_GET)?"GET":"POST");
-   message += "\nArguments: " + String(request->args()) + "\n";
-   for (uint8_t i=0; i<request->args(); i++)
-   {
-      message += " " + request->argName(i) + ": " + request->arg(i) + "\n";
-   }
-   return message;  
-}
-*/
+
 uint16_t crc16(const uint8_t *msg, int msg_len)
 {
    uint16_t crc = 0;

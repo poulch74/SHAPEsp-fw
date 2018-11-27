@@ -1,6 +1,7 @@
 std::vector<Sensor *> sensors;
 
-OneWire bus(2);
+OneWire owbus(2);
+DS2482 *dsbus;
 
 class TaskSens : public EspTask
 {
@@ -23,8 +24,32 @@ public:
          sensors.push_back(bme);
       }
 
-      uint8_t addr[8];      
-      while(bus.search(addr))
+      if(i2cCheck(0x18)==0)
+      {
+         DEBUG_MSG("I2C-1W bridge found at address 0x18. Adding... \n");
+
+         dsbus = new DS2482(0);
+
+         uint8_t addr[8];
+         while(dsbus->search(addr))
+         {
+            DEBUG_MSG("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n",
+                      addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
+
+            if(DS2482::crc8(addr,7) != addr[7]) { DEBUG_MSG("CRC is not valid! \n"); }
+            else
+            {
+               DEBUG_MSG("Add into sensors list! \n");
+               DS1820Sensor *dss = new DS1820Sensor(dsbus,addr);
+               sensors.push_back(dss);
+            }
+         }
+         DEBUG_MSG("No more addresses. \n");
+         dsbus->reset_search();         
+      }
+
+      uint8_t addr[8];
+      while(owbus.search(addr))
       {
          DEBUG_MSG("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n",
                       addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
@@ -33,12 +58,12 @@ public:
          else
          {
             DEBUG_MSG("Add into sensors list! \n");
-            DS1820Sensor *dss = new DS1820Sensor(&bus,addr);
+            DS1820Sensor *dss = new DS1820Sensor(&owbus,addr);
             sensors.push_back(dss);
          }
       }
       DEBUG_MSG("No more addresses. \n");
-      bus.reset_search();
+      owbus.reset_search();
 
       sens_count = 0;
 
