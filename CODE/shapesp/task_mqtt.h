@@ -153,7 +153,6 @@ public:
 
          if(cmd == "defaults") // send reply
          {
-            DEBUG_MSG("defaults");
             root["action"] = "mqtt";
             root["mqtt_server"] = String(mqttset.s.server);
             root["mqtt_port"] = mqttset.s.port;

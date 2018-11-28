@@ -135,6 +135,8 @@ typedef union __ESP_MQTT_U
 
 #pragma pack(pop)
 
+#include "config.h"
+
 
 void prototypes(void) {} // here we collect all func prototypes
 
@@ -284,6 +286,12 @@ void setup()
    info();
 
    i2cScan();
+
+   LoadConfig();
+
+      // test prints
+   DEBUG_MSG("[CONFIG] User: %s\n", (*config)["user"].as<String>().c_str());
+   DEBUG_MSG("[CONFIG] Pwd: %s\n", (*config)["pwd"].as<String>().c_str());
 
    if(!ReadConfig())
    { 
