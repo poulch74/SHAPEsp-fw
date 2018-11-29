@@ -1,10 +1,17 @@
+extern "C" {
+#include "user_interface.h"
+}
+
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <ESP8266SSDP.h>
 #include <EEPROM.h>
 #include <Ticker.h>
+
+#define ARDUINOJSON_ENABLE_PROGMEM 1
 #include <ArduinoJson.h>
+
 #include "WebSocketIncommingBuffer.h"
 
 #include <limits.h>
@@ -260,6 +267,7 @@ void setup()
    wifimode = 0; // station
   
    Serial.begin(115200);
+
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
    i2c_setup(4,5,200,400);
@@ -289,9 +297,7 @@ void setup()
 
    LoadConfig();
 
-      // test prints
-   DEBUG_MSG("[CONFIG] User: %s\n", (*config)["user"].as<String>().c_str());
-   DEBUG_MSG("[CONFIG] Pwd: %s\n", (*config)["pwd"].as<String>().c_str());
+   //SaveConfig();
 
    if(!ReadConfig())
    { 
@@ -303,11 +309,17 @@ void setup()
    DEBUG_MSG("User: %s \n",cfg.s.user);
    DEBUG_MSG("Pwd: %s \n", cfg.s.pwd);
 
+   //WiFi.setOutputPower(20);
+   system_phy_set_max_tpw(70);
+   WiFi.setAutoConnect(false);
    WiFi.mode(WIFI_STA);
    String mac = WiFi.macAddress();
    String hostname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
 
    WiFi.hostname(hostname);
+
+   Serial.print("Try Connected to "); Serial.println(cfg.s.sta_ssid);
+   Serial.print("Try pwd  "); Serial.println(cfg.s.sta_pwd);
 
    WiFi.begin(cfg.s.sta_ssid, cfg.s.sta_pwd);
 
@@ -319,10 +331,12 @@ void setup()
       WiFi.config(l_ip, l_gw, l_sn);
    }
   
-   uint8_t to = 50;
+   uint16_t to = 50;
    while(WiFi.status() != WL_CONNECTED )
    {
+      //Serial.printf("Connection status: %d\n", WiFi.status());
       Serial.print("."); delay(500); to--;
+      //WiFi.printDiag(Serial);
       if(to==0) break;
    };
 
@@ -345,7 +359,6 @@ void setup()
       softAPname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
       WiFi.softAP(softAPname.c_str());
       WiFi.disconnect(false);
-
       Serial.print("AP is "); Serial.println(softAPname);
       Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
    }

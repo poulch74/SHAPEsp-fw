@@ -15,9 +15,31 @@ typedef struct espcfg
 typedef union __ESP_CFG_U
 {
    ESP_CFG_S s;
-   uint8_t   b[2048];
+   uint8_t   b[2002];
 } ESP_CFG;
 #pragma pack(pop)
 
-DynamicJsonBuffer jsonBuffer;
-JsonObject *config;
+struct JsonBundle {
+  public:
+    void parse(const char* json) {
+      _jsonVariant = _jsonBuffer.parseObject(json);
+    }
+
+    void clear() {
+      _jsonBuffer.clear();
+    }
+
+
+    const JsonObject& root() const { 
+      return _jsonVariant;
+    }
+
+  private:
+    DynamicJsonBuffer _jsonBuffer;
+    JsonVariant _jsonVariant;
+};
+
+JsonBundle config;
+
+//DynamicJsonBuffer jsonBuffer;
+//JsonObject *config;
