@@ -1,6 +1,6 @@
-extern "C" {
-#include "user_interface.h"
-}
+//extern "C" {
+//#include "user_interface.h"
+//}
 
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
@@ -258,7 +258,7 @@ IPAddress apIP(192, 168, 4, 1);
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
-ESP_CONFIG cfg;
+//ESP_CONFIG cfg;
 ESP_TPRG prg;
 ESP_MQTT mqttset;
 
@@ -295,48 +295,50 @@ void setup()
 
    i2cScan();
 
-   LoadConfig();
+//   LoadConfig();
 
    //SaveConfig();
 
-   if(!ReadConfig())
+   if(!LoadConfig())
    { 
       DEBUG_MSG("Failed read config!!! Trying write default...");
-      WriteConfig(true);
+      SaveConfig(true);
       DEBUG_MSG("Done. \n");
    }
   
-   DEBUG_MSG("User: %s \n",cfg.s.user);
-   DEBUG_MSG("Pwd: %s \n", cfg.s.pwd);
+   JsonObject& cfg = config.root();
+   DEBUG_MSG("[CONFIG] User: %s\n", cfg["user"].as<String>().c_str());
+   DEBUG_MSG("[CONFIG] Pwd: %s\n", cfg["pwd"].as<String>().c_str());
+
+   //DEBUG_MSG("User: %s \n",cfg.s.user);
+   //DEBUG_MSG("Pwd: %s \n", cfg.s.pwd);
 
    //WiFi.setOutputPower(20);
-   system_phy_set_max_tpw(70);
-   WiFi.setAutoConnect(false);
+   //system_phy_set_max_tpw(50);
+   //WiFi.setAutoConnect(false);
    WiFi.mode(WIFI_STA);
    String mac = WiFi.macAddress();
    String hostname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
 
    WiFi.hostname(hostname);
 
-   Serial.print("Try Connected to "); Serial.println(cfg.s.sta_ssid);
-   Serial.print("Try pwd  "); Serial.println(cfg.s.sta_pwd);
+   Serial.print("Try Connected to "); Serial.println(cfg["sta_ssid"].as<const char*>());
+   Serial.print("Try pwd  "); Serial.println(cfg["sta_pwd"].as<const char*>());
 
-   WiFi.begin(cfg.s.sta_ssid, cfg.s.sta_pwd);
+   WiFi.begin(cfg["sta_ssid"].as<const char*>(), cfg["sta_pwd"].as<const char*>());
 
-   if(cfg.s.sta_dhcp==0)
+   if(cfg["sta_dhcp"].as<int>() == 0)
    {
-      IPAddress l_ip(cfg.s.sta_ip[0],cfg.s.sta_ip[1],cfg.s.sta_ip[2],cfg.s.sta_ip[3]);
-      IPAddress l_gw(cfg.s.sta_gw[0],cfg.s.sta_gw[1],cfg.s.sta_gw[2],cfg.s.sta_gw[3]);
-      IPAddress l_sn(cfg.s.sta_subnet[0],cfg.s.sta_subnet[1],cfg.s.sta_subnet[2],cfg.s.sta_subnet[3]);
+      IPAddress l_ip; l_ip.fromString(cfg["sta_ip"].as<const char*>()); //(cfg.s.sta_ip[0],cfg.s.sta_ip[1],cfg.s.sta_ip[2],cfg.s.sta_ip[3]);
+      IPAddress l_gw; l_gw.fromString(cfg["sta_gw"].as<const char*>());//(cfg.s.sta_gw[0],cfg.s.sta_gw[1],cfg.s.sta_gw[2],cfg.s.sta_gw[3]);
+      IPAddress l_sn; l_sn.fromString(cfg["sta_subnet"].as<const char*>());//(cfg.s.sta_subnet[0],cfg.s.sta_subnet[1],cfg.s.sta_subnet[2],cfg.s.sta_subnet[3]);
       WiFi.config(l_ip, l_gw, l_sn);
    }
   
    uint16_t to = 50;
    while(WiFi.status() != WL_CONNECTED )
    {
-      //Serial.printf("Connection status: %d\n", WiFi.status());
       Serial.print("."); delay(500); to--;
-      //WiFi.printDiag(Serial);
       if(to==0) break;
    };
 
@@ -348,7 +350,7 @@ void setup()
       WiFi.setSleepMode((WiFiSleepType_t)0);
       WiFi.setAutoReconnect(true);
       wifimode = 0; // station
-      Serial.print("Connected to "); Serial.println(cfg.s.sta_ssid);
+      Serial.print("Connected to "); Serial.println(cfg["sta_ssid"].as<const char *>());
       Serial.print("IP address: "); Serial.println(WiFi.localIP());
    }
    else
@@ -364,7 +366,7 @@ void setup()
    }
   
    DEBUG_MSG("write cfg \n");
-   if(false) WriteConfig(true); // if pin pushed write def config
+   if(false) SaveConfig(true); // if pin pushed write def config
    DEBUG_MSG("write cfg end \n");
 
    // Init sensors

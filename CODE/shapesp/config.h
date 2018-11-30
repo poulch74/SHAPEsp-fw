@@ -5,18 +5,12 @@ typedef struct Param
 } ESP_PARAM, *PESP_PARAM;
 
 #pragma pack(push,1)
-typedef struct espcfg
-{
-   uint16_t crc;
-   char payload[2000];
 
-} ESP_CFG_S, *PESP_CFG_S;
-
-typedef union __ESP_CFG_U
+typedef struct __ESP_CFG_
 {
-   ESP_CFG_S s;
-   uint8_t   b[2002];
+   uint8_t payload[2048];
 } ESP_CFG;
+
 #pragma pack(pop)
 
 struct JsonBundle {
@@ -30,7 +24,7 @@ struct JsonBundle {
     }
 
 
-    const JsonObject& root() const { 
+    JsonObject& root() { 
       return _jsonVariant;
     }
 
@@ -41,5 +35,3 @@ struct JsonBundle {
 
 JsonBundle config;
 
-//DynamicJsonBuffer jsonBuffer;
-//JsonObject *config;

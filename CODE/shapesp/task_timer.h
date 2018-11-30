@@ -18,7 +18,7 @@ public:
    {
       skiptmr = false;
       relay = new Relay(drvA1,drvA2,drvSTBY,R_VALVE,1); // 1 use autostop
-      relay->Initialize();
+      //relay->Initialize();
    }
 
 public:

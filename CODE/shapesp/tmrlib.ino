@@ -166,7 +166,7 @@ bool is_auth(AsyncWebServerRequest *request)
    return false; 
 */
 }
-
+/*
 bool ReadConfig()
 {
   memset(&cfg,0,sizeof(ESP_CONFIG));
@@ -205,10 +205,14 @@ void WriteConfig(bool def)
    }    
    cfg.s.crc = crc16(&(cfg.b[2]),sizeof(ESP_CONFIG)-2);
    EEPROM.begin(4096);  
-   for(uint16_t i=0; i<sizeof(ESP_CONFIG); i++) { EEPROM.write(i,cfg.b[i]);/*rtc.eeprom_write(i,cfg.b[i]);*/ }
+   for(uint16_t i=0; i<sizeof(ESP_CONFIG); i++)
+   { 
+      EEPROM.write(i,cfg.b[i]);
+      //rtc.eeprom_write(i,cfg.b[i]);
+   }
    EEPROM.end();
 }
-
+*/
 bool ReadTmrPrg()
 {
    memset(&prg,0,sizeof(ESP_TPRG));
