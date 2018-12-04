@@ -302,13 +302,13 @@ void setup()
    if(!LoadConfig())
    { 
       DEBUG_MSG("Failed read config!!! Trying write default...");
-      SaveConfig(true);
+  //    SaveConfig(true);
       DEBUG_MSG("Done. \n");
    }
   
-   JsonObject& cfg = config.root();
-   DEBUG_MSG("[CONFIG] User: %s\n", cfg["user"].as<String>().c_str());
-   DEBUG_MSG("[CONFIG] Pwd: %s\n", cfg["pwd"].as<String>().c_str());
+   //JsonObject& cfg = config.root();
+   DEBUG_MSG("[CONFIG] User: %s\n", getSetting("user","root").c_str());
+   DEBUG_MSG("[CONFIG] Pwd: %s\n", getSetting("pwd","esp8266").c_str());
 
    //DEBUG_MSG("User: %s \n",cfg.s.user);
    //DEBUG_MSG("Pwd: %s \n", cfg.s.pwd);
@@ -322,18 +322,18 @@ void setup()
 
    WiFi.hostname(hostname);
 
-   Serial.print("Try Connected to "); Serial.println(cfg["sta_ssid"].as<const char*>());
-   Serial.print("Try pwd  "); Serial.println(cfg["sta_pwd"].as<const char*>());
-
-   WiFi.begin(cfg["sta_ssid"].as<const char*>(), cfg["sta_pwd"].as<const char*>());
-
-   if(cfg["sta_dhcp"].as<int>() == 0)
+   if(getSetting("sta_dhcp",0).toInt() == 0)
    {
-      IPAddress l_ip; l_ip.fromString(cfg["sta_ip"].as<const char*>()); //(cfg.s.sta_ip[0],cfg.s.sta_ip[1],cfg.s.sta_ip[2],cfg.s.sta_ip[3]);
-      IPAddress l_gw; l_gw.fromString(cfg["sta_gw"].as<const char*>());//(cfg.s.sta_gw[0],cfg.s.sta_gw[1],cfg.s.sta_gw[2],cfg.s.sta_gw[3]);
-      IPAddress l_sn; l_sn.fromString(cfg["sta_subnet"].as<const char*>());//(cfg.s.sta_subnet[0],cfg.s.sta_subnet[1],cfg.s.sta_subnet[2],cfg.s.sta_subnet[3]);
+      IPAddress l_ip; l_ip.fromString(getSetting("sta_ip","192.168.137.89")); //(cfg.s.sta_ip[0],cfg.s.sta_ip[1],cfg.s.sta_ip[2],cfg.s.sta_ip[3]);
+      IPAddress l_gw; l_gw.fromString(getSetting("sta_gw","192.168.137.1"));//(cfg.s.sta_gw[0],cfg.s.sta_gw[1],cfg.s.sta_gw[2],cfg.s.sta_gw[3]);
+      IPAddress l_sn; l_sn.fromString(getSetting("sta_subnet","255.255.255.0"));//(cfg.s.sta_subnet[0],cfg.s.sta_subnet[1],cfg.s.sta_subnet[2],cfg.s.sta_subnet[3]);
       WiFi.config(l_ip, l_gw, l_sn);
    }
+
+   Serial.print("Try Connected to "); Serial.println(getSetting("sta_ssid","CH-Home"));
+   Serial.print("Try pwd  "); Serial.println(getSetting("sta_pwd","chps74qwerty"));
+
+   WiFi.begin(getSetting("sta_ssid","CH-Home").c_str(), getSetting("sta_pwd","chps74qwerty").c_str());
   
    uint16_t to = 50;
    while(WiFi.status() != WL_CONNECTED )
@@ -350,7 +350,7 @@ void setup()
       WiFi.setSleepMode((WiFiSleepType_t)0);
       WiFi.setAutoReconnect(true);
       wifimode = 0; // station
-      Serial.print("Connected to "); Serial.println(cfg["sta_ssid"].as<const char *>());
+      Serial.print("Connected to "); Serial.println(getSetting("sta_ssid","CH-Home"));
       Serial.print("IP address: "); Serial.println(WiFi.localIP());
    }
    else

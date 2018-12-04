@@ -70,8 +70,6 @@ private:
 TestTask1 task1;
 
 
-extern JsonBundle config;
-
 class TestTask4 : public EspTask
 {
 public:
@@ -102,9 +100,10 @@ public:
          subnet[0] = (ma>>24)&0xFF; subnet[1] = (ma>>16)&0xFF; subnet[2] = (ma>>8)&0xFF; subnet[3] = ma&0xFF;
          String s; s = String(subnet[0])+'.'+String(subnet[1])+'.'+String(subnet[2])+'.'+String(subnet[3]);
          cfg["sta_subnet"] = s;
-         DEBUG_MSG("NetMask: %s \n",s.c_str());
-         DEBUG_MSG("NetMask: %s \n",cfg["sta_subnet"].as<const char*>());
+         //DEBUG_MSG("NetMask: %s \n",s.c_str());
+         //DEBUG_MSG("NetMask: %s \n",cfg["sta_subnet"].as<const char*>());
          cfg["skip_logon"] = iroot["wifi_tnet"].as<String>();
+         
   
          SaveConfig(false);
          DEBUG_MSG("write config\n");
@@ -115,7 +114,7 @@ public:
       if(cmd=="defaults")
       {
          //ReadConfig();
-         IPAddress l_sn; l_sn.fromString(cfg["sta_subnet"].as<const char*>());
+         IPAddress l_sn; l_sn.fromString(cfg["sta_subnet"].as<String>());
          uint32_t ma = (((uint32_t)(l_sn[0]))<<24) + (((uint32_t)(l_sn[1]))<<16)
                        +(((uint32_t)(l_sn[2]))<<8) + l_sn[3];
          int m=0; while(ma!=0) { ma<<=1; m++; };
@@ -129,8 +128,6 @@ public:
          root["wifi_mask"] = m;
          root["wifi_tnet"] = cfg["skip_logon"];
       }
-
-
    }
 };
 

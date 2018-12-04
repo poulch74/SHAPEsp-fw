@@ -9,28 +9,47 @@ public:
 
    void Initialize()
    {
-      DEBUG_MSG("Init MQTT task.\n");
-      DEBUG_MSG(" Host: %s\n",mqttset.s.server);
-      DEBUG_MSG(" Port: %d\n",mqttset.s.port);
-      DEBUG_MSG(" ClientID: %s\n",mqttset.s.clientID);
-      DEBUG_MSG(" keepAlive: %d\n",mqttset.s.keepAlive);
-      DEBUG_MSG(" User: %s\n",mqttset.s.user);
-      DEBUG_MSG(" Password: %s\n",mqttset.s.pwd);
-      DEBUG_MSG(" QoS: %d\n",mqttset.s.qos);
-      DEBUG_MSG(" Retain: %d\n",mqttset.s.retain);
-      DEBUG_MSG(" Will topic: %s\n",mqttset.s.willTopic);
-      DEBUG_MSG(" In topic: %s\n",mqttset.s.inTopic);
-      DEBUG_MSG(" Out topic: %s\n",mqttset.s.outTopic);
-
+      //JsonObject& cfg = config.root();
       mqttClient.onConnect(onMqttConnect);
       mqttClient.onMessage(onMqttMessage);
 
-      mqttClient.setServer(mqttset.s.server, mqttset.s.port);
-      if(strlen(mqttset.s.clientID) > 0) mqttClient.setClientId(mqttset.s.clientID);
-      mqttClient.setKeepAlive(15);//mqttset.s.keepAlive);
+      mqttClient.setServer(getSetting("mqtt_server","localhost").c_str(), getSetting("mqtt_port",1883).toInt());
+      if(strlen(getSetting("mqtt_clientID",WiFi.hostname()).c_str()) > 0)
+      {
+         mqttClient.setClientId(getSetting("mqtt_clientID").c_str());
+      }
+      mqttClient.setKeepAlive(getSetting("mqtt_keepAlive",15));
       mqttClient.setCleanSession(false);
-      if(strlen(mqttset.s.willTopic) > 0) mqttClient.setWill(mqttset.s.willTopic, mqttset.s.qos, mqttset.s.retain, "0");
-      if ((strlen(mqttset.s.user) > 0) && (strlen(mqttset.s.pwd) > 0)) mqttClient.setCredentials(mqttset.s.user, mqttset.s.pwd);
+
+      if(strlen(getSetting("mqtt_willTopic","domoticz/out").c_str()) > 0)
+      {
+         mqttClient.setWill(getSetting("mqttset_willTopic"), getSetting("mqtt_qos",0), getSetting("mqtt_retain",0), "0");
+      }
+
+      if ((strlen(getSetting("mqtt_user").c_str()) > 0) && (strlen(getSetting("mqtt_pwd").c_str()) > 0))
+      {
+         mqttClient.setCredentials(getSetting("mqtt_user").c_str(), getSetting("mqtt_pwd").c_str());
+      }
+
+      in_topic = getSetting("mqtt_inTopic","domoticz/in");
+      out_topic = getSetting("mqtt_outTopic","domoticz/out");
+      idvcc = getSetting("mqtt_vcc",0);
+      idrel = getSetting("mqtt_relay",0);
+      idmbtn = getSetting("mqtt_mbtn",0);
+      for(int i=0;i<10;i++) id[i] = getSetting("mqtt_sens",i,0);
+
+      DEBUG_MSG("Init MQTT task.\n");
+      DEBUG_MSG(" Host: %s\n",getSetting("mqtt_server"));
+      DEBUG_MSG(" Port: %d\n",getSetting("mqtt_port"));
+      DEBUG_MSG(" ClientID: %s\n",getSetting("mqtt_clientID"));
+      DEBUG_MSG(" keepAlive: %d\n",getSetting("mqtt_keepAlive"));
+      DEBUG_MSG(" User: %s\n",getSetting("mqtt_user"));
+      DEBUG_MSG(" Password: %s\n",getSetting("mqtt_pwd"));
+      DEBUG_MSG(" QoS: %d\n",getSetting("mqtt_qos"));
+      DEBUG_MSG(" Retain: %d\n",getSetting("mqtt_retain"));
+      DEBUG_MSG(" Will topic: %s\n",getSetting("mqtt_willTopic"));
+      DEBUG_MSG(" In topic: %s\n",getSetting("mqtt_inTopic"));
+      DEBUG_MSG(" Out topic: %s\n",getSetting("mqtt_outTopic"));
 
       mqttClient.connect();
    }
@@ -39,9 +58,9 @@ public:
    {
       DEBUG_MSG("Connected to MQTT.\n");
       DEBUG_MSG("Session present: %d\n",sessionPresent);
-      if(strlen(mqttset.s.outTopic)>0)
+      if(strlen(out_topic.c_str())>0)
       {
-         uint16_t packetIdSub = mqttClient.subscribe(mqttset.s.outTopic, mqttset.s.qos);
+         uint16_t packetIdSub = mqttClient.subscribe(out_topic.c_str(), getSetting("mqtt_qos",0));
       }
       // initial state
       GetEvent(EVT_VSTARTUP).doTasks();
@@ -66,7 +85,7 @@ public:
       {
          int idx = root["idx"];
          int value = root["nvalue"];
-         if(idx == mqttset.s.idx_relay)
+         if(idx == idrel)
          {
             if(root["svalue1"].as<String>()=="Status")
             {
@@ -77,7 +96,7 @@ public:
             else {sysqueue.push(&GetEvent(EVT_VCLOSE)); DEBUG_MSG("SCHEDULE CLOSE MQTT\n");}
          }
 
-         if(idx == mqttset.s.idx_mbtn)
+         if(idx == idmbtn)
          {
             if(root["svalue1"].as<String>()=="Status")
             {
@@ -107,7 +126,7 @@ public:
    // task то send mqtt msg from other tasks GetEvent(EVT_MQTTPUB).doTasks(payload);
    void doMqttTask(int evt, std::vector<String> &payload )
    {
-      if(mqttClient.connected() && (strlen(mqttset.s.inTopic)>0))
+      if(mqttClient.connected() && (strlen(inTopic)>0))
       {
          for(int i=0;i<payload.size();i++)
          {
@@ -178,8 +197,13 @@ public:
    }
 
    
-public:
-   
+private:
+   String in_topic;
+   String out_topic;
+   int idvcc;
+   int idrel;
+   int mbtn;
+   int ids[10];
 };
 
 
