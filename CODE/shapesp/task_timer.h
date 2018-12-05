@@ -1,9 +1,5 @@
 #include "relay.h"
 
-extern ESP_TPRG prg;
-
-extern ESP_MQTT mqttset;
-
 
 const int drvA1   = 14; // close pin 
 const int drvA2   = 12; // open pin
@@ -18,7 +14,7 @@ public:
    {
       skiptmr = false;
       relay = new Relay(drvA1,drvA2,drvSTBY,R_VALVE,1); // 1 use autostop
-      relay->Initialize();
+      //relay->Initialize();
    }
 
 public:
@@ -29,14 +25,14 @@ public:
    {
       std::vector<String> payload;
 
-      if(mqttset.s.idx_relay)
+      if(cfg.mqtt.idx_relay)
       {
-         payload.push_back(FmtMqttMessage(mqttset.s.idx_relay, relay->GetState(), "Status"));
+         payload.push_back(FmtMqttMessage(cfg.mqtt.idx_relay, relay->GetState(), "Status"));
       }
 
-      if(mqttset.s.idx_mbtn)
+      if(cfg.mqtt.idx_mbtn)
       {
-         payload.push_back(FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status"));
+         payload.push_back(FmtMqttMessage(cfg.mqtt.idx_mbtn, (skiptmr ? 0:1), "Status"));
       }
 
       GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
@@ -61,9 +57,9 @@ public:
          uint8_t shift = (dayOfWeek(ct)-1) ? (dayOfWeek(ct)-2):6;
          uint8_t cdow = 1 << shift; // 0 based day of week 0 monday
          for(int i=0;i<10;i++)
-            if((prg.ta.p[i].active)&&(tcur==prg.ta.p[i].on_ts)&&(cdow&prg.ta.p[i].on_dowmask)) { vstate = 1; break;}
+            if((cfg.tmr[i].active)&&(tcur==cfg.tmr[i].on_ts)&&(cdow&cfg.tmr[i].on_dowmask)) { vstate = 1; break;}
          for(int i=0;i<10;i++)  
-            if((prg.ta.p[i].active)&&(tcur==prg.ta.p[i].off_ts)&&(cdow&prg.ta.p[i].off_dowmask)) { vstate = -1; break;}
+            if((cfg.tmr[i].active)&&(tcur==cfg.tmr[i].off_ts)&&(cdow&cfg.tmr[i].off_dowmask)) { vstate = -1; break;}
       }
 
       std::vector<String> payload;
@@ -71,12 +67,12 @@ public:
       if(vstate!=0)   // publish relay status to keep tracking
       { 
          int state = relay->SetState(((vstate>0) ? 1:0));
-         if(mqttset.s.idx_relay) payload.push_back(FmtMqttMessage(mqttset.s.idx_relay, state, "Status"));
+         if(cfg.mqtt.idx_relay) payload.push_back(FmtMqttMessage(cfg.mqtt.idx_relay, state, "Status"));
       }
 
       if(updatemode) // publish mode to keep tracking
       {
-         if(mqttset.s.idx_mbtn) payload.push_back(FmtMqttMessage(mqttset.s.idx_mbtn, (skiptmr ? 0:1), "Status"));
+         if(cfg.mqtt.idx_mbtn) payload.push_back(FmtMqttMessage(cfg.mqtt.idx_mbtn, (skiptmr ? 0:1), "Status"));
       }
 
       GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
@@ -86,15 +82,15 @@ public:
    {
       if(evt == EVT_MQTT)
       {
-         if(mqttset.s.idx_mode) // non zero -> publish
+         if(cfg.mqtt.idx_mode) // non zero -> publish
          {
-            String buf = FmtMqttMessage(mqttset.s.idx_mode,0, (skiptmr ? "Manual":"Auto"));
+            String buf = FmtMqttMessage(cfg.mqtt.idx_mode,0, (skiptmr ? "Manual":"Auto"));
             payload.push_back(buf);
          }
 
-         if(mqttset.s.idx_status)
+         if(cfg.mqtt.idx_status)
          {
-            String buf = FmtMqttMessage(mqttset.s.idx_status, relay->GetState(), (relay->GetState() ? "Open":"Close"));
+            String buf = FmtMqttMessage(cfg.mqtt.idx_status, relay->GetState(), (relay->GetState() ? "Open":"Close"));
             payload.push_back(buf);
          }
       }
@@ -145,22 +141,26 @@ public:
             for(int i=0;i<10;i++)
             {
                String n(i);
-               prg.ta.p[i].active = iroot["time_sact"+n];
+               cfg.tmr[i].active = iroot["time_sact"+n];
 
-               prg.ta.p[i].on_dowmask = iroot["time_sdmask"+n];
-               prg.ta.p[i].on_hour = iroot["time_shour"+n];
-               prg.ta.p[i].on_min = iroot["time_smin"+n];
-               prg.ta.p[i].on_ts = prg.ta.p[i].on_hour*60+prg.ta.p[i].on_min;
+               cfg.tmr[i].on_dowmask = iroot["time_sdmask"+n];
+               cfg.tmr[i].on_hour = iroot["time_shour"+n];
+               cfg.tmr[i].on_min = iroot["time_smin"+n];
+               cfg.tmr[i].on_ts = cfg.tmr[i].on_hour*60+cfg.tmr[i].on_min;
 
-               prg.ta.p[i].off_dowmask = iroot["time_edmask"+n];
-               prg.ta.p[i].off_hour = iroot["time_ehour"+n];
-               prg.ta.p[i].off_min = iroot["time_emin"+n];
-               prg.ta.p[i].off_ts = prg.ta.p[i].off_hour*60+prg.ta.p[i].off_min;
+               cfg.tmr[i].off_dowmask = iroot["time_edmask"+n];
+               cfg.tmr[i].off_hour = iroot["time_ehour"+n];
+               cfg.tmr[i].off_min = iroot["time_emin"+n];
+               cfg.tmr[i].off_ts = cfg.tmr[i].off_hour*60+cfg.tmr[i].off_min;
             }
 
+            ///////////////// set !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             bool reset = false;
             if(cmd == "resettimer") reset = true;
-            if(cmd != "settimer") SaveTmrPrg(reset);
+            if(cmd != "settimer")
+            {
+               WriteConfig(false, reset);
+            }
 
             cmd = "defaults";
          }
@@ -183,13 +183,13 @@ public:
             for(int i=0;i<10;i++)
             {
                String n(i);
-               root["time_sact"+n] = (int)prg.ta.p[i].active;
-               root["time_sdmask"+n] = prg.ta.p[i].on_dowmask;
-               root["time_shour"+n] = prg.ta.p[i].on_hour;
-               root["time_smin"+n] = prg.ta.p[i].on_min;
-               root["time_edmask"+n] = prg.ta.p[i].off_dowmask;
-               root["time_ehour"+n] = prg.ta.p[i].off_hour;
-               root["time_emin"+n] = prg.ta.p[i].off_min;
+               root["time_sact"+n] = (int)cfg.tmr[i].active;
+               root["time_sdmask"+n] = cfg.tmr[i].on_dowmask;
+               root["time_shour"+n] = cfg.tmr[i].on_hour;
+               root["time_smin"+n] = cfg.tmr[i].on_min;
+               root["time_edmask"+n] = cfg.tmr[i].off_dowmask;
+               root["time_ehour"+n] = cfg.tmr[i].off_hour;
+               root["time_emin"+n] = cfg.tmr[i].off_min;
             }
          }
       }

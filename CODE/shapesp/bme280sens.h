@@ -67,11 +67,11 @@ class BME280Sensor: public Sensor
 
       String getMqttPayload(int snum, int v) // only for domoticz now, add v case for over
       {
-         if(f_ready && mqttset.s.idx_sens[snum]) // ready and valid mapping
+         if(f_ready) // ready and valid mapping
          {
             char str[65];
             snprintf(str,64,"%s;%s;0;%s;0",String(temp,1).c_str(), String(hum,1).c_str(), String(pres,1).c_str());
-            return FmtMqttMessage(mqttset.s.idx_sens[snum],0, str);
+            return FmtMqttMessage(snum,0, str);
          }
          return String("");
       }

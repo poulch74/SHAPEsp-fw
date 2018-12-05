@@ -1,10 +1,17 @@
+//extern "C" {
+//#include "user_interface.h"
+//}
+
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <ESP8266SSDP.h>
 #include <EEPROM.h>
 #include <Ticker.h>
+
+#define ARDUINOJSON_ENABLE_PROGMEM 1
 #include <ArduinoJson.h>
+
 #include "WebSocketIncommingBuffer.h"
 
 #include <limits.h>
@@ -36,72 +43,52 @@
     #define DEBUG_MSG_P(...)
 #endif
 
-#pragma pack(push,1)
-
 typedef struct _ESP_TPRG_S
 {
    uint8_t on_dowmask;
    uint8_t on_hour;
    uint8_t on_min;
-   uint8_t reserved1;
    uint16_t on_ts;
 
    uint8_t off_dowmask;
    uint8_t off_hour;
    uint8_t off_min;
-   uint8_t reserved2;
    uint16_t  off_ts;
 
    uint32_t active;
 } ESP_TPRG_S;
 
-typedef struct _ESP_TPRG_A
-{
-   uint16_t crc;
-   uint16_t reserved;
-   ESP_TPRG_S p[10]; 
-} ESP_TPRG_A;
-
-typedef union __ESP_TPRG_U
-{
-   ESP_TPRG_A ta;
-   uint8_t    b[256];
-} ESP_TPRG;
 
 typedef struct _ESP_CONFIG_S
 {
-   uint16_t crc;
    char     user[21];
    char     pwd[21];
    uint8_t  wifi_mode;
    char     sta_ssid[33];
    char     sta_pwd[65];
    uint8_t  sta_dhcp;
-   uint8_t  sta_ip[4];
-   uint8_t  sta_gw[4];
-   uint8_t  sta_subnet[4];
+   //uint8_t  sta_ip[4];
+   //uint8_t  sta_gw[4];
+   //uint8_t  sta_subnet[4];
+   uint32_t sta_ip;
+   uint32_t sta_gw;
+   uint32_t sta_subnet;
    char     ap_ssid[33];
    char     ap_pwd[65];
    uint8_t  ap_hidden;
    uint8_t  ap_chan;
-   uint8_t  ap_ip[4];
-   uint8_t  ap_gw[4];
-   uint8_t  ap_subnet[4];
+   //uint8_t  ap_ip[4];
+   //uint8_t  ap_gw[4];
+   //uint8_t  ap_subnet[4];
+   uint32_t ap_ip;
+   uint32_t ap_gw;
+   uint32_t ap_subnet;
+
    uint8_t  skip_logon;
 } ESP_CONFIG_S;
 
-typedef union __ESP_CONFIG_U
-{
-   ESP_CONFIG_S s;
-   uint8_t      b[512];
-} ESP_CONFIG;
-
-
 typedef struct _ESP_MQTT_S
 {
-   uint16_t crc;
-   uint16_t reserved;
-
    uint32_t idx_relay;
    uint32_t idx_mbtn;
    uint32_t idx_vcc;
@@ -123,17 +110,22 @@ typedef struct _ESP_MQTT_S
    char     inTopic[65];
    char     outTopic[65];
    char     willTopic[65];
-
 } ESP_MQTT_S; // 413 bytes
 
-typedef union __ESP_MQTT_U
+
+typedef struct settings
 {
-   ESP_MQTT_S s;
-   uint8_t    b[512];
-} ESP_MQTT;
+   uint32_t crc;
+   uint32_t size;
 
+   ESP_CONFIG_S wifi;
+   ESP_MQTT_S mqtt;
+   ESP_TPRG_S tmr[10]; 
+} ESP_SET;
 
-#pragma pack(pop)
+ESP_SET cfg; // configuration struct
+
+#include "config.h"
 
 
 void prototypes(void) {} // here we collect all func prototypes
@@ -249,15 +241,12 @@ IPAddress apIP(192, 168, 4, 1);
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
-ESP_CONFIG cfg;
-ESP_TPRG prg;
-ESP_MQTT mqttset;
-
 void setup()
 {
    wifimode = 0; // station
   
    Serial.begin(115200);
+
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
    i2c_setup(4,5,200,400);
@@ -287,31 +276,39 @@ void setup()
 
    if(!ReadConfig())
    { 
-      DEBUG_MSG("Failed read config!!! Trying write default...");
-      WriteConfig(true);
+      DEBUG_MSG("Failed read config!!! Trying write defaults...");
+      WriteConfig(true,false);
       DEBUG_MSG("Done. \n");
    }
   
-   DEBUG_MSG("User: %s \n",cfg.s.user);
-   DEBUG_MSG("Pwd: %s \n", cfg.s.pwd);
+   DEBUG_MSG("User: %s \n",cfg.wifi.user);
+   DEBUG_MSG("Pwd: %s \n", cfg.wifi.pwd);
 
+   //WiFi.setOutputPower(20);
+   //system_phy_set_max_tpw(50);
+   //WiFi.setAutoConnect(false);
    WiFi.mode(WIFI_STA);
    String mac = WiFi.macAddress();
    String hostname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
 
    WiFi.hostname(hostname);
 
-   WiFi.begin(cfg.s.sta_ssid, cfg.s.sta_pwd);
 
-   if(cfg.s.sta_dhcp==0)
+
+
+   if(cfg.wifi.sta_dhcp == 0)
    {
-      IPAddress l_ip(cfg.s.sta_ip[0],cfg.s.sta_ip[1],cfg.s.sta_ip[2],cfg.s.sta_ip[3]);
-      IPAddress l_gw(cfg.s.sta_gw[0],cfg.s.sta_gw[1],cfg.s.sta_gw[2],cfg.s.sta_gw[3]);
-      IPAddress l_sn(cfg.s.sta_subnet[0],cfg.s.sta_subnet[1],cfg.s.sta_subnet[2],cfg.s.sta_subnet[3]);
-      WiFi.config(l_ip, l_gw, l_sn);
+      //IPAddress l_ip(cfg.wifi.sta_ip/*[0],cfg.wifi.sta_ip[1],cfg.wifi.sta_ip[2],cfg.wifi.sta_ip[3]*/);
+      //IPAddress l_gw(cfg.wifi.sta_gw/*[0],cfg.wifi.sta_gw[1],cfg.wifi.sta_gw[2],cfg.wifi.sta_gw[3]*/);
+      //IPAddress l_sn(cfg.wifi.sta_subnet/*[0],cfg.wifi.sta_subnet[1],cfg.wifi.sta_subnet[2],cfg.wifi.sta_subnet[3]*/);
+      //WiFi.config(l_ip, l_gw, l_sn);
+     
+      WiFi.config(IPAddress(cfg.wifi.sta_ip), IPAddress(cfg.wifi.sta_gw), IPAddress(cfg.wifi.sta_subnet));
    }
-  
-   uint8_t to = 50;
+
+   WiFi.begin(cfg.wifi.sta_ssid, cfg.wifi.sta_pwd);
+
+   uint16_t to = 50;
    while(WiFi.status() != WL_CONNECTED )
    {
       Serial.print("."); delay(500); to--;
@@ -326,7 +323,7 @@ void setup()
       WiFi.setSleepMode((WiFiSleepType_t)0);
       WiFi.setAutoReconnect(true);
       wifimode = 0; // station
-      Serial.print("Connected to "); Serial.println(cfg.s.sta_ssid);
+      Serial.print("Connected to "); Serial.println(cfg.wifi.sta_ssid);
       Serial.print("IP address: "); Serial.println(WiFi.localIP());
    }
    else
@@ -337,25 +334,16 @@ void setup()
       softAPname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
       WiFi.softAP(softAPname.c_str());
       WiFi.disconnect(false);
-
       Serial.print("AP is "); Serial.println(softAPname);
       Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
    }
   
    DEBUG_MSG("write cfg \n");
-   if(false) WriteConfig(true); // if pin pushed write def config
+   if(false) WriteConfig(true,false); // if pin pushed write def config
    DEBUG_MSG("write cfg end \n");
 
    // Init sensors
    sens_task.Initialize();
-
-   if(!ReadMqttSettings())
-   { 
-      DEBUG_MSG("Failed read mqtt settings!!! Trying write default...");
-      SaveMqttSettings(true);
-      DEBUG_MSG("Done. \n");
-   }
-
    if(wifimode==0) mqtt_task.Initialize();
 
    //if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
@@ -423,13 +411,6 @@ void setup()
    delay(10);
 
    DEBUG_MSG("Server started \n");
-
-   if(!ReadTmrPrg())
-   { 
-      DEBUG_MSG("Failed read tmr config!!! Trying write default...");
-      SaveTmrPrg(true);
-      DEBUG_MSG("Done.\n");
-   }
 
    // test deepsleep
    //    DbgPrintln(("Deepsleep for 10s"));

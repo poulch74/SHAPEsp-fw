@@ -166,7 +166,7 @@ bool is_auth(AsyncWebServerRequest *request)
    return false; 
 */
 }
-
+/*
 bool ReadConfig()
 {
   memset(&cfg,0,sizeof(ESP_CONFIG));
@@ -177,37 +177,82 @@ bool ReadConfig()
   if(cfg.s.crc!=c_crc) return false;
   return true;
 }
+*/
 
-void WriteConfig(bool def)
+bool ReadConfig()
+{
+  uint8_t *bptr = (uint8_t *)&cfg;
+  memset(&cfg,0,sizeof(ESP_SET));
+  EEPROM.begin(4096);
+  for(uint16_t i=0; i<sizeof(ESP_SET); i++) bptr[i] = EEPROM.read(i);//rtc.eeprom_read(i);
+  EEPROM.end();
+  uint32_t c_crc = crc16(&(bptr[4]),sizeof(ESP_SET)-4);
+  if(cfg.crc!=c_crc) return false;
+  return true;
+}
+
+
+
+void WriteConfig(bool def, bool clrtmr)
 {
    if(def)
    {
-      memset(&cfg,0,sizeof(ESP_CONFIG));
+      memset(&cfg,0,sizeof(ESP_SET));
 
-      snprintf(cfg.s.user,21,"root");
-      snprintf(cfg.s.pwd,21,"esp8266");
+      snprintf(cfg.wifi.user,21,"root");
+      snprintf(cfg.wifi.pwd,21,"esp8266");
 
-      cfg.s.wifi_mode = 0; // 0 ap 1 sta+ap 2 sta
-      snprintf(cfg.s.sta_ssid,33,"HomeAP");
-      snprintf(cfg.s.sta_pwd,65,"HomeAPpwd");
-      cfg.s.sta_dhcp = 1;
-      cfg.s.skip_logon = 0;
-      cfg.s.sta_ip[0] = 192; cfg.s.sta_ip[1] = 168; cfg.s.sta_ip[2] = 0; cfg.s.sta_ip[3] = 10;
-      cfg.s.sta_gw[0] = 192; cfg.s.sta_gw[1] = 168; cfg.s.sta_gw[2] = 0; cfg.s.sta_gw[3] = 1;
-      cfg.s.sta_subnet[0] = 255; cfg.s.sta_subnet[1] = 255; cfg.s.sta_subnet[2] = 255; cfg.s.sta_subnet[3] = 0;
-      sprintf(cfg.s.ap_ssid,"");
-      sprintf(cfg.s.ap_pwd,"");
-      cfg.s.ap_hidden = 0; // 1 - hidden
-      cfg.s.ap_chan = 6;
-      cfg.s.ap_ip[0] = 192; cfg.s.ap_ip[1] = 168; cfg.s.ap_ip[2] = 4; cfg.s.ap_ip[3] = 1;
-      cfg.s.ap_gw[0] = 192; cfg.s.ap_gw[1] = 168; cfg.s.ap_gw[2] = 4; cfg.s.ap_gw[3] = 1;
-      cfg.s.ap_subnet[0] = 255; cfg.s.ap_subnet[1] = 255; cfg.s.ap_subnet[2] = 255; cfg.s.ap_subnet[3] = 0;
-   }    
-   cfg.s.crc = crc16(&(cfg.b[2]),sizeof(ESP_CONFIG)-2);
+      cfg.wifi.wifi_mode = 0; // 0 ap 1 sta+ap 2 sta
+      snprintf(cfg.wifi.sta_ssid,33,"CH-Home");
+      snprintf(cfg.wifi.sta_pwd,65,"chps74qwerty");
+      cfg.wifi.sta_dhcp = 1;
+      cfg.wifi.skip_logon = 0;
+      //cfg.wifi.sta_ip[0] = 192; cfg.wifi.sta_ip[1] = 168; cfg.wifi.sta_ip[2] = 137; cfg.wifi.sta_ip[3] = 88;
+      //cfg.wifi.sta_gw[0] = 192; cfg.wifi.sta_gw[1] = 168; cfg.wifi.sta_gw[2] = 137; cfg.wifi.sta_gw[3] = 1;
+      //cfg.wifi.sta_subnet[0] = 255; cfg.wifi.sta_subnet[1] = 255; cfg.wifi.sta_subnet[2] = 255; cfg.wifi.sta_subnet[3] = 0;
+      cfg.wifi.sta_ip = IPAddress(192,168,137,88);
+      cfg.wifi.sta_gw = IPAddress(192,168,137,1);
+      cfg.wifi.sta_subnet = IPAddress(255,255,255,0);
+      sprintf(cfg.wifi.ap_ssid,"");
+      sprintf(cfg.wifi.ap_pwd,"");
+      cfg.wifi.ap_hidden = 0; // 1 - hidden
+      cfg.wifi.ap_chan = 6;
+      //cfg.wifi.ap_ip[0] = 192; cfg.wifi.ap_ip[1] = 168; cfg.wifi.ap_ip[2] = 4; cfg.wifi.ap_ip[3] = 1;
+      //cfg.wifi.ap_gw[0] = 192; cfg.wifi.ap_gw[1] = 168; cfg.wifi.ap_gw[2] = 4; cfg.wifi.ap_gw[3] = 1;
+      //cfg.wifi.ap_subnet[0] = 255; cfg.wifi.ap_subnet[1] = 255; cfg.wifi.ap_subnet[2] = 255; cfg.wifi.ap_subnet[3] = 0;
+      cfg.wifi.ap_ip = IPAddress(192,168,137,88);
+      cfg.wifi.ap_gw = IPAddress(192,168,137,1);
+      cfg.wifi.ap_subnet = IPAddress(255,255,255,0);
+
+
+      snprintf(cfg.mqtt.user,20,"");
+      snprintf(cfg.mqtt.pwd,20,"");
+      snprintf(cfg.mqtt.server,64,"localhost");
+      snprintf(cfg.mqtt.clientID,32,"");
+      snprintf(cfg.mqtt.inTopic,64,"domoticz/in");
+      snprintf(cfg.mqtt.outTopic,64,"domoticz/out");
+      snprintf(cfg.mqtt.willTopic,64,"domoticz/out");
+      cfg.mqtt.port = 1883;
+      cfg.mqtt.keepAlive = 15;
+      cfg.mqtt.qos = 0;
+      cfg.mqtt.retain = 0;
+   }
+
+   if(clrtmr)
+   {
+      memset(&(cfg.tmr),0,10*sizeof(ESP_TPRG_S));
+   }
+
+   uint8_t *bptr =(uint8_t *)&cfg;
+   cfg.size = sizeof(ESP_SET);
+   cfg.crc = crc16(&bptr[4],cfg.size-4);
+   
    EEPROM.begin(4096);  
-   for(uint16_t i=0; i<sizeof(ESP_CONFIG); i++) { EEPROM.write(i,cfg.b[i]);/*rtc.eeprom_write(i,cfg.b[i]);*/ }
+   for(uint16_t i=0; i<sizeof(ESP_SET); i++) { EEPROM.write(i,bptr[i]); }
    EEPROM.end();
 }
+
+/*
 
 bool ReadTmrPrg()
 {
@@ -225,7 +270,7 @@ void SaveTmrPrg(bool def)
    if(def) { memset(&prg,0,sizeof(ESP_TPRG)); }
    prg.ta.crc = crc16(&(prg.b[2]),sizeof(ESP_TPRG)-2);
    EEPROM.begin(4096);    
-   for(uint16_t i=0; i<sizeof(ESP_TPRG); i++) { EEPROM.write(512+i,prg.b[i]);/*rtc.eeprom_write(512+i,prg.b[i]);*/ }
+   for(uint16_t i=0; i<sizeof(ESP_TPRG); i++) { EEPROM.write(512+i,prg.b[i]);}
    EEPROM.end();
 }
 
@@ -263,7 +308,7 @@ void SaveMqttSettings(bool def)
    for(uint16_t i=0; i<sizeof(ESP_MQTT); i++) { EEPROM.write(1024+i,mqttset.b[i]); }
    EEPROM.end();
 }
-
+*/
 String FmtMqttMessage(int idx, int nvalue, const char *svalue)
 {
    char buf[128];

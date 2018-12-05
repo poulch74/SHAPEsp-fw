@@ -93,10 +93,14 @@ public:
    {
       if(evt == EVT_MQTT)
       {
-         for(int i=0;i<sensors.size();i++)
+         int max = sensors.size()>10 ? 10 : sensors.size();
+         for(int i=0;i<max;i++)
          {
-            String buf = sensors[i]->getMqttPayload(i,0);
-            if(buf.length()!=0) payload.push_back(buf);
+            if(cfg.mqtt.idx_sens[i])
+            {
+               String buf = sensors[i]->getMqttPayload(cfg.mqtt.idx_sens[i],0);
+               if(buf.length()!=0) payload.push_back(buf);
+            }
          }
       }
    }
