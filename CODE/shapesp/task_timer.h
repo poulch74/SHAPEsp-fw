@@ -14,13 +14,14 @@ public:
    {
       skiptmr = false;
       relay = new Relay(drvA1,drvA2,drvSTBY,R_VALVE,1); // 1 use autostop
-      //relay->Initialize();
+      relay->Initialize();
    }
 
 public:
    Relay *relay;
    bool skiptmr;
 
+public:
    void sendMqttDefaults()
    {
       std::vector<String> payload;
@@ -120,12 +121,12 @@ public:
             DEBUG_MSG("settime and response");
             tmElements_t tm;
             tm.Year = CalendarYrToTm(iroot["time_year"].as<int>());
-            tm.Month = iroot["time_month"];//.as<uint8_t>();
-            tm.Day = iroot["time_day"];//.as<uint8_t>();
+            tm.Month = iroot["time_month"];
+            tm.Day = iroot["time_day"];
             tm.Wday = (iroot["time_dow"] == 7) ? 0:iroot["time_dow"].as<uint8_t>()+1;
-            tm.Hour = iroot["time_hour"];//.as<uint8_t>();
-            tm.Minute = iroot["time_min"];//.as<uint8_t>();
-            tm.Second = iroot["time_sec"];//.as<uint8_t>();
+            tm.Hour = iroot["time_hour"];
+            tm.Minute = iroot["time_min"];
+            tm.Second = iroot["time_sec"];
 
             time_t t = makeTime(tm);
             setTime_rtc(t);
@@ -157,10 +158,7 @@ public:
             ///////////////// set !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             bool reset = false;
             if(cmd == "resettimer") reset = true;
-            if(cmd != "settimer")
-            {
-               WriteConfig(false, reset);
-            }
+            if(cmd != "settimer") { WriteConfig(false, reset); }
 
             cmd = "defaults";
          }

@@ -45,7 +45,7 @@ public:
             }
          }
          DEBUG_MSG("No more addresses. \n");
-         dsbus->reset_search();         
+         dsbus->reset_search();
       }
 
       uint8_t addr[8];
@@ -93,7 +93,7 @@ public:
    {
       if(evt == EVT_MQTT)
       {
-         int max = sensors.size()>10 ? 10 : sensors.size();
+         int max = sensors.size()>MAX_SENSORS_CNT ? MAX_SENSORS_CNT : sensors.size();
          for(int i=0;i<max;i++)
          {
             if(cfg.mqtt.idx_sens[i])
@@ -107,11 +107,12 @@ public:
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      if(iroot["text"].as<String>()=="senscnt")
+      if(iroot["text"]=="senscnt")
       {
          root["action"] = "senscnt";
          root["sens_cnt"] = sens_count;
-      }         
+         return;
+      }
 
       if(!sensors.empty())
       {
@@ -124,8 +125,8 @@ public:
                char vsensor[16]; snprintf(vsensor,16,"vsensor_%d",k);
                char nsensor[16]; snprintf(nsensor,16,"Sensor%d: ",i);
                String sname = String(nsensor) + sensors[i]->getName();
-               root[String(tsensor)] = sname + "::" +sensors[i]->getTag(j);
-               root[String(vsensor)] = sensors[i]->getValueAsStr(j);
+               root[tsensor] = sname + "::" +sensors[i]->getTag(j);
+               root[vsensor] = sensors[i]->getValueAsStr(j);
                k++;
             }
          }

@@ -186,7 +186,8 @@ bool ReadConfig()
   EEPROM.begin(4096);
   for(uint16_t i=0; i<sizeof(ESP_SET); i++) bptr[i] = EEPROM.read(i);//rtc.eeprom_read(i);
   EEPROM.end();
-  uint32_t c_crc = crc16(&(bptr[4]),sizeof(ESP_SET)-4);
+  if(cfg.size>sizeof(ESP_SET)) cfg.size = sizeof(ESP_SET);
+  uint32_t c_crc = crc16(&(bptr[4]),cfg.size-4);
   if(cfg.crc!=c_crc) return false;
   return true;
 }

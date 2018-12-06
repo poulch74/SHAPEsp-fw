@@ -43,90 +43,9 @@
     #define DEBUG_MSG_P(...)
 #endif
 
-typedef struct _ESP_TPRG_S
-{
-   uint8_t on_dowmask;
-   uint8_t on_hour;
-   uint8_t on_min;
-   uint16_t on_ts;
-
-   uint8_t off_dowmask;
-   uint8_t off_hour;
-   uint8_t off_min;
-   uint16_t  off_ts;
-
-   uint32_t active;
-} ESP_TPRG_S;
-
-
-typedef struct _ESP_CONFIG_S
-{
-   char     user[21];
-   char     pwd[21];
-   uint8_t  wifi_mode;
-   char     sta_ssid[33];
-   char     sta_pwd[65];
-   uint8_t  sta_dhcp;
-   //uint8_t  sta_ip[4];
-   //uint8_t  sta_gw[4];
-   //uint8_t  sta_subnet[4];
-   uint32_t sta_ip;
-   uint32_t sta_gw;
-   uint32_t sta_subnet;
-   char     ap_ssid[33];
-   char     ap_pwd[65];
-   uint8_t  ap_hidden;
-   uint8_t  ap_chan;
-   //uint8_t  ap_ip[4];
-   //uint8_t  ap_gw[4];
-   //uint8_t  ap_subnet[4];
-   uint32_t ap_ip;
-   uint32_t ap_gw;
-   uint32_t ap_subnet;
-
-   uint8_t  skip_logon;
-} ESP_CONFIG_S;
-
-typedef struct _ESP_MQTT_S
-{
-   uint32_t idx_relay;
-   uint32_t idx_mbtn;
-   uint32_t idx_vcc;
-   uint32_t idx_status;
-   uint32_t idx_mode;
-   uint32_t idx_cmd[4];
-   uint32_t idx_sens[8]; //72
-
-   uint16_t port;
-   uint16_t keepAlive;
-   uint8_t  qos;
-   uint8_t  retain;      //78
-   
-   char     user[21];
-   char     pwd[21];
-
-   char     server[65];
-   char     clientID[33];
-   char     inTopic[65];
-   char     outTopic[65];
-   char     willTopic[65];
-} ESP_MQTT_S; // 413 bytes
-
-
-typedef struct settings
-{
-   uint32_t crc;
-   uint32_t size;
-
-   ESP_CONFIG_S wifi;
-   ESP_MQTT_S mqtt;
-   ESP_TPRG_S tmr[10]; 
-} ESP_SET;
-
-ESP_SET cfg; // configuration struct
-
 #include "config.h"
 
+ESP_SET cfg; // configuration struct
 
 void prototypes(void) {} // here we collect all func prototypes
 
@@ -245,7 +164,7 @@ void setup()
 {
    wifimode = 0; // station
   
-   Serial.begin(115200);
+   DBGSERIAL.begin(115200);
 
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
@@ -293,20 +212,13 @@ void setup()
 
    WiFi.hostname(hostname);
 
-
-
+   WiFi.begin(cfg.wifi.sta_ssid, cfg.wifi.sta_pwd);
 
    if(cfg.wifi.sta_dhcp == 0)
    {
-      //IPAddress l_ip(cfg.wifi.sta_ip/*[0],cfg.wifi.sta_ip[1],cfg.wifi.sta_ip[2],cfg.wifi.sta_ip[3]*/);
-      //IPAddress l_gw(cfg.wifi.sta_gw/*[0],cfg.wifi.sta_gw[1],cfg.wifi.sta_gw[2],cfg.wifi.sta_gw[3]*/);
-      //IPAddress l_sn(cfg.wifi.sta_subnet/*[0],cfg.wifi.sta_subnet[1],cfg.wifi.sta_subnet[2],cfg.wifi.sta_subnet[3]*/);
-      //WiFi.config(l_ip, l_gw, l_sn);
-     
       WiFi.config(IPAddress(cfg.wifi.sta_ip), IPAddress(cfg.wifi.sta_gw), IPAddress(cfg.wifi.sta_subnet));
    }
-
-   WiFi.begin(cfg.wifi.sta_ssid, cfg.wifi.sta_pwd);
+   
 
    uint16_t to = 50;
    while(WiFi.status() != WL_CONNECTED )

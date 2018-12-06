@@ -2,6 +2,7 @@ class TestTask1 : public EspTask
 {
 public:
    TestTask1() : EspTask() { snprintf(uptime,32,"00d:00h:00m"); }
+   
    void doTask(int evt)
    {
       if(evt == EVT_60SEC)
@@ -85,27 +86,17 @@ public:
          
          snprintf(cfg.wifi.sta_ssid, 33 ,iroot["wifi_ssid"].as<const char*>());
          snprintf(cfg.wifi.sta_pwd,65, iroot["wifi_pwd"].as<const char*>());
-         cfg.wifi.sta_dhcp = iroot["wifi_dhcp"].as<int>();
-         IPAddress ip;
-         ip.fromString(iroot["wifi_ipa"].as<const char*>());
+         cfg.wifi.sta_dhcp = iroot["wifi_dhcp"];
+         IPAddress ip; ip.fromString(iroot["wifi_ipa"].as<const char*>());
          cfg.wifi.sta_ip = ip;
          ip.fromString(iroot["wifi_gw"].as<const char*>());
          cfg.wifi.sta_gw = ip;
-         //cfg["sta_ip"] = iroot["wifi_ipa"];
-         //cfg["sta_gw"] = iroot["wifi_gw"];
 
          int m = 32-(iroot["wifi_mask"].as<int>())&0x1F;
          uint32_t ma = 0xFFFFFFFF<<m;
          IPAddress l_sn((ma>>24)&0xFF,(ma>>16)&0xFF,(ma>>8)&0xFF,ma&0xFF);
-         /*
-         cfg.wifi.sta_subnet[0] = (ma>>24)&0xFF;
-         cfg.wifi.sta_subnet[1] = (ma>>16)&0xFF;
-         cfg.wifi.sta_subnet[2] = (ma>>8)&0xFF;
-         cfg.wifi.sta_subnet[3] = ma&0xFF;
-         */
          cfg.wifi.sta_subnet = l_sn;
-         DEBUG_MSG("NetMask: %X \n",cfg.wifi.sta_subnet);
-         //DEBUG_MSG("NetMask: %s \n",cfg["sta_subnet"].as<const char*>());
+         DEBUG_MSG("NetMask: %0X \n",cfg.wifi.sta_subnet);
          cfg.wifi.skip_logon = iroot["wifi_tnet"];
 
          WriteConfig(false,false);
@@ -117,18 +108,17 @@ public:
       if(cmd=="defaults")
       {
          ReadConfig();
-         IPAddress l_sn(cfg.wifi.sta_subnet/*[0],cfg.wifi.sta_subnet[1],cfg.wifi.sta_subnet[2],cfg.wifi.sta_subnet[3]*/);
+         IPAddress l_sn(cfg.wifi.sta_subnet);
          uint32_t ma = (((uint32_t)(l_sn[0]))<<24) + (((uint32_t)(l_sn[1]))<<16)
                        +(((uint32_t)(l_sn[2]))<<8) + l_sn[3];
-         //uint32_t ma = cfg.wifi.sta_subnet;
          int m=0; while(ma!=0) { ma<<=1; m++; };
 
          root["action"] = "wifi";
          root["wifi_ssid"] = cfg.wifi.sta_ssid;
          root["wifi_pwd"] = cfg.wifi.sta_pwd;
          root["wifi_dhcp"] = cfg.wifi.sta_dhcp;
-         root["wifi_ipa"] = IPAddress(cfg.wifi.sta_ip/*[0],cfg.wifi.sta_ip[1],cfg.wifi.sta_ip[2],cfg.wifi.sta_ip[3]*/).toString();
-         root["wifi_gw"] = IPAddress(cfg.wifi.sta_gw/*[0],cfg.wifi.sta_gw[1],cfg.wifi.sta_gw[2],cfg.wifi.sta_gw[3]*/).toString();
+         root["wifi_ipa"] = IPAddress(cfg.wifi.sta_ip).toString();
+         root["wifi_gw"] = IPAddress(cfg.wifi.sta_gw).toString();
          root["wifi_mask"] = m;
          root["wifi_tnet"] = cfg.wifi.skip_logon;
       }

@@ -49,7 +49,6 @@ class EspEvent
          return true;
       }
 
-
       void doTasks(JsonObject& iroot, JsonObject& root)
       {
          for(int i = 0; i< _tasks.size();i++) _tasks[i]->doWStask(_id, iroot, root);

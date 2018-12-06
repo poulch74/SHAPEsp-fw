@@ -82,7 +82,7 @@ void DS2482::skip() { write(0xcc); }
 
 void DS2482::select(uint8_t rom[8])
 {
-   write(0x55); for(int i=0;i<8;i++)  write(rom[i]);
+   write(0x55); for(int i=0;i<8;i++) write(rom[i]);
 }
 
 

@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define DEBUG_ADD_TIMESTAMP 1
-
 void _debugSend(char * message)
 {
 
@@ -16,9 +14,9 @@ void _debugSend(char * message)
    #endif
 
    #if DEBUG_ADD_TIMESTAMP
-      Serial.printf(timestamp);
+      DBGSERIAL.printf(timestamp);
    #endif
-      Serial.printf(message);
+      DBGSERIAL.printf(message);
 }
 
 void debugSend(const char * format, ...)

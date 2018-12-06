@@ -8,7 +8,6 @@ public:
 
    void Initialize()
    {
-      //JsonObject& cfg = config.root();
       mqttClient.onConnect(onMqttConnect);
       mqttClient.onMessage(onMqttMessage);
 
@@ -80,7 +79,7 @@ public:
          int value = root["nvalue"];
          if(idx == cfg.mqtt.idx_relay)
          {
-            if(root["svalue1"].as<String>()=="Status")
+            if(root["svalue1"]=="Status")
             {
                DEBUG_MSG("[DOMOTICZ] Status IGNORED\n"); return;
             }
@@ -91,7 +90,7 @@ public:
 
          if(idx == cfg.mqtt.idx_mbtn)
          {
-            if(root["svalue1"].as<String>()=="Status")
+            if(root["svalue1"]=="Status")
             {
                DEBUG_MSG("[DOMOTICZ] Status IGNORED\n"); return;
             }
