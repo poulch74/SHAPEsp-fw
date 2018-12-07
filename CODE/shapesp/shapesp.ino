@@ -206,6 +206,8 @@ void setup()
    //WiFi.setOutputPower(20);
    //system_phy_set_max_tpw(50);
    //WiFi.setAutoConnect(false);
+   WiFi.mode(WIFI_OFF);
+   delay(200);
    WiFi.mode(WIFI_STA);
    String mac = WiFi.macAddress();
    String hostname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);

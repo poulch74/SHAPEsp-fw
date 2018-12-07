@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Bulma - Tabs</title>
+      <link href="data:image/ico;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAP+DAP//gwD//4MA/wAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAAAA/4MA/wAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAA/4MA//+DAP//gwD/AAAAAP+DAP//gwD//4MA//+DAP//gwD//4
+                  MA//+DAP8AAAAAAAAAAAAAAAAAAAAA/4MA/wAAAAD/gwD//4MA//+DAP//gwD//4MA//+DAP//
+                  gwD//4MA//+DAP//gwD//4MA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP+DAP//gwD/AAAAAP
+                  +DAP//gwD/AAAAAAAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD/
+                  /4MA//+DAP//gwD//4MA/wAAAAAAAAAA/4MA/wAAAAD/gwD/AAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAA/4MA//+DAP//gwD/AAAAAP+DAP//gwD//4MA/wAAAAD/gwD//4MA//+DAP8AAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAD/gwD//4MA/wAAAAAAAAAA/4MA//+DAP//gwD//4MA/wAAAAD/gw
+                  D/AAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD//4MA//+DAP//gwD//4MA/wAAAAAAAAAAAAAAAP+D
+                  AP//gwD/AAAAAAAAAAAAAAAA/4MA//+DAP//gwD//4MA//+DAP8AAAAAAAAAAAAAAAD/gwD//4
+                  MA//+DAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD/AAAAAAAAAAAAAAAA/4MA//+DAP8A
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AA
+                  D//wAA+M8AAOe/AADEBwAAoAMAAPJzAADwawAA8REAAPmFAADwcwAAg48AANz/AAD//wAA//8A
+                  AA==" rel="icon" type="image/x-icon">
+
+      <link rel='stylesheet prefetch' href='bulma.min.css'>
+      <link rel='stylesheet prefetch' href='all.min.css'>
+
+   <style>
+      .tabs { margin-left: 10px; margin-bottom: -1px !important; position: relative; }
+      .tab-content { padding: 60px; top: 197px; color: #000; background-color: white; }
+      .tab-pane { display: none; }
+      .tab-pane.is-active { display: block; width: 50%; position: relative; left: 50%; transform: translateX(-50%); }
+      .is-active { display: initial; }
+      .cent{ display: block; margin: 10px auto; padding: 5px; border: 1px solid #ccc }
+   </style>
+
+    </head>
+
+    <body>
+        <nav class="navbar is-warning">
+            <div class="navbar-brand">
+                <div class="navbar-burger burger"></div>
+            </div>
+        </nav>
+
+        <section class="hero is-warning">
+
+           
+         <div class="hero-head">
+            <div class="container">Tabs head</div>
+         </div>
+<!--
+            <div class="hero-body">
+                <div class="container">Tabs example</div>
+            </div> -->
+
+            <div class="tabs is-boxed main-menu" id="nav">
+                <ul>
+                    <li data-target="pane-1" id="1"><a> Status</a></li>
+                    <li data-target="pane-2" id="2" class="is-active"><a>Settings</a></li>
+                    <li data-target="pane-3" id="3"><a>MQTT</a></li>
+                    <li data-target="pane-4" id="4"><a>Admin</a></li>
+                </ul>
+            </div>
+
+            <div class="tab-content">
+
+               <div class="tab-pane" id="pane-1">
+                  <div class="columns">
+                     <div class="column">
+                        <table class="table is-striped">
+                           <thead>
+                              <tr><th width="40%"><abbr title="Status information">Status</abbr></th><th></th></tr>
+                           </thead>
+                           <tbody>
+                              <tr><td class="has-text-right">Date:</td><td><span id="status_date">1</span></td></tr>
+                              <tr><td class="has-text-right">Time:</td><td><span id="status_time">2</span></td></tr>
+                              <tr><td class="has-text-right">Uptime:</td><td><span id="status_uptime">3</span></td></tr>
+                              <tr><td class="has-text-right">Free heap:</td><td><span id="status_heap">4</span></td></tr>
+                              <tr><td class="has-text-right">WiFi mode:</td><td><span id="status_wifimode">5</span></td></tr>
+                              <tr><td class="has-text-right">SSID:</td><td><span id="status_wifissid">6</span></td></tr>
+                              <tr><td class="has-text-right">IP:</td><td><span id="status_wifiip">7</span></td></tr>
+                              <tr><td class="has-text-right">RSSI:</td><td><span id="status_wifirssi">8</span></td></tr>
+                              <tr><td class="has-text-right">Voltage:</td><td><span id="status_voltage">9</span></td></tr>
+                              <tr><td class="has-text-right">Valve mode:</td><td><span id="status_vmode">10</span></td></tr>
+                              <tr><td class="has-text-right">Valve status:</td><td><span id="status_vstatus">11</span></td></tr>
+                           </tbody>
+                        </table>
+                        <div class="field is-grouped">
+                           <p class="control"><a class="button is-light" onclick='onTabTimerHandler(0,"open")'>Open</a></p>
+                           <p class="control"><a class="button is-light" onclick='onTabTimerHandler(0,"close")'>Close</a></p>
+                           <p class="control"><a class="button is-success" onclick='onTabTimerHandler(0,"auto")'>Auto</a></p>
+                        </div>
+                     </div>
+                     <div class="column">
+                        <table class="table is-striped is-fullwidth">
+                           <thead>
+                              <tr>
+                              <th><abbr title="Sensors data">Sensors</abbr></th>
+                              <th></th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                              <td class="has-text-right">Date:</td>
+                              <td>10-10-10</td>
+                              </tr>
+                              <tr>
+                              <td class="has-text-right">Status:</td>
+                              <td>fklfhjkfhkjekjgfj</td>
+                              </tr>
+                              <tr>
+                              <td class="has-text-right">Stadddtus:</td>
+                              <td>fklfhjkfhkjekjgfj</td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+
+               </div>
+
+                <div class="tab-pane" id="pane-3">
+                    <div class="columns">
+                        <div class="container ">
+                            <div class="columns">
+                                <div class="column">
+                                    <article class="media">
+                                        <div class="media-left">
+                                            <i class="fab fa-github-square fa-4x"></i>
+                                        </div>
+                                        <div class="media-content">
+                                            <div class="content">
+                                                <p>
+                                                    <strong>Dominic Ipsum</strong>
+                                                    <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                    <article class="media">
+                                        <div class="media-left">
+                                            <i class="fab fa-empire fa-4x"></i>
+                                        </div>
+                                        <div class="media-content">
+                                            <div class="content">
+                                                <p>
+                                                    <strong>Cassie Ipsum</strong>
+                                                    <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                                <div class="column">
+                                    <article class="media">
+                                        <div class="media-left">
+                                            <i class="fab fa-ravelry fa-4x"></i>
+                                        </div>
+                                        <div class="media-content">
+                                            <div class="content">
+                                                <p>
+                                                    <strong>Avery Ipsum</strong>
+                                                    <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                    <article class="media">
+                                        <div class="media-left">
+                                            <i class="fab fa-github-alt fa-4x"></i>
+                                        </div>
+                                        <div class="media-content">
+                                            <div class="content">
+                                                <p>
+                                                    <strong>io Ipsum</strong>
+                                                    <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis. ╳
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="pane-4">
+                    <div class="columns is-centered">
+                        <div class="column is-three-quarters">
+                           hrgjehjgehjgr
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane is-active" id="pane-2">
+                    <div class="content">
+                        <h1>Hello World</h1>
+                    </div>
+                </div>
+         </div>
+
+         <div class="hero-footer">
+            <div class="container">Tabs end</div>
+         </div>
+
+    </section>
+ 
+   <script >
+
+      // The following code is based off a toggle menu by @Bradcomp
+      // source: https://gist.github.com/Bradcomp/a9ef2ef322a8e8017443b626208999c1
+      (function()
+      {
+         var burger = document.querySelector('.burger');
+         var menu = document.querySelector('#'+burger.dataset.target);
+         burger.addEventListener('click', function() { burger.classList.toggle('is-active'); menu.classList.toggle('is-active');});
+      })();
+
+      document.querySelectorAll("#nav li").forEach(function(navEl)
+      {
+         navEl.onclick = function() { toggleTab(this.id, this.dataset.target); }
+      });
+
+      function toggleTab(selectedNav, targetId)
+      {
+         var navEls = document.querySelectorAll("#nav li");
+
+         navEls.forEach(function(navEl)
+         {
+            if (navEl.id == selectedNav) { navEl.classList.add("is-active"); } 
+            else 
+            {
+               if (navEl.classList.contains("is-active")) { navEl.classList.remove("is-active"); }
+            }
+         });
+
+         var tabs = document.querySelectorAll(".tab-pane");
+
+         tabs.forEach(function(tab)
+         {
+            if (tab.id == targetId) { tab.style.display = "block"; handler_array[selectedNav-1](0,"defaults");}
+            else { tab.style.display = "none"; }
+         });
+      }
+
+
+// my scripts
+      !function(n){'use strict';function t(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+      function r(n,t){return n<<t|n>>>32-t}function e(n,e,o,u,c,f){return t(r(t(t(e,n),t(u,f)),c),o)}
+      function o(n,t,r,o,u,c,f){return e(t&r|~t&o,n,t,u,c,f)}function u(n,t,r,o,u,c,f){return e(t&o|r&~o,n,t,u,c,f)}
+      function c(n,t,r,o,u,c,f){return e(t^r^o,n,t,u,c,f)}function f(n,t,r,o,u,c,f){return e(r^(t|~o),n,t,u,c,f)}
+      function i(n,r){n[r>>5]|=128<<r%32,n[14+(r+64>>>9<<4)]=r;var e,i,a,d,h,l=1732584193,g=-271733879,v=-1732584194,m=271733878;
+      for(e=0;e<n.length;e+=16)i=l,a=g,d=v,h=m,g=f(g=f(g=f(g=f(g=c(g=c(g=c(g=c(g=u(g=u(g=u(g=u(g=o(g=o(g=o(g=o(g,v=o(v,m=o(m,l=o(l,g,v,m,n[e],7,-680876936),
+      g,v,n[e+1],12,-389564586),l,g,n[e+2],17,606105819),m,l,n[e+3],22,-1044525330),v=o(v,m=o(m,l=o(l,g,v,m,n[e+4],7,-176418897),
+      g,v,n[e+5],12,1200080426),l,g,n[e+6],17,-1473231341),m,l,n[e+7],22,-45705983),v=o(v,m=o(m,l=o(l,g,v,m,n[e+8],7,1770035416),
+      g,v,n[e+9],12,-1958414417),l,g,n[e+10],17,-42063),m,l,n[e+11],22,-1990404162),v=o(v,m=o(m,l=o(l,g,v,m,n[e+12],7,1804603682),
+      g,v,n[e+13],12,-40341101),l,g,n[e+14],17,-1502002290),m,l,n[e+15],22,1236535329),v=u(v,m=u(m,l=u(l,g,v,m,n[e+1],5,-165796510),
+      g,v,n[e+6],9,-1069501632),l,g,n[e+11],14,643717713),m,l,n[e],20,-373897302),v=u(v,m=u(m,l=u(l,g,v,m,n[e+5],5,-701558691),
+      g,v,n[e+10],9,38016083),l,g,n[e+15],14,-660478335),m,l,n[e+4],20,-405537848),v=u(v,m=u(m,l=u(l,g,v,m,n[e+9],5,568446438),
+      g,v,n[e+14],9,-1019803690),l,g,n[e+3],14,-187363961),m,l,n[e+8],20,1163531501),v=u(v,m=u(m,l=u(l,g,v,m,n[e+13],5,-1444681467),
+      g,v,n[e+2],9,-51403784),l,g,n[e+7],14,1735328473),m,l,n[e+12],20,-1926607734),v=c(v,m=c(m,l=c(l,g,v,m,n[e+5],4,-378558),
+      g,v,n[e+8],11,-2022574463),l,g,n[e+11],16,1839030562),m,l,n[e+14],23,-35309556),v=c(v,m=c(m,l=c(l,g,v,m,n[e+1],4,-1530992060),
+      g,v,n[e+4],11,1272893353),l,g,n[e+7],16,-155497632),m,l,n[e+10],23,-1094730640),v=c(v,m=c(m,l=c(l,g,v,m,n[e+13],4,681279174),
+      g,v,n[e],11,-358537222),l,g,n[e+3],16,-722521979),m,l,n[e+6],23,76029189),v=c(v,m=c(m,l=c(l,g,v,m,n[e+9],4,-640364487),
+      g,v,n[e+12],11,-421815835),l,g,n[e+15],16,530742520),m,l,n[e+2],23,-995338651),v=f(v,m=f(m,l=f(l,g,v,m,n[e],6,-198630844),
+      g,v,n[e+7],10,1126891415),l,g,n[e+14],15,-1416354905),m,l,n[e+5],21,-57434055),v=f(v,m=f(m,l=f(l,g,v,m,n[e+12],6,1700485571),
+      g,v,n[e+3],10,-1894986606),l,g,n[e+10],15,-1051523),m,l,n[e+1],21,-2054922799),v=f(v,m=f(m,l=f(l,g,v,m,n[e+8],6,1873313359),
+      g,v,n[e+15],10,-30611744),l,g,n[e+6],15,-1560198380),m,l,n[e+13],21,1309151649),v=f(v,m=f(m,l=f(l,g,v,m,n[e+4],6,-145523070),
+      g,v,n[e+11],10,-1120210379),l,g,n[e+2],15,718787259),m,l,n[e+9],21,-343485551),l=t(l,i),g=t(g,a),v=t(v,d),m=t(m,h);return[l,g,v,m]}
+      function a(n){var t,r='',e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+      function d(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+      function h(n){return a(i(d(n),8*n.length))}function l(n,t){var r,e,o=d(n),u=[],c=[];for(u[15]=c[15]=void 0,o.length>16&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(d(t)),512+8*t.length),a(i(c.concat(e),640))}
+      function g(n){var t,r,e='';for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),e+='0123456789abcdef'.charAt(t>>>4&15)+'0123456789abcdef'.charAt(15&t);return e}
+      function v(n){return unescape(encodeURIComponent(n))}function m(n){return h(v(n))}function p(n){return g(m(n))}
+      function s(n,t){return l(v(n),v(t))}function C(n,t){return g(s(n,t))}
+      function A(n,t,r){return t?r?s(t,n):C(t,n):r?m(n):p(n)}'function'==typeof define&&define.amd?define(function(){return A}):
+      'object'==typeof module&&module.exports?module.exports=A:n.md5=A}(this);
+
+      function getRandomInt(max) { return Math.floor(Math.random() * (max-1)) + 1; }
+
+      function fillselect()
+      {
+        var tl = ['All','MO','TU','WE','TH','FR','SA','SU','Work','SA,SU','Work+SA','MO,WE,FR','TU,TH,SA','MO,TU,WE','TH,FR,SA'];
+        var val = ['127','1','2','4','8','16','32','64','31','96','63','21','42','7','56'];
+        for(var i=0;i<10;i++)
+        {
+          var obj = document.getElementById('time_sdmask'+i);
+          var obj1 = document.getElementById('time_edmask'+i);
+          var sel=true;
+          for(var j=0;j<15;j++)
+          {
+            if(j!=0) sel = false;
+            obj.options[j] = new Option(tl[j], val[j], sel);
+            obj1.options[j] = new Option(tl[j], val[j], sel);
+          }
+        }
+      }
+
+      var websock;
+
+      var handler_array = [onTabStatusHandler,
+                           onTabTimerHandler,
+                           onTabSettingsHandler,
+                           onTabMqttHandler,
+                           onTabAdminHandler];
+
+      function onTabStatusHandler(_id,_cmd) {alert("qqq1");}
+      function onTabTimerHandler(_id,_cmd) {alert("qqq2");}
+      function onTabSettingsHandler(_id,_cmd) {alert("qqq3");}
+      function onTabMqttHandler(_id,_cmd) {alert("qqq4");}
+      function onTabAdminHandler(_id,_cmd) {alert("qqq5");}
+
+   </script>
+</body>
+</html>
