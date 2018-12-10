@@ -40,7 +40,7 @@
 
     </head>
 
-    <body>
+    <body onload="javascript:start();">
         <nav class="navbar is-warning">
             <div class="navbar-brand">
                 <div class="navbar-burger burger"></div>
@@ -60,14 +60,80 @@
 
             <div class="tabs is-boxed main-menu" id="nav">
                 <ul>
-                    <li data-target="pane-1" id="1"><a> Status</a></li>
-                    <li data-target="pane-2" id="2" class="is-active"><a>Settings</a></li>
-                    <li data-target="pane-3" id="3"><a>MQTT</a></li>
-                    <li data-target="pane-4" id="4"><a>Admin</a></li>
+                    <li data-target="pane-0" id='0' class="is-active"><a>Login</a></li>
+                    <li data-target='pane-1' style="display:none;" id='1'><a> Status</a></li>
+                    <li data-target='pane-2' style="display:none;" id='2'><a>Timer</a></li>
+                    <li data-target='pane-3' style="display:none;" id='3'><a>Settings</a></li>
+                    <li data-target='pane-4' style="display:none;" id='4'><a>MQTT</a></li>
                 </ul>
             </div>
 
             <div class="tab-content">
+
+               <div class="tab-pane is-active" id="pane-0">
+                  <form name='logf' method='POST' onsubmit='return reqauth(this);'>
+                  <div class="columns">
+
+                           <div class="column">
+
+                              <div class="field is-horizontal is-narrow">
+                                 <div class="field-label is-normal">
+                                    <label class="label ">User:</label>
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <input class="input" type="text" id='un' maxlength="20" placeholder="Username">
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <div class="field is-horizontal is-narrow">
+                                 <div class="field-label is-normal">
+                                    <label class="label ">Password:</label>
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <input class="input" type="password" id='pwd' maxlength="20" placeholder="Password">
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <div class="field is-horizontal is-narrow">
+                                 <div class="field-label">
+                                    <!-- Left empty for spacing -->
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <input class="button is-success" type="submit" name='SUBMIT' value='Login'>
+                                    </div>
+                                 </div>
+                              </div>
+
+                           </div>
+
+                           <div class="column">
+                              l;l;
+                           </div>
+
+                  </div>
+                  <!--
+                     <div class="field">
+                        <p class="control">
+                           <input class="input" type="text" id="un" maxlength="20" placeholder="Username">
+                        </p>
+                     </div>
+                     <div class="field">
+                        <p class="control">
+                           <input class="input" type="password" id="pwd" maxlength="20" placeholder="Password">
+                        </p>
+                     </div>
+                     <div class="field">
+                        <p class="control">
+                           <input class="button is-success" type="submit" name='SUBMIT' value='Login'>
+                        </p>
+                     </div> -->
+                  </form>
+               </div>
 
                <div class="tab-pane" id="pane-1">
                   <div class="columns">
@@ -96,98 +162,150 @@
                            <p class="control"><a class="button is-success" onclick='onTabTimerHandler(0,"auto")'>Auto</a></p>
                         </div>
                      </div>
+
                      <div class="column">
-                        <table class="table is-striped is-fullwidth">
+                        <table class="table is-striped">
                            <thead>
                               <tr>
                               <th><abbr title="Sensors data">Sensors</abbr></th>
                               <th></th>
                               </tr>
                            </thead>
-                           <tbody>
-                              <tr>
-                              <td class="has-text-right">Date:</td>
-                              <td>10-10-10</td>
-                              </tr>
-                              <tr>
-                              <td class="has-text-right">Status:</td>
-                              <td>fklfhjkfhkjekjgfj</td>
-                              </tr>
-                              <tr>
-                              <td class="has-text-right">Stadddtus:</td>
-                              <td>fklfhjkfhkjekjgfj</td>
-                              </tr>
-                           </tbody>
+                           <tbody id="sens_list"> </tbody>
                         </table>
                      </div>
                   </div>
 
                </div>
 
-                <div class="tab-pane" id="pane-3">
-                    <div class="columns">
-                        <div class="container ">
-                            <div class="columns">
-                                <div class="column">
-                                    <article class="media">
-                                        <div class="media-left">
-                                            <i class="fab fa-github-square fa-4x"></i>
-                                        </div>
-                                        <div class="media-content">
-                                            <div class="content">
-                                                <p>
-                                                    <strong>Dominic Ipsum</strong>
-                                                    <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </article>
-                                    <article class="media">
-                                        <div class="media-left">
-                                            <i class="fab fa-empire fa-4x"></i>
-                                        </div>
-                                        <div class="media-content">
-                                            <div class="content">
-                                                <p>
-                                                    <strong>Cassie Ipsum</strong>
-                                                    <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </article>
-                                </div>
-                                <div class="column">
-                                    <article class="media">
-                                        <div class="media-left">
-                                            <i class="fab fa-ravelry fa-4x"></i>
-                                        </div>
-                                        <div class="media-content">
-                                            <div class="content">
-                                                <p>
-                                                    <strong>Avery Ipsum</strong>
-                                                    <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </article>
-                                    <article class="media">
-                                        <div class="media-left">
-                                            <i class="fab fa-github-alt fa-4x"></i>
-                                        </div>
-                                        <div class="media-content">
-                                            <div class="content">
-                                                <p>
-                                                    <strong>io Ipsum</strong>
-                                                    <br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis. ╳
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </article>
-                                </div>
-                            </div>
+               <div class="tab-pane" id="pane-2">
+                  <div class="content">
+                     <h1>Hello World</h1>
+                  </div>
+               </div>
+
+               <div class="tab-pane" id="pane-3">
+                  <div class="columns">
+                     <div class="container ">
+                        <div class="columns">
+
+                           <div class="column">
+
+                              <div class="field is-horizontal">
+                                 <div class="field-label">
+                                    
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <label class="label has-text-weight-semibold has-text-info is-size-5">WIFI</label>
+                                    </div> 
+                                 </div>
+                              </div>
+
+
+                              <div class="field is-horizontal">
+                                 <div class="field-label is-normal">
+                                    <label class="label has-text-weight-semibold">SSID:</label>
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <input class="input" type="text" id='wifi_ssid' value='DIR-300'>
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <div class="field is-horizontal">
+                                 <div class="field-label is-normal">
+                                    <label class="label has-text-weight-semibold">PWD:</label>
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <input class="input" type="text" id='wifi_pwd' value=''>
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <div class="field is-horizontal">
+                                 <div class="field-label is-normal">
+                                    <label class="label has-text-weight-semibold">DHCP:</label>
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <div class="select">
+                                          <select id='wifi_dhcp'>
+                                             <option value='0'>No</option>
+                                             <option selected value='1'>Yes</option>
+                                          </select>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <div class="field is-horizontal">
+                                 <div class="field-label is-normal">
+                                    <label class="label has-text-weight-semibold">IP addr:</label>
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <input class="input" type="text" id='wifi_ipa' required value ='' title = 'Input ip address d.d.d.d'>
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <div class="field is-horizontal">
+                                 <div class="field-label is-normal">
+                                    <label class="label has-text-weight-semibold">Gateway:</label>
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <input class="input" type="text" id='wifi_gw' required value ='' title = 'Input gateway address d.d.d.d'>
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <div class="field is-horizontal">
+                                 <div class="field-label is-normal">
+                                    <label class="label has-text-weight-semibold">Subnet:</label>
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <div class="select">
+                                          <select id='wifi_mask'>
+                                             <option selected value='24'>&nbsp/24</option>
+                                             <option value='23'>&nbsp/23</option>
+                                             <option value='22'>&nbsp/22</option>
+                                             <option value='21'>&nbsp/21</option>
+                                             <option value='20'>&nbsp/20</option>
+                                             <option value='19'>&nbsp/19</option>
+                                             <option value='18'>&nbsp/18</option>
+                                             <option value='17'>&nbsp/17</option>
+                                             <option value='16'>&nbsp/16</option>
+                                          </select>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <div class="field is-horizontal">
+                                 <div class="field-label">
+                                    <!-- Left empty for spacing -->
+                                 </div>
+                                 <div class="field-body">
+                                    <div class="control">
+                                       <button class="button is-success" onclick='onTabSettingsHandler(0,"setwifi")'>Apply</button>
+                                    </div>
+                                 </div>
+                              </div>
+
+                           </div>
+
+                           <div class="column">
+                           </div>
+
                         </div>
-                    </div>
-                </div>
+                     </div>
+                  </div>
+               </div>
 
                 <div class="tab-pane" id="pane-4">
                     <div class="columns is-centered">
@@ -197,18 +315,13 @@
                     </div>
                 </div>
 
-                <div class="tab-pane is-active" id="pane-2">
-                    <div class="content">
-                        <h1>Hello World</h1>
-                    </div>
-                </div>
          </div>
 
          <div class="hero-footer">
-            <div class="container">Tabs end</div>
+            <div class="container" id="description">Tabs end</div>
          </div>
 
-    </section>
+   </section>
  
    <script >
 
@@ -243,7 +356,11 @@
 
          tabs.forEach(function(tab)
          {
-            if (tab.id == targetId) { tab.style.display = "block"; handler_array[selectedNav-1](0,"defaults");}
+            if (tab.id == targetId)
+            { 
+               tab.style.display = "block";
+               handler_array[selectedNav-1](0,"defaults");
+            }
             else { tab.style.display = "none"; }
          });
       }
@@ -301,6 +418,20 @@
         }
       }
 
+      function makelist()
+      {
+         var navEls = document.querySelectorAll("#nav li");
+
+         navEls.forEach(function(navEl)
+         {
+            if (navEl.id == '0') { navEl.style.display="none"; } 
+            else { navEl.style.display="block"; }
+         });
+
+         toggleTab("1", "pane-1")
+      }
+
+
       var websock;
 
       var handler_array = [onTabStatusHandler,
@@ -309,11 +440,185 @@
                            onTabMqttHandler,
                            onTabAdminHandler];
 
-      function onTabStatusHandler(_id,_cmd) {alert("qqq1");}
-      function onTabTimerHandler(_id,_cmd) {alert("qqq2");}
-      function onTabSettingsHandler(_id,_cmd) {alert("qqq3");}
-      function onTabMqttHandler(_id,_cmd) {alert("qqq4");}
-      function onTabAdminHandler(_id,_cmd) {alert("qqq5");}
+      function start()
+      {
+         //maketable();
+         //fillselect();
+
+         //websock = new WebSocket("ws://" + window.location.hostname + "/ws");
+         websock = new WebSocket("ws://192.168.137.88/ws");
+         websock.onopen = function(evt) { console.log('websock open'); };
+         websock.onclose = function(evt) { console.log('websock close'); };
+         websock.onerror = function(evt) { console.log(evt); };
+         websock.onmessage = onMessageHandler;
+         if(sessionStorage.getItem("hash"))
+         {
+            makelist();
+            makesensor();
+            setTimeout(morestatus,100);
+            return;
+         }
+         sessionStorage.setItem("sessionid", getRandomInt(1000000));
+      }
+
+      function onMessageHandler(evt)
+      {
+         console.log(evt);
+
+         var resp = JSON.parse(evt.data);
+
+         if(resp.action == "auth")
+         {
+            if(resp.status_auth=='ok')
+            {
+               makelist();
+               setTimeout(morestatus,100);
+               document.getElementById('description').innerHTML = "status ok";
+            }
+            else 
+            {
+               sessionStorage.removeItem("hash");
+               sessionStorage.removeItem("sensCount");
+               sessionStorage.setItem("sessionid", getRandomInt(1000000));
+               window.location.reload();
+             }
+             return;
+         }
+
+         if((resp.action == "senscnt"))
+         {
+            sessionStorage.setItem("sensCount", resp.sens_cnt);
+            makesensor();
+            return;
+         }
+
+         if((resp.action == "time") || (resp.action == "wifi") || (resp.action == "mqtt"))
+         {
+            var resp = JSON.parse(evt.data,function(key,value){
+               if(document.getElementById(key)!=null) document.getElementById(key).value = value;
+               return value;
+            });
+            return;
+         }
+
+         var resp = JSON.parse(evt.data,function(key,value){
+            if(key!='action' && key!='')
+               if(document.getElementById(key)!=null) document.getElementById(key).innerHTML = value;
+            return value;
+         });
+
+      };
+
+      function reload(f)
+      {
+         sessionStorage.removeItem("hash");
+         sessionStorage.removeItem("sensCount");
+         sessionStorage.setItem("sessionid", getRandomInt(1000000));
+         sessionStorage.setItem("tabStart", 1);
+         sessionStorage.setItem("tabCount", 1);
+         //window.location.reload();
+         f.submit();
+         return false;
+      }
+
+      function reqauth(f)
+      {
+         var paswd = document.getElementById('pwd').value; document.getElementById('pwd').value = '';
+         var user = document.getElementById('un').value; document.getElementById('un').value = '';
+         var d = "0";
+         var hash;
+         if(sessionStorage.getItem("sessionid"))
+         {
+            d = sessionStorage.getItem("sessionid");
+            hash = md5(user+paswd+d);
+            sessionStorage.setItem("hash", hash);
+            document.getElementById('description').innerHTML = hash;
+            var msg = { type: "message", auth : hash, text: "sessionid", data : d};
+            var smsg = JSON.stringify(msg);
+            websock.send(smsg);
+         }
+         return false;
+      }
+
+      function morestatus()
+      {
+         var msg;
+         var tout;
+         if(sessionStorage.getItem("sensCount"))
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "status", id: 0 };
+            tout=1000;
+         }
+         else
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "senscnt", id: 0 };
+            tout=100;
+         }
+         var smsg = JSON.stringify(msg);
+         websock.send(smsg);
+         setTimeout(morestatus, tout);
+      }
+
+      function makesensor()
+      {
+         var div = document.getElementById("sens_list");
+         var temp="";
+         var sensCount = parseInt(sessionStorage.getItem("sensCount"));
+         for(var i=0;i<sensCount;i++)
+         {
+              temp += "<tr> \
+                       <td class='has-text-right'><span id='tsensor_"+i+"'>Sensor"+i+":</span></td> \
+                       <td><span id='vsensor_"+i+"'>N/A</span></td> \
+                       </tr>";
+         }
+         div.innerHTML = temp;
+      }      
+
+
+      function onTabStatusHandler(_id,_cmd) {}
+
+      function onTabTimerHandler(_id,_cmd) {}
+      
+      function onTabSettingsHandler(_id,_cmd)
+      {
+         var msg;
+
+         if(_cmd=="defaults")
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "wifi", cmd: _cmd, id: _id };
+         }
+
+         if(_cmd=="setwifi")
+         {
+            msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "wifi", cmd: _cmd, id: _id};
+
+            var IPvalue = document.getElementById('wifi_ipa').value;
+            var GWvalue = document.getElementById('wifi_gw').value;
+
+            var pattern = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+            var ipArray = IPvalue.match(pattern);
+            var gwArray = GWvalue.match(pattern);
+            if(ipArray==null) { alert('Invalid IP address!!!'); return; }
+            if(gwArray==null) { alert('Invalid GW address!!!'); return; }
+
+            msg['wifi_ssid'] =  document.getElementById('wifi_ssid').value;
+            msg['wifi_pwd'] =  document.getElementById('wifi_pwd').value;
+            msg['wifi_dhcp'] =  document.getElementById('wifi_dhcp').value;
+            msg['wifi_ipa'] =  IPvalue;
+            msg['wifi_gw'] =  GWvalue;
+            msg['wifi_mask'] =  document.getElementById('wifi_mask').value;
+          //  msg['wifi_tnet'] =  document.getElementById('wifi_tnet').value;
+         }
+
+         websock.send(JSON.stringify(msg));
+
+         document.getElementById('description').innerHTML = JSON.stringify(msg);
+      }
+
+
+      function onTabMqttHandler(_id,_cmd) {}
+      function onTabAdminHandler(_id,_cmd) {}
 
    </script>
 </body>
