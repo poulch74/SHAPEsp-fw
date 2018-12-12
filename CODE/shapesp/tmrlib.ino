@@ -107,7 +107,7 @@ void handleNotFound(AsyncWebServerRequest *request)
 void handleIndex(AsyncWebServerRequest *request)
 {
    //AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/index.html.gz","text/html");
-   AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_htm, (size_t)8363);
+   AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_htm, index_htm_sz);
    response->addHeader("Content-Encoding", "gzip");
 //        response->addHeader("Last-Modified", _last_modified);
    response->addHeader("X-XSS-Protection", "1; mode=block");
