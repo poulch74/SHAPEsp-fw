@@ -69,8 +69,8 @@ public:
 
       if(!sensors.empty())
       {
-         for(int i=0;i<sensors.size();i++) 
-         { 
+         for(int i=0;i<sensors.size();i++)
+         {
             sensors[i]->init();
             sens_count+=sensors[i]->getTagCount();
          }
@@ -123,7 +123,7 @@ public:
             {
                char tsensor[16]; snprintf(tsensor,16,"tsensor_%d",k);
                char vsensor[16]; snprintf(vsensor,16,"vsensor_%d",k);
-               char nsensor[16]; snprintf(nsensor,16,"Sensor%d: ",i);
+               char nsensor[16]; snprintf(nsensor,16,"%d:&nbsp",i);
                String sname = String(nsensor) + sensors[i]->getName();
                root[tsensor] = sname + "::" +sensors[i]->getTag(j);
                root[vsensor] = sensors[i]->getValueAsStr(j);
