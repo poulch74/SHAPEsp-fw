@@ -49,8 +49,8 @@ void wsParseHandler(AsyncWebSocketClient *client, uint8_t * payload, size_t leng
    JsonObject& oroot = outBuffer.createObject();
 
    if(iroot["type"].as<String>() =="message")
-   { 
-      HandleStatus(iroot,oroot);
+   {
+      if(!HandleStatus(iroot,oroot)) { client->close(1003); return; };
 
       size_t len = oroot.measureLength();
       AsyncWebSocketMessageBuffer * buffer = ws.makeBuffer(len); //  creates a buffer (len + 1) for you.
@@ -60,27 +60,27 @@ void wsParseHandler(AsyncWebSocketClient *client, uint8_t * payload, size_t leng
          if (client) client->text(buffer);
          else ws.textAll(buffer);
       }
-   }      
+   }
 }
 
-void HandleStatus(JsonObject& iroot, JsonObject& root)
+bool HandleStatus(JsonObject& iroot, JsonObject& root)
 {
    if(iroot["text"].as<String>()=="sessionid")
    {
-      root["action"] = "auth";  
+      root["action"] = "auth";
       hash = md5(String("root")+String("esp8266")+iroot["data"].as<String>());
       DEBUG_MSG("Hash server: %s \n",hash.c_str());
       DEBUG_MSG("Hash client: %s \n",iroot["auth"].as<String>().c_str());
       if(iroot["auth"].as<String>() == hash) { root["status_auth"] = "ok"; DEBUG_MSG("Auth OK\n");}
       else { root["status_auth"] = "fail";  DEBUG_MSG("Auth FAIL\n"); }
-      return;
+      return true;
    }
-  
+
    // reject no auth requests
-   if(iroot["auth"].as<String>() != hash) { DEBUG_MSG("No auth!!!!"); return; }
+   if(iroot["auth"].as<String>() != hash) { DEBUG_MSG("No auth!!!!"); return false; }
 
 
    String t = iroot["text"].as<String>();
    if(msglist.find(t) != msglist.end())  msglist.at(t)->doTasks(iroot,root);
-
+   return true;
 }
