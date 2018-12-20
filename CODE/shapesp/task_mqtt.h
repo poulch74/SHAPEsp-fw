@@ -156,9 +156,15 @@ public:
             cfg.mqtt.idx_sens[0] = iroot["mqtt_sens0"];
             cfg.mqtt.idx_sens[1] = iroot["mqtt_sens1"];
             cfg.mqtt.idx_sens[2] = iroot["mqtt_sens2"];
-            
+            cfg.mqtt.idx_sens[3] = iroot["mqtt_sens3"];
+            cfg.mqtt.idx_sens[4] = iroot["mqtt_sens4"];
+            cfg.mqtt.idx_sens[5] = iroot["mqtt_sens5"];
+            cfg.mqtt.idx_sens[6] = iroot["mqtt_sens6"];
+            cfg.mqtt.idx_sens[7] = iroot["mqtt_sens7"];
+            cfg.mqtt.idx_sens[8] = iroot["mqtt_sens8"];
+            cfg.mqtt.idx_sens[9] = iroot["mqtt_sens9"];
             WriteConfig(false,false);
-            
+
             cmd = "defaults";
          }
 
@@ -184,6 +190,13 @@ public:
             root["mqtt_sens0"] = cfg.mqtt.idx_sens[0];
             root["mqtt_sens1"] = cfg.mqtt.idx_sens[1];
             root["mqtt_sens2"] = cfg.mqtt.idx_sens[2];
+            root["mqtt_sens3"] = cfg.mqtt.idx_sens[3];
+            root["mqtt_sens4"] = cfg.mqtt.idx_sens[4];
+            root["mqtt_sens5"] = cfg.mqtt.idx_sens[5];
+            root["mqtt_sens6"] = cfg.mqtt.idx_sens[6];
+            root["mqtt_sens7"] = cfg.mqtt.idx_sens[7];
+            root["mqtt_sens8"] = cfg.mqtt.idx_sens[8];
+            root["mqtt_sens9"] = cfg.mqtt.idx_sens[9];
          }
       }
    }

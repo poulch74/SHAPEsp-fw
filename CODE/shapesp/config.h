@@ -3,7 +3,7 @@
 #define DBGSERIAL Serial
 // or Serial1
 
-#define MAX_SENSORS_CNT 8 // max sensors IDX cnt for MQTT
+#define MAX_SENSORS_CNT 10 // max sensors IDX cnt for MQTT
 
 typedef struct _ESP_TPRG_S
 {
@@ -57,7 +57,7 @@ typedef struct _ESP_MQTT_S
    uint16_t keepAlive;
    uint8_t  qos;
    uint8_t  retain;      //78
-   
+
    char     user[21];
    char     pwd[21];
 
@@ -76,7 +76,7 @@ typedef struct settings
 
    ESP_CONFIG_S wifi;
    ESP_MQTT_S mqtt;
-   ESP_TPRG_S tmr[10]; 
+   ESP_TPRG_S tmr[10];
 } ESP_SET;
 
 
@@ -88,7 +88,7 @@ typedef struct __ESP_CFG_
 } ESP_CFG;
 #pragma pack(pop)
 
-const char defcfg[] PROGMEM= 
+const char defcfg[] PROGMEM=
 "{"
 "\"user\":\"root\","
 "\"pwd\":\"esp8266\","
@@ -128,7 +128,7 @@ const char defcfg[] PROGMEM=
 "\"mqtt_sens2\":0"
 "}";
 
- 
+
 template<typename T> void setSetting(const String& key, T value);
 template<typename T> void setSetting(const String& key, unsigned int index, T value);
 template<typename T> String getSetting(const String& key, T defValue);
