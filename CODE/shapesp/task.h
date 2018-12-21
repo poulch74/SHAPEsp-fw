@@ -2,7 +2,7 @@ class TestTask1 : public EspTask
 {
 public:
    TestTask1() : EspTask() { snprintf(uptime,32,"00d:00h:00m"); }
-   
+
    void doTask(int evt)
    {
       if(evt == EVT_60SEC)
@@ -83,7 +83,7 @@ public:
 
       if(cmd=="setwifi")
       {
-         
+
          snprintf(cfg.wifi.sta_ssid, 33 ,iroot["wifi_ssid"].as<const char*>());
          snprintf(cfg.wifi.sta_pwd,65, iroot["wifi_pwd"].as<const char*>());
          cfg.wifi.sta_dhcp = iroot["wifi_dhcp"];
@@ -105,6 +105,15 @@ public:
          cmd = "defaults";
       }
 
+      if(cmd=="setpwd")
+      {
+         snprintf(cfg.wifi.user, 21 ,iroot["adm_un"].as<const char*>());
+         snprintf(cfg.wifi.pwd,21, iroot["adm_pwd"].as<const char*>());
+         WriteConfig(false,false);
+         DEBUG_MSG("change user/pwd\n");
+         cmd = "defaults";
+      }
+
       if(cmd=="defaults")
       {
          ReadConfig();
@@ -121,6 +130,8 @@ public:
          root["wifi_gw"] = IPAddress(cfg.wifi.sta_gw).toString();
          root["wifi_mask"] = m;
          root["wifi_tnet"] = cfg.wifi.skip_logon;
+
+         root["adm_un"] = cfg.wifi.user;
       }
    }
 };

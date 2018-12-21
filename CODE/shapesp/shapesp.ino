@@ -101,7 +101,7 @@ EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,sens_task)
    EVENT_REGISTER_TASK(EVT_1SEC,mqtt_task)
 
-   EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди 
+   EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди
    EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer)
    EVENT_REGISTER_TASK(EVT_VAUTO,taskTimer)
 
@@ -119,7 +119,7 @@ MSG_BEGIN_REGISTER_TASKS
    MSG_REGISTER_TASK(MSG_STATUS,task1)
    MSG_REGISTER_TASK(MSG_STATUS,taskTimer)
    MSG_REGISTER_TASK(MSG_STATUS,sens_task)
-   
+
    MSG_REGISTER_TASK(MSG_SET_TIME,taskTimer)
 
    MSG_REGISTER_TASK(MSG_SET_SETTINGS,taskSettings)
@@ -148,7 +148,7 @@ const int led = 2; // led pin
 
 Ticker timer;
 void alarm()
-{ 
+{
    sysqueue.push(&GetEvent(EVT_1SEC));
    //sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
    static int sec60cnt = 0;
@@ -163,19 +163,19 @@ AsyncWebSocket ws("/ws");
 void setup()
 {
    wifimode = 0; // station
-  
+
    DBGSERIAL.begin(115200);
 
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
    i2c_setup(4,5,200,400);
-   
+
    if(i2cCheck(0x68)==0)
    {
       DEBUG_MSG_P(PSTR("DS3231 found at address 0x68. Setting SyncProvider... \n"));
       setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
    }
-   else 
+   else
    {
       DEBUG_MSG_P(PSTR("RTC clock not found! Setting fake millis() SyncProvider... \n"));
       setSyncProvider(getTime_stub);
@@ -194,12 +194,12 @@ void setup()
    i2cScan();
 
    if(!ReadConfig())
-   { 
+   {
       DEBUG_MSG("Failed read config!!! Trying write defaults...");
       WriteConfig(true,false);
       DEBUG_MSG("Done. \n");
    }
-  
+
    DEBUG_MSG("User: %s \n",cfg.wifi.user);
    DEBUG_MSG("Pwd: %s \n", cfg.wifi.pwd);
 
@@ -220,7 +220,7 @@ void setup()
    {
       WiFi.config(IPAddress(cfg.wifi.sta_ip), IPAddress(cfg.wifi.sta_gw), IPAddress(cfg.wifi.sta_subnet));
    }
-   
+
 
    uint16_t to = 50;
    while(WiFi.status() != WL_CONNECTED )
@@ -241,7 +241,7 @@ void setup()
       Serial.print("IP address: "); Serial.println(WiFi.localIP());
    }
    else
-   { 
+   {
       wifimode = 1; // softap
       WiFi.mode(WIFI_AP);
       String mac = WiFi.softAPmacAddress();
@@ -251,7 +251,7 @@ void setup()
       Serial.print("AP is "); Serial.println(softAPname);
       Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
    }
-  
+
    DEBUG_MSG("write cfg \n");
    if(false) WriteConfig(true,false); // if pin pushed write def config
    DEBUG_MSG("write cfg end \n");
@@ -270,28 +270,54 @@ void setup()
    ws.onEvent(onWsEvent);
    server.addHandler(&ws);
 
-   server.on("/update", HTTP_POST, 
+   server.on("/reboot",HTTP_POST,
    [](AsyncWebServerRequest *request)
    {
-      // the request handler is triggered after the upload has finished... 
-      // create the response, add header, and send response
-      //AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError())?"FAIL":"OK");
-      String str("<META http-equiv=\"refresh\" content=\"15;URL=/\">Update ");
-      str += String((Update.hasError())?"FAIL! ":"Success! ") + "Rebooting...\n";
+      String str;
+      if(isauth())
+      {
+         str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Rebooting... Wait about 15 sec.\n";
+         deferredReset(200);
+      }
+      else
+      {
+         str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">No Auth!!! Rejected! \n ";
+      }
       AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
-      //restartRequired = true;  // Tell the main loop to restart the ESP
-      deferredReset(200);
+      request->send(response);
+   });
+
+
+   server.on("/update", HTTP_POST,
+   [](AsyncWebServerRequest *request)
+   {
+      String str;
+      if(isauth())
+      {
+         // the request handler is triggered after the upload has finished...
+         // create the response, add header, and send response
+         str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Update ";
+         str += String((Update.hasError())?"FAIL! ":"Success! ") + "Rebooting... Wait about 15 sec.\n";
+         AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
+         deferredReset(200);
+      }
+      {
+         str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">No Auth!!! Rejected! \n ";
+      }
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
       request->send(response);
    },
-   [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
+   [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool last)
    {
       //Upload handler chunks in data
+      if(isauth())
+      {
       if(!index)
       { // if index == 0 then this is the first frame of data
          Serial.printf("UploadStart: %s\n", filename.c_str());
 
          Serial.setDebugOutput(true);
-      
+
          // calculate sketch space required for the update
          uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
          if(!Update.begin(maxSketchSpace))
@@ -303,8 +329,8 @@ void setup()
 
       //Write chunked data to the free sketch space
       if(Update.write(data, len) != len) { Update.printError(Serial); }
-    
-      if(final)
+
+      if(last)
       { // if the final flag is set then this is the last frame of data
          if(Update.end(true))
          { //true to set the size to the current progress
@@ -316,10 +342,11 @@ void setup()
          }
         Serial.setDebugOutput(false);
       }
-   });   
+      }
+   });
 
    ssdpSetup();
-     
+
    // Start the server
    server.begin();
    delay(10);
@@ -340,7 +367,7 @@ void setup()
 void loop()
 {
    if(!sysqueue.empty())
-   { 
+   {
       sysqueue.front()->doTasks();
       sysqueue.pop();
    }

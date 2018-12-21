@@ -477,14 +477,14 @@
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">New User:</td>
                                  <td><div class='control'>
-                                    <input class="input" type="text" id='wifi_ssid' maxlength='20' value='' placeholder="Username">
+                                    <input class="input" type="text" id='adm_un' maxlength='20' value='' placeholder="Username">
                                  </div></td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">New PWD:</td>
                                  <td><div class='control'>
-                                    <input class="input" type="text" id='wifi_ssid' maxlength='20' value='' placeholder="Password">
+                                    <input class="input" type="text" id='adm_pwd' maxlength='20' value='' placeholder="Password">
                                  </div></td>
                               </tr>
 
@@ -500,9 +500,11 @@
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">&nbsp</td>
                                  <td><div class='control'>
-                                    <button class="button is-danger" onclick='onTabSettingsHandler(0,"setreboot")'>
-                                    <span style="padding:0 2em;">Reboot</span>
-                                     </button>
+                                    <form method='POST' action='/reboot' onsubmit='return reload(this);'>
+                                       <button class="button is-danger">
+                                       <span style="padding:0 2em;">Reboot</span>
+                                       </button>
+                                    </form>
                                  </div></td>
                               </tr>
 
@@ -524,7 +526,6 @@
                                           <span style="padding:0 2em;">Update</span>
                                           </button>
                                        </div>
-                                       <!--input type='submit' value='FW Update'-->
                                     </form>
 
                                  </div></td>
@@ -1062,6 +1063,7 @@
          var params = ['wifi_ssid', 'wifi_pwd', 'wifi_dhcp', 'wifi_ipa', 'wifi_gw', 'wifi_mask'
                         //  msg['wifi_tnet'] =  document.getElementById('wifi_tnet').value;
                       ];
+         var pparams = ["adm_un", "adm_pwd"];
 
          if(_cmd=="setwifi")
          {
@@ -1074,6 +1076,13 @@
             if(!pattern.test(GWvalue)) { alert('Invalid GW address!!!'); return; }
 
             params.forEach(function(item) {
+               msg[item] =   document.getElementById(item).value;
+            });
+         }
+
+         if(_cmd=="setpwd")
+         {
+            pparams.forEach(function(item) {
                msg[item] =   document.getElementById(item).value;
             });
          }
@@ -1259,14 +1268,10 @@
 
       function reload(f)
       {
-         //sessionStorage.removeItem("hash");
-         //sessionStorage.removeItem("sensCount");
-         //sessionStorage.setItem("sessionid", getRandomInt(1000000));
-         //sessionStorage.setItem("tabStart", 1);
-         //sessionStorage.setItem("tabCount", 1);
-         //window.location.reload();
          fwupdate = true;
-         websock.close();
+         sessionStorage.removeItem("hash");
+         sessionStorage.removeItem("sensCount");
+         //websock.close();
          f.submit();
          return false;
       }

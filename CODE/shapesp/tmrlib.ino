@@ -19,15 +19,8 @@ uint16_t crc16(const uint8_t *msg, int msg_len)
 // Reset
 // -----------------------------------------------------------------------------
 Ticker _defer_reset;
-
-void reset() {
-    ESP.restart();
-}
-
-void deferredReset(unsigned long delay)
-{
-    _defer_reset.once_ms(delay, reset);
-}
+void reset() { ESP.restart(); }
+void deferredReset(unsigned long delay) { _defer_reset.once_ms(delay, reset); }
 
 // SSDP
 const char _ssdp_template[] PROGMEM=
@@ -106,7 +99,6 @@ void handleNotFound(AsyncWebServerRequest *request)
 
 void handleIndex(AsyncWebServerRequest *request)
 {
-   //AsyncWebServerResponse *response = request->beginResponse(SPIFFS, "/index.html.gz","text/html");
    AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_htm, index_htm_sz);
    response->addHeader("Content-Encoding", "gzip");
 //        response->addHeader("Last-Modified", _last_modified);
@@ -116,10 +108,9 @@ void handleIndex(AsyncWebServerRequest *request)
    request->send(response);
 }
 
-
+/*
 bool is_auth(AsyncWebServerRequest *request)
 {
-    /*
    if(cfg.s.skip_logon)
    {
       do
@@ -142,13 +133,12 @@ bool is_auth(AsyncWebServerRequest *request)
             if((remip[0]==locip[0])&&(remip[1]==locip[1])&&(remip[2]==locip[2])&&(remip[3]==locip[3]))
             return true; // skip logon
          }
-      } while(0);         
+      } while(0);
       DbgPrint(("Remote client!!!"));
    }
-*/
-/*
+
    DbgPrintln(("Enter is_authentified"));
-   if (request->hasHeader("Cookie")){   
+   if (request->hasHeader("Cookie")){
       DbgPrint(("Found cookie: "));
       String cookie = request->header("Cookie");
       DbgPrintln((cookie));
@@ -163,16 +153,17 @@ bool is_auth(AsyncWebServerRequest *request)
       }
    }
    DbgPrintln(("Authentification Failed"));
-   return false; 
-*/
+   return false;
 }
+*/
+
 /*
 bool ReadConfig()
 {
   memset(&cfg,0,sizeof(ESP_CONFIG));
   EEPROM.begin(4096);
   for(uint16_t i=0; i<sizeof(ESP_CONFIG); i++) cfg.b[i] = EEPROM.read(i);//rtc.eeprom_read(i);
-  EEPROM.end();    
+  EEPROM.end();
   uint16_t c_crc = crc16(&(cfg.b[2]),sizeof(ESP_CONFIG)-2);
   if(cfg.s.crc!=c_crc) return false;
   return true;
@@ -208,9 +199,6 @@ void WriteConfig(bool def, bool clrtmr)
       snprintf(cfg.wifi.sta_pwd,65,"chps74qwerty");
       cfg.wifi.sta_dhcp = 1;
       cfg.wifi.skip_logon = 0;
-      //cfg.wifi.sta_ip[0] = 192; cfg.wifi.sta_ip[1] = 168; cfg.wifi.sta_ip[2] = 137; cfg.wifi.sta_ip[3] = 88;
-      //cfg.wifi.sta_gw[0] = 192; cfg.wifi.sta_gw[1] = 168; cfg.wifi.sta_gw[2] = 137; cfg.wifi.sta_gw[3] = 1;
-      //cfg.wifi.sta_subnet[0] = 255; cfg.wifi.sta_subnet[1] = 255; cfg.wifi.sta_subnet[2] = 255; cfg.wifi.sta_subnet[3] = 0;
       cfg.wifi.sta_ip = IPAddress(192,168,137,88);
       cfg.wifi.sta_gw = IPAddress(192,168,137,1);
       cfg.wifi.sta_subnet = IPAddress(255,255,255,0);
@@ -218,13 +206,9 @@ void WriteConfig(bool def, bool clrtmr)
       sprintf(cfg.wifi.ap_pwd,"");
       cfg.wifi.ap_hidden = 0; // 1 - hidden
       cfg.wifi.ap_chan = 6;
-      //cfg.wifi.ap_ip[0] = 192; cfg.wifi.ap_ip[1] = 168; cfg.wifi.ap_ip[2] = 4; cfg.wifi.ap_ip[3] = 1;
-      //cfg.wifi.ap_gw[0] = 192; cfg.wifi.ap_gw[1] = 168; cfg.wifi.ap_gw[2] = 4; cfg.wifi.ap_gw[3] = 1;
-      //cfg.wifi.ap_subnet[0] = 255; cfg.wifi.ap_subnet[1] = 255; cfg.wifi.ap_subnet[2] = 255; cfg.wifi.ap_subnet[3] = 0;
       cfg.wifi.ap_ip = IPAddress(192,168,137,88);
       cfg.wifi.ap_gw = IPAddress(192,168,137,1);
       cfg.wifi.ap_subnet = IPAddress(255,255,255,0);
-
 
       snprintf(cfg.mqtt.user,20,"");
       snprintf(cfg.mqtt.pwd,20,"");
@@ -247,8 +231,8 @@ void WriteConfig(bool def, bool clrtmr)
    uint8_t *bptr =(uint8_t *)&cfg;
    cfg.size = sizeof(ESP_SET);
    cfg.crc = crc16(&bptr[4],cfg.size-4);
-   
-   EEPROM.begin(4096);  
+
+   EEPROM.begin(4096);
    for(uint16_t i=0; i<sizeof(ESP_SET); i++) { EEPROM.write(i,bptr[i]); }
    EEPROM.end();
 }
@@ -260,7 +244,7 @@ bool ReadTmrPrg()
    memset(&prg,0,sizeof(ESP_TPRG));
    EEPROM.begin(4096);
    for(uint16_t i=0; i<sizeof(ESP_TPRG); i++) prg.b[i] = EEPROM.read(512+i);//rtc.eeprom_read(512+i);
-   EEPROM.end();    
+   EEPROM.end();
    uint16_t c_crc = crc16(&(prg.b[2]),sizeof(ESP_TPRG)-2);
    if(prg.ta.crc!=c_crc) return false;
    return true;
@@ -270,7 +254,7 @@ void SaveTmrPrg(bool def)
 {
    if(def) { memset(&prg,0,sizeof(ESP_TPRG)); }
    prg.ta.crc = crc16(&(prg.b[2]),sizeof(ESP_TPRG)-2);
-   EEPROM.begin(4096);    
+   EEPROM.begin(4096);
    for(uint16_t i=0; i<sizeof(ESP_TPRG); i++) { EEPROM.write(512+i,prg.b[i]);}
    EEPROM.end();
 }
@@ -289,8 +273,8 @@ bool ReadMqttSettings()
 void SaveMqttSettings(bool def)
 {
    if(def)
-   { 
-      memset(&mqttset,0,sizeof(ESP_MQTT)); 
+   {
+      memset(&mqttset,0,sizeof(ESP_MQTT));
       snprintf(mqttset.s.user,20,"");
       snprintf(mqttset.s.pwd,20,"");
       snprintf(mqttset.s.server,64,"localhost");
@@ -305,7 +289,7 @@ void SaveMqttSettings(bool def)
    }
 
    mqttset.s.crc = crc16(&(mqttset.b[2]),sizeof(ESP_MQTT)-2);
-   EEPROM.begin(4096);    
+   EEPROM.begin(4096);
    for(uint16_t i=0; i<sizeof(ESP_MQTT); i++) { EEPROM.write(1024+i,mqttset.b[i]); }
    EEPROM.end();
 }
@@ -313,8 +297,8 @@ void SaveMqttSettings(bool def)
 String FmtMqttMessage(int idx, int nvalue, const char *svalue)
 {
    char buf[128];
-   snprintf(buf, sizeof(buf), 
-            "{\"command\":\"udevice\",\"idx\":%d,\"RSSI\":%d,\"Battery\":%d,\"nvalue\":%d,\"svalue\":\"%s\"}", 
+   snprintf(buf, sizeof(buf),
+            "{\"command\":\"udevice\",\"idx\":%d,\"RSSI\":%d,\"Battery\":%d,\"nvalue\":%d,\"svalue\":\"%s\"}",
             idx, abs(rssi/10), battery, nvalue, svalue
            );
    return String(buf);
@@ -379,7 +363,7 @@ void info()
    DEBUG_MSG_P(PSTR("[INIT] SDK version: %s\n"), ESP.getSdkVersion());
    DEBUG_MSG_P(PSTR("[INIT] Core version: %s\n"), getCoreVersion().c_str());
    DEBUG_MSG_P(PSTR("[INIT] Core revision: %s\n"), getCoreRevision().c_str());
-    
+
 
    // -------------------------------------------------------------------------
 
@@ -399,7 +383,7 @@ void info()
    _info_print_memory_layout_line("Reserved", 4 * SPI_FLASH_SEC_SIZE);
    DEBUG_MSG_P(PSTR("\n"));
 
-   
+
     // -------------------------------------------------------------------------
 
    FSInfo fs_info;

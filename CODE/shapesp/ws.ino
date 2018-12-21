@@ -5,6 +5,9 @@ MD5Builder _md5;
 String md5(String str) { _md5.begin(); _md5.add(str); _md5.calculate(); return _md5.toString(); }
 
 String hash;
+bool b_isauth=false;
+
+bool isauth() { return b_isauth; }
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
 {
@@ -68,11 +71,11 @@ bool HandleStatus(JsonObject& iroot, JsonObject& root)
    if(iroot["text"].as<String>()=="sessionid")
    {
       root["action"] = "auth";
-      hash = md5(String("root")+String("esp8266")+iroot["data"].as<String>());
+      hash = md5(String(cfg.wifi.user)+String(cfg.wifi.pwd)+iroot["data"].as<String>());
       DEBUG_MSG("Hash server: %s \n",hash.c_str());
       DEBUG_MSG("Hash client: %s \n",iroot["auth"].as<String>().c_str());
-      if(iroot["auth"].as<String>() == hash) { root["status_auth"] = "ok"; DEBUG_MSG("Auth OK\n");}
-      else { root["status_auth"] = "fail";  DEBUG_MSG("Auth FAIL\n"); }
+      if(iroot["auth"].as<String>() == hash) { b_isauth=true; root["status_auth"] = "ok"; DEBUG_MSG("Auth OK\n");}
+      else { b_isauth=false; root["status_auth"] = "fail";  DEBUG_MSG("Auth FAIL\n"); }
       return true;
    }
 
