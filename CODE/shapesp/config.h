@@ -1,9 +1,44 @@
+#include <core_version.h>
+
+// Do not replace macros unless running version older than 2.5.0
+#if defined(ARDUINO_ESP8266_RELEASE_2_3_0) \
+    || defined(ARDUINO_ESP8266_RELEASE_2_4_0) \
+    || defined(ARDUINO_ESP8266_RELEASE_2_4_1) \
+    || defined(ARDUINO_ESP8266_RELEASE_2_4_2)
+
+// Quoting esp8266/Arduino comments:
+// "Since __section__ is supposed to be only use for global variables,
+// there could be conflicts when a static/inlined function has them in the
+// same file as a non-static PROGMEM object.
+// Ref: https://gcc.gnu.org/onlinedocs/gcc-3.2/gcc/Variable-Attributes.html
+// Place each progmem object into its own named section, avoiding conflicts"
+
+
+#define __TO_STR_(A) #A
+#define __TO_STR(A) __TO_STR_(A)
+
+#undef PROGMEM
+
+#define PROGMEM __attribute__((section( "\".irom.text." __FILE__ "." __TO_STR(__LINE__) "."  __TO_STR(__COUNTER__) "\"")))
+
+// "PSTR() macro modified to start on a 32-bit boundary.  This adds on average
+// 1.5 bytes/string, but in return memcpy_P and strcpy_P will work 4~8x faster"
+#undef PSTR
+#define PSTR(s) (__extension__({static const char __c[] __attribute__((__aligned__(4))) PROGMEM = (s); &__c[0];}))
+
+#endif
+
 #define DEBUG_ADD_TIMESTAMP 1
 
-#define DBGSERIAL Serial
-// or Serial1
-
 #define MAX_SENSORS_CNT 10 // max sensors IDX cnt for MQTT
+
+// difines of devconfig
+
+#define GPIO2_MODE_UNUSED  0
+#define GPIO2_MODE_ALARM   1
+#define GPIO2_MODE_1WIRE   2
+#define GPIO2_MODE_DEBUG   3
+
 
 typedef struct _ESP_TPRG_S
 {
@@ -68,6 +103,19 @@ typedef struct _ESP_MQTT_S
    char     willTopic[65];
 } ESP_MQTT_S; // 413 bytes
 
+typedef struct _ESP_DEV_S
+{
+   uint8_t type;
+   uint8_t en_timer;
+   uint8_t en_mqtt;
+   uint8_t en_sensors;
+   uint8_t scan_i2c;
+   uint8_t scan_ds1w;
+   uint8_t gpio2_mode;
+   uint8_t gpio13_mode;
+   // ....
+} ESP_DEV_S;
+
 
 typedef struct settings
 {
@@ -77,76 +125,37 @@ typedef struct settings
    ESP_CONFIG_S wifi;
    ESP_MQTT_S mqtt;
    ESP_TPRG_S tmr[10];
+   ESP_DEV_S  dev;
 } ESP_SET;
 
 
-/*
-#pragma pack(push,1)
-typedef struct __ESP_CFG_
-{
-   uint8_t payload[2048];
-} ESP_CFG;
-#pragma pack(pop)
-
-const char defcfg[] PROGMEM=
-"{"
-"\"user\":\"root\","
-"\"pwd\":\"esp8266\","
-"\"wifi_mode\":0,"
-"\"sta_ssid\":\"CH-Home\","
-"\"sta_pwd\":\"chps74qwerty\","
-"\"sta_dhcp\":0,"
-"\"sta_ip\":\"192.168.137.88\","
-"\"sta_gw\":\"192.168.137.1\","
-"\"sta_subnet\":\"255.255.255.0\","
-"\"ap_ssid\":\"esp8266\","
-"\"ap_pwd\":\"esp8266\","
-"\"ap_hidden\":0,"
-"\"ap_chan\":5,"
-"\"ap_ip\":\"192.168.4.1\","
-"\"ap_gw\":\"192.168.4.1\","
-"\"ap_subnet\":\"255.255.255.0\","
-"\"skip_logon\":0,"
-"\"mqtt_user\":\"\","
-"\"mqtt_pwd\":\"\","
-"\"mqtt_server\":\"localhost\","
-"\"mqtt_clientID\":\"\","
-"\"mqtt_inTopic\":\"domoticz/in\","
-"\"mqtt_outTopic\":\"domoticz/out\","
-"\"mqtt_willTopic\":\"domoticz/out\","
-"\"mqtt_port\":1883,"
-"\"mqtt_keepAlive\":15,"
-"\"mqtt_qos\":0,"
-"\"mqtt_retain\":0,"
-"\"mqtt_relay\":0,"
-"\"mqtt_mbtn\":0,"
-"\"mqtt_vcc\":0,"
-"\"mqtt_status\":0,"
-"\"mqtt_mode\":0,"
-"\"mqtt_sens0\":0,"
-"\"mqtt_sens1\":0,"
-"\"mqtt_sens2\":0"
-"}";
-
-
-template<typename T> void setSetting(const String& key, T value);
-template<typename T> void setSetting(const String& key, unsigned int index, T value);
-template<typename T> String getSetting(const String& key, T defValue);
-template<typename T> String getSetting(const String& key, unsigned int index, T defValue);
-
-
-struct JsonBundle {
-  public:
-    void parse(const char* json) { _jsonVariant = _jsonBuffer.parseObject(json); }
-    void clear() { _jsonBuffer.clear(); }
-    JsonObject& root() { return _jsonVariant; }
-
-  private:
-    DynamicJsonBuffer _jsonBuffer;
-    JsonVariant _jsonVariant;
+const char *dstring[] PROGMEM = {
+   "FAILED read config!!! Writing defaults.", //0
+   "DS3231 found at address 0x68. Setting SyncProvider... \n", //1
+   "RTC clock not found! Setting fake millis() SyncProvider... \n", //2
+   "Startup at: %s \n", //3
+   "User: %s \n", //4
+   "Pwd: %s \n", //5
+   ".", //6
+   "%d \n", //7
+   "Connected to %s IP address %s \n", //8
+   "AP is %s AP IP address %s \n", //9
+   "Server started \n", //10
+   // task.h
+   "Uptime: %s \n", //11
+   "Write config.\n", //12
+   "Change user/pwd\n", //13
+   "NetMask: %0X \n", //14
+   //ws.ino
+   "ws[%s][%u] connect\n", //15
+   "ws[%s][%u] disconnect: %u\n", //16
+   "ws[%s][%u] error(%u): %s\n", //17
+   "ws[%s][%u] pong[%u]: %s\n", //18
+   "[WEBSOCKET] Error parsing data\n", //19
+   "Hash server: %s \n", //20
+   "Hash client: %s \n", //21
+   "Auth OK\n", // 22
+   "Auth FAIL\n", //23
+   "No auth!!!!\n", //24
+   "last"
 };
-
-
-JsonBundle config;
-
-*/

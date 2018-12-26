@@ -108,54 +108,6 @@ void handleIndex(AsyncWebServerRequest *request)
    request->send(response);
 }
 
-/*
-bool is_auth(AsyncWebServerRequest *request)
-{
-   if(cfg.s.skip_logon)
-   {
-      do
-      {
-         IPAddress remip = server.client().remoteIP();
-         DbgPrint(("CONNECT FROM : ")); DbgPrintln((remip.toString()));
-
-         IPAddress locip = server.client().localIP();
-         DbgPrint(("My IP : ")); DbgPrintln((locip.toString()));
-
-         IPAddress gw(cfg.s.sta_gw[0],cfg.s.sta_gw[1],cfg.s.sta_gw[2],cfg.s.sta_gw[3]);
-         IPAddress mask(cfg.s.sta_subnet[0],cfg.s.sta_subnet[1],cfg.s.sta_subnet[2],cfg.s.sta_subnet[3]);
-//         if((remip[0]==gw[0])&&(remip[1]==gw[1])&&(remip[2]==gw[2])&&(remip[3]==gw[3]))
-//         {
-//            break;
-//         }
-//         else
-         {
-            for(int i=0;i<4;i++) {locip[i]&=mask[i]; remip[i]&=mask[i];}
-            if((remip[0]==locip[0])&&(remip[1]==locip[1])&&(remip[2]==locip[2])&&(remip[3]==locip[3]))
-            return true; // skip logon
-         }
-      } while(0);
-      DbgPrint(("Remote client!!!"));
-   }
-
-   DbgPrintln(("Enter is_authentified"));
-   if (request->hasHeader("Cookie")){
-      DbgPrint(("Found cookie: "));
-      String cookie = request->header("Cookie");
-      DbgPrintln((cookie));
-      if (cookie.indexOf("ESPSESSIONID=") != -1) {
-         String si = cookie.substring(cookie.indexOf('=')+1);
-         long lsi = si.toInt();
-         if(lsi==session_id)
-         {
-            DbgPrintln(("Authentification Successful"));
-            return true;
-         }
-      }
-   }
-   DbgPrintln(("Authentification Failed"));
-   return false;
-}
-*/
 
 /*
 bool ReadConfig()
@@ -221,6 +173,8 @@ void WriteConfig(bool def, bool clrtmr)
       cfg.mqtt.keepAlive = 15;
       cfg.mqtt.qos = 0;
       cfg.mqtt.retain = 0;
+
+      // cfg.dev 0 by default
    }
 
    if(clrtmr)

@@ -38,9 +38,11 @@
 #ifdef PDEBUG
     #define DEBUG_MSG(...) debugSend(__VA_ARGS__)
     #define DEBUG_MSG_P(...) debugSend_P(__VA_ARGS__)
+    #define DEBUG_MSG1(str,...) debugSend_P(__VA_ARGS__);
 #else
     #define DEBUG_MSG(...)
     #define DEBUG_MSG_P(...)
+    #define DEBUG_MSG1(str,...)
 #endif
 
 #include "config.h"
@@ -164,7 +166,16 @@ void setup()
 {
    wifimode = 0; // station
 
-   DBGSERIAL.begin(115200);
+   bool defaults = false;
+   if(!ReadConfig())
+   {
+      WriteConfig(true,false);
+      defaults = true;
+   }
+
+   setDebugPort(((cfg.dev.gpio2_mode == GPIO2_MODE_DEBUG) ? 1:0),115200);
+
+   if(defaults ) DEBUG_MSG1("FAILED read config!!! Writing defaults.",dstring[0]);
 
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
@@ -172,18 +183,18 @@ void setup()
 
    if(i2cCheck(0x68)==0)
    {
-      DEBUG_MSG_P(PSTR("DS3231 found at address 0x68. Setting SyncProvider... \n"));
+      DEBUG_MSG1("DS3231 found at address 0x68. Setting SyncProvider... \n",dstring[1]);
       setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
    }
    else
    {
-      DEBUG_MSG_P(PSTR("RTC clock not found! Setting fake millis() SyncProvider... \n"));
+      DEBUG_MSG1("RTC clock not found! Setting fake millis() SyncProvider... \n", dstring[2]);
       setSyncProvider(getTime_stub);
    }
 
    time_t startup = startUptime(); // start uptime calculation
 
-   DEBUG_MSG_P(PSTR("Startup at: %s \n"),strDateTime(startup).c_str());
+   DEBUG_MSG1("Startup at: %s \n", dstring[3], strDateTime(startup).c_str());
 
    randomSeed(second());
 
@@ -193,15 +204,8 @@ void setup()
 
    i2cScan();
 
-   if(!ReadConfig())
-   {
-      DEBUG_MSG("Failed read config!!! Trying write defaults...");
-      WriteConfig(true,false);
-      DEBUG_MSG("Done. \n");
-   }
-
-   DEBUG_MSG("User: %s \n",cfg.wifi.user);
-   DEBUG_MSG("Pwd: %s \n", cfg.wifi.pwd);
+   DEBUG_MSG1("User: %s \n", dstring[4], cfg.wifi.user);
+   DEBUG_MSG1("Pwd: %s \n", dstring[5], cfg.wifi.pwd);
 
    //WiFi.setOutputPower(20);
    //system_phy_set_max_tpw(50);
@@ -225,20 +229,23 @@ void setup()
    uint16_t to = 50;
    while(WiFi.status() != WL_CONNECTED )
    {
-      Serial.print("."); delay(500); to--;
+      DEBUG_MSG1(".",dstring[6]); delay(500); to--;
+      //Serial.print("."); delay(500); to--;
       if(to==0) break;
    };
-
-   Serial.println(to);
-   Serial.println("");
+   DEBUG_MSG1("%d \n",dstring[7],to);
+   //Serial.println(to);
+   //Serial.println("");
 
    if(to)
    {
       WiFi.setSleepMode((WiFiSleepType_t)0);
       WiFi.setAutoReconnect(true);
       wifimode = 0; // station
-      Serial.print("Connected to "); Serial.println(cfg.wifi.sta_ssid);
-      Serial.print("IP address: "); Serial.println(WiFi.localIP());
+      //Serial.print("Connected to "); Serial.println(cfg.wifi.sta_ssid);
+      //Serial.print("IP address: "); Serial.println(WiFi.localIP());
+      DEBUG_MSG1("Connected to %s IP address %s \n",dstring[8],
+                   cfg.wifi.sta_ssid, WiFi.localIP().toString().c_str());
    }
    else
    {
@@ -248,13 +255,16 @@ void setup()
       softAPname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
       WiFi.softAP(softAPname.c_str());
       WiFi.disconnect(false);
-      Serial.print("AP is "); Serial.println(softAPname);
-      Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
+      //Serial.print("AP is "); Serial.println(softAPname);
+      //Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
+      DEBUG_MSG1("AP is %s AP IP address %s \n",dstring[9],
+                   softAPname.c_str(), WiFi.softAPIP().toString().c_str());
+
    }
 
-   DEBUG_MSG("write cfg \n");
-   if(false) WriteConfig(true,false); // if pin pushed write def config
-   DEBUG_MSG("write cfg end \n");
+   //DEBUG_MSG("write cfg \n");
+   //if(false) WriteConfig(true,false); // if pin pushed write def config
+   //DEBUG_MSG("write cfg end \n");
 
    // Init sensors
    sens_task.Initialize();
@@ -298,9 +308,9 @@ void setup()
          // create the response, add header, and send response
          str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Update ";
          str += String((Update.hasError())?"FAIL! ":"Success! ") + "Rebooting... Wait about 15 sec.\n";
-         AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
          deferredReset(200);
       }
+      else
       {
          str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">No Auth!!! Rejected! \n ";
       }
@@ -351,7 +361,7 @@ void setup()
    server.begin();
    delay(10);
 
-   DEBUG_MSG("Server started \n");
+   DEBUG_MSG1("Server started \n",dstring[10]);
 
    // test deepsleep
    //    DbgPrintln(("Deepsleep for 10s"));

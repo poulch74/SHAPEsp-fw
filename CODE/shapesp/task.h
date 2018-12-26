@@ -12,7 +12,7 @@ public:
          int hr =  (t/3600)%24;
          int min = (t%3600)/60;
          snprintf(uptime,32,"%dd:%02dh:%02dm",day,hr,min);
-         DEBUG_MSG("Uptime: %s \n",uptime);
+         DEBUG_MSG1("Uptime: %s \n",dstring[11],uptime);
          return;
       }
 
@@ -39,7 +39,6 @@ public:
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
-      //DbgPrintln(("sendTask1"));
       root["status_wifimode"] = String((wifimode ? "SoftAP":"Station"));
       if(wifimode)
       {
@@ -74,12 +73,12 @@ class TestTask4 : public EspTask
 {
 public:
    TestTask4() : EspTask() {}
-   void doTask(int evt) {DEBUG_MSG("DoTask4\n");}
+   void doTask(int evt) {}
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       String cmd = iroot["cmd"];
 
-      DEBUG_MSG("sendTask4\n");
+      //DEBUG_MSG("sendTask4\n");
 
       if(cmd=="setwifi")
       {
@@ -96,11 +95,11 @@ public:
          uint32_t ma = 0xFFFFFFFF<<m;
          IPAddress l_sn((ma>>24)&0xFF,(ma>>16)&0xFF,(ma>>8)&0xFF,ma&0xFF);
          cfg.wifi.sta_subnet = l_sn;
-         DEBUG_MSG("NetMask: %0X \n",cfg.wifi.sta_subnet);
+         DEBUG_MSG1("NetMask: %0X \n",dstring[14],cfg.wifi.sta_subnet);
          cfg.wifi.skip_logon = iroot["wifi_tnet"];
 
          WriteConfig(false,false);
-         DEBUG_MSG("write config\n");
+         DEBUG_MSG1("Write config.\n", dstring[12]);
 
          cmd = "defaults";
       }
@@ -110,7 +109,7 @@ public:
          snprintf(cfg.wifi.user, 21 ,iroot["adm_un"].as<const char*>());
          snprintf(cfg.wifi.pwd,21, iroot["adm_pwd"].as<const char*>());
          WriteConfig(false,false);
-         DEBUG_MSG("change user/pwd\n");
+         DEBUG_MSG1("Change user/pwd\n",dstring[13]);
          cmd = "defaults";
       }
 

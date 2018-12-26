@@ -1,10 +1,16 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+HardwareSerial *debug_port = &Serial;
+
+void setDebugPort(int port, int baud)
+{
+   if(port) debug_port = &Serial1; else debug_port = &Serial;
+   debug_port->begin(baud);
+}
 void _debugSend(char * message)
 {
-
-   bool pause = false;
+//   bool pause = false;
 
    #if DEBUG_ADD_TIMESTAMP
       static bool add_timestamp = true;
@@ -14,9 +20,9 @@ void _debugSend(char * message)
    #endif
 
    #if DEBUG_ADD_TIMESTAMP
-      DBGSERIAL.printf(timestamp);
+   debug_port->printf(timestamp);
    #endif
-      DBGSERIAL.printf(message);
+   debug_port->printf(message);
 }
 
 void debugSend(const char * format, ...)
@@ -46,3 +52,4 @@ void debugSend_P(PGM_P format_P, ...)
    _debugSend(buffer);
    delete[] buffer;
 }
+
