@@ -14,7 +14,7 @@ public:
       autostop = stop;
       curstate = 0;
       pinA1 = p1; pinA2 = p2; pinSTBY = p3;
-   }      
+   }
 
    void Initialize() // блокирующая инициализация
    {
@@ -29,8 +29,8 @@ public:
          if(autostop) { digitalWrite(pinSTBY, HIGH); delay(300); digitalWrite(pinSTBY, LOW); }
          delay(5000);
          digitalWrite(pinA2, LOW);
-      }      
-      
+      }
+
    }
 
    int SetState(int state)
@@ -42,15 +42,15 @@ public:
          if(rmode==R_VALVE)
          {
             timer.once_ms(5100, alarm1, this);
-            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG("on valve start\n"); }
-            if(state==0) { a1=LOW;  a2=HIGH; DEBUG_MSG("off valve start\n");}
+            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG1("on valve start\n", dstring25); }
+            if(state==0) { a1=LOW;  a2=HIGH; DEBUG_MSG1("off valve start\n", dstring26);}
          }
          else
          {
-            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG("on relay\n"); }
-            if(state==0) { a1=LOW;  a2=LOW;  DEBUG_MSG("off relay\n"); }
-         }               
-        
+            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG1("on relay\n", dstring27); }
+            if(state==0) { a1=LOW;  a2=LOW;  DEBUG_MSG1("off relay\n", dstring28); }
+         }
+
          digitalWrite(pinA1, a1);
          digitalWrite(pinA2, a2);
          if(autostop) { digitalWrite(pinSTBY, HIGH); delay(300); digitalWrite(pinSTBY, LOW);}//timerSTBY.once_ms(300,STBYoff); }// timer off
@@ -63,7 +63,7 @@ public:
    int GetState() { return curstate;}
    void SetMode(int mode) {rmode = mode;}
 
-public:   
+public:
    int rmode; // valve relay
    int autostop;
    int curstate;
@@ -75,11 +75,11 @@ public:
 };
 
 void alarm1(Relay *r)
-{ 
+{
    if(r->rmode==R_VALVE)
-   { 
+   {
       digitalWrite(r->pinA1, LOW);
       digitalWrite(r->pinA2, LOW);
    }
-   DEBUG_MSG("OFF relay\n");
+   DEBUG_MSG1("OFF relay\n", dstring29);
 }

@@ -30,26 +30,26 @@ public:
          mqttClient.setCredentials(cfg.mqtt.user, cfg.mqtt.pwd);
       }
 
-      DEBUG_MSG("Init MQTT task.\n");
-      DEBUG_MSG(" Host: %s\n",cfg.mqtt.server);
-      DEBUG_MSG(" Port: %d\n",cfg.mqtt.port);
-      DEBUG_MSG(" ClientID: %s\n",cfg.mqtt.clientID);
-      DEBUG_MSG(" keepAlive: %d\n",cfg.mqtt.keepAlive);
-      DEBUG_MSG(" User: %s\n",cfg.mqtt.user);
-      DEBUG_MSG(" Password: %s\n",cfg.mqtt.pwd);
-      DEBUG_MSG(" QoS: %d\n",cfg.mqtt.qos);
-      DEBUG_MSG(" Retain: %d\n",cfg.mqtt.retain);
-      DEBUG_MSG(" Will topic: %s\n",cfg.mqtt.willTopic);
-      DEBUG_MSG(" In topic: %s\n",cfg.mqtt.inTopic);
-      DEBUG_MSG(" Out topic: %s\n",cfg.mqtt.outTopic);
+      DEBUG_MSG1("Init MQTT task.\n", dstring30);
+      DEBUG_MSG1(" Host: %s\n", dstring31,cfg.mqtt.server);
+      DEBUG_MSG1(" Port: %d\n", dstring32,cfg.mqtt.port);
+      DEBUG_MSG1(" ClientID: %s\n", dstring33,cfg.mqtt.clientID);
+      DEBUG_MSG1(" keepAlive: %d\n", dstring34,cfg.mqtt.keepAlive);
+      DEBUG_MSG1(" User: %s\n", dstring35,cfg.mqtt.user);
+      DEBUG_MSG1(" Password: %s\n", dstring36,cfg.mqtt.pwd);
+      DEBUG_MSG1(" QoS: %d\n", dstring37,cfg.mqtt.qos);
+      DEBUG_MSG1(" Retain: %d\n", dstring38,cfg.mqtt.retain);
+      DEBUG_MSG1(" Will topic: %s\n", dstring39,cfg.mqtt.willTopic);
+      DEBUG_MSG1(" In topic: %s\n", dstring40,cfg.mqtt.inTopic);
+      DEBUG_MSG1(" Out topic: %s\n", dstring41, cfg.mqtt.outTopic);
 
       mqttClient.connect();
    }
 
    static void onMqttConnect(bool sessionPresent)
    {
-      DEBUG_MSG("Connected to MQTT.\n");
-      DEBUG_MSG("Session present: %d\n",sessionPresent);
+      DEBUG_MSG1("Connected to MQTT.\n", dstring42);
+      DEBUG_MSG1("Session present: %d\n", dstring43,sessionPresent);
       if(strlen(cfg.mqtt.outTopic)>0)
       {
          uint16_t packetIdSub = mqttClient.subscribe(cfg.mqtt.outTopic, cfg.mqtt.qos);
@@ -72,7 +72,7 @@ public:
 */
       DynamicJsonBuffer jsonBuffer;
       JsonObject& root = jsonBuffer.parseObject((char *) payload);
-      if (!root.success()) { DEBUG_MSG("[DOMOTICZ] Error parsing data\n");}
+      if (!root.success()) { DEBUG_MSG1("[DOMOTICZ] Error parsing data\n", dstring44); }
       else
       {
          int idx = root["idx"];
@@ -81,21 +81,21 @@ public:
          {
             if(root["svalue1"]=="Status")
             {
-               DEBUG_MSG("[DOMOTICZ] Status IGNORED\n"); return;
+               DEBUG_MSG1("[DOMOTICZ] Status IGNORED\n", dstring45); return;
             }
-            DEBUG_MSG("[DOMOTICZ] Received value for Relay %u for IDX %u\n", value, idx);
-            if(value==1)  { sysqueue.push(&GetEvent(EVT_VOPEN)); DEBUG_MSG("SCHEDULE OPEN MQTT\n"); }
-            else {sysqueue.push(&GetEvent(EVT_VCLOSE)); DEBUG_MSG("SCHEDULE CLOSE MQTT\n");}
+            DEBUG_MSG1("[DOMOTICZ] Received value for Relay %u for IDX %u\n", dstring46, value, idx);
+            if(value==1)  { sysqueue.push(&GetEvent(EVT_VOPEN)); DEBUG_MSG1("SCHEDULE OPEN MQTT\n", dstring47); }
+            else {sysqueue.push(&GetEvent(EVT_VCLOSE)); DEBUG_MSG1("SCHEDULE CLOSE MQTT\n", dstring48);}
          }
 
          if(idx == cfg.mqtt.idx_mbtn)
          {
             if(root["svalue1"]=="Status")
             {
-               DEBUG_MSG("[DOMOTICZ] Status IGNORED\n"); return;
+               DEBUG_MSG1("[DOMOTICZ] Status IGNORED\n", dstring49); return;
             }
-            DEBUG_MSG("[DOMOTICZ] Received value for Button %u for IDX %u\n", value, idx);
-            if(value==1)  { sysqueue.push(&GetEvent(EVT_VAUTO)); DEBUG_MSG("SCHEDULE AUTO MQTT\n"); }
+            DEBUG_MSG1("[DOMOTICZ] Received value for Button %u for IDX %u\n", dstring50, value, idx);
+            if(value==1)  { sysqueue.push(&GetEvent(EVT_VAUTO)); DEBUG_MSG1("SCHEDULE AUTO MQTT\n", dstring51); }
          }
 
       }
@@ -136,7 +136,7 @@ public:
       {
          if(cmd == "setmqtt")
          {
-            DEBUG_MSG("setmqtt and response");
+            DEBUG_MSG1("setmqtt and response", dstring52);
             snprintf(cfg.mqtt.server,64,"%s",iroot["mqtt_server"].as<String>().c_str());
             cfg.mqtt.port = iroot["mqtt_port"];
             snprintf(cfg.mqtt.user,20,"%s",iroot["mqtt_user"].as<String>().c_str());
@@ -202,6 +202,5 @@ public:
    }
 
 };
-
 
 TaskMqtt mqtt_task;

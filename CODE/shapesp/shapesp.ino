@@ -36,11 +36,11 @@
 #define PDEBUG
 
 #ifdef PDEBUG
-    #define DEBUG_MSG(...) debugSend(__VA_ARGS__)
+    //#define DEBUG_MSG(...) debugSend(__VA_ARGS__)
     #define DEBUG_MSG_P(...) debugSend_P(__VA_ARGS__)
     #define DEBUG_MSG1(str,...) debugSend_P(__VA_ARGS__);
 #else
-    #define DEBUG_MSG(...)
+    //#define DEBUG_MSG(...)
     #define DEBUG_MSG_P(...)
     #define DEBUG_MSG1(str,...)
 #endif

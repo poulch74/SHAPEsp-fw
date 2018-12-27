@@ -5,7 +5,7 @@ class BME280Sensor: public Sensor
    public:
       BME280Sensor(uint8_t addr) { adr = addr; init(); }
       int init()
-      { 
+      {
          BME280I2C_BRZO::Settings settings(
                   BME280::OSR_X1,
                   BME280::OSR_X1,
@@ -54,7 +54,7 @@ class BME280Sensor: public Sensor
       {
          if(f_ready)
          {
-            DEBUG_MSG("get value OK\n");
+            //DEBUG_MSG("get value OK\n");
             switch(idx)
             {
                case 0: return String(pres,1);
@@ -84,5 +84,5 @@ class BME280Sensor: public Sensor
       BME280I2C_BRZO *bme280;
       float temp,hum,pres;
       uint8_t adr;
-      
+
 };

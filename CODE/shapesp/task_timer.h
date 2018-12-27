@@ -112,13 +112,13 @@ public:
 
       if(event== "time")
       {
-         if(cmd=="auto") { sysqueue.push(&GetEvent(EVT_VAUTO)); DEBUG_MSG("SCHEDULE AUTO\n");}
-         if(cmd=="close") { sysqueue.push(&GetEvent(EVT_VCLOSE)); DEBUG_MSG("SCHEDULE CLOSE\n");}
-         if(cmd=="open") { sysqueue.push(&GetEvent(EVT_VOPEN)); DEBUG_MSG("SCHEDULE OPEN\n");}
+         if(cmd=="auto") { sysqueue.push(&GetEvent(EVT_VAUTO)); DEBUG_MSG1("SCHEDULE AUTO\n", dstring63);}
+         if(cmd=="close") { sysqueue.push(&GetEvent(EVT_VCLOSE)); DEBUG_MSG1("SCHEDULE CLOSE\n", dstring64);}
+         if(cmd=="open") { sysqueue.push(&GetEvent(EVT_VOPEN)); DEBUG_MSG1("SCHEDULE OPEN\n", dstring65);}
 
          if(cmd == "settime")
          {
-            DEBUG_MSG("settime and response");
+            DEBUG_MSG1("settime and response", dstring66);
             tmElements_t tm;
             tm.Year = CalendarYrToTm(iroot["time_year"].as<int>());
             tm.Month = iroot["time_month"];
