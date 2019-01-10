@@ -12,22 +12,22 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
 {
    if(type == WS_EVT_CONNECT)
    {
-      DEBUG_MSG1("ws[%s][%u] connect\n", dstring[15], server->url(), client->id());
+      DEBUG_MSG1("ws[%s][%u] connect\n", dstring15, server->url(), client->id());
       client->ping();
       client->_tempObject = new WebSocketIncommingBuffer(&wsParseHandler, true); // буфер для принятого сообщения
    }
    else if(type == WS_EVT_DISCONNECT)
    {
-      DEBUG_MSG1("ws[%s][%u] disconnect: %u\n", dstring[16], server->url(), client->id());
+      DEBUG_MSG1("ws[%s][%u] disconnect: %u\n", dstring16, server->url(), client->id());
       if(client->_tempObject) delete (WebSocketIncommingBuffer *)client->_tempObject;
    }
    else if(type == WS_EVT_ERROR)
    {
-      DEBUG_MSG1("ws[%s][%u] error(%u): %s\n", dstring[17],server->url(), client->id(), *((uint16_t*)arg), (char*)data);
+      DEBUG_MSG1("ws[%s][%u] error(%u): %s\n", dstring17,server->url(), client->id(), *((uint16_t*)arg), (char*)data);
    }
    else if(type == WS_EVT_PONG)
    {
-      DEBUG_MSG1("ws[%s][%u] pong[%u]: %s\n", dstring[18], server->url(), client->id(), len, (len)?(char*)data:"");
+      DEBUG_MSG1("ws[%s][%u] pong[%u]: %s\n", dstring18, server->url(), client->id(), len, (len)?(char*)data:"");
    }
    else if(type == WS_EVT_DATA)
    {
@@ -45,7 +45,7 @@ void wsParseHandler(AsyncWebSocketClient *client, uint8_t * payload, size_t leng
    // Parse JSON input
    DynamicJsonBuffer inputBuffer;
    JsonObject& iroot = inputBuffer.parseObject((char *) payload);
-   if (!iroot.success()) { DEBUG_MSG1("[WEBSOCKET] Error parsing data\n", dstring[19]); return; }
+   if (!iroot.success()) { DEBUG_MSG1("[WEBSOCKET] Error parsing data\n", dstring19); return; }
 
    DynamicJsonBuffer outBuffer;
    JsonObject& oroot = outBuffer.createObject();
@@ -71,15 +71,15 @@ bool HandleStatus(JsonObject& iroot, JsonObject& root)
    {
       root["action"] = "auth";
       hash = md5(String(cfg.wifi.user)+String(cfg.wifi.pwd)+iroot["data"].as<String>());
-      DEBUG_MSG1("Hash server: %s \n", dstring[20], hash.c_str());
-      DEBUG_MSG1("Hash client: %s \n", dstring[21], iroot["auth"].as<String>().c_str());
-      if(iroot["auth"].as<String>() == hash) { b_isauth=true; root["status_auth"] = "ok"; DEBUG_MSG1("Auth OK\n", dstring[22]);}
-      else { b_isauth=false; root["status_auth"] = "fail";  DEBUG_MSG1("Auth FAIL\n", dstring[23]); }
+      DEBUG_MSG1("Hash server: %s \n", dstring20, hash.c_str());
+      DEBUG_MSG1("Hash client: %s \n", dstring21, iroot["auth"].as<String>().c_str());
+      if(iroot["auth"].as<String>() == hash) { b_isauth=true; root["status_auth"] = "ok"; DEBUG_MSG1("Auth OK\n", dstring22);}
+      else { b_isauth=false; root["status_auth"] = "fail";  DEBUG_MSG1("Auth FAIL\n", dstring23); }
       return true;
    }
 
    // reject no auth requests
-   if(iroot["auth"].as<String>() != hash) { DEBUG_MSG1("No auth!!!!\n", dstring[24]); return false; }
+   if(iroot["auth"].as<String>() != hash) { DEBUG_MSG1("No auth!!!!\n", dstring24); return false; }
 
 
    String t = iroot["text"].as<String>();

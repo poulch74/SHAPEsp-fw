@@ -130,6 +130,7 @@ typedef struct settings
 
 
 const char *dstring[] PROGMEM = {
+   /*
    "FAILED read config!!! Writing defaults.", //0
    "DS3231 found at address 0x68. Setting SyncProvider... \n", //1
    "RTC clock not found! Setting fake millis() SyncProvider... \n", //2
@@ -146,6 +147,8 @@ const char *dstring[] PROGMEM = {
    "Write config.\n", //12
    "Change user/pwd\n", //13
    "NetMask: %0X \n", //14
+   */
+   /*
    //ws.ino
    "ws[%s][%u] connect\n", //15
    "ws[%s][%u] disconnect: %u\n", //16
@@ -157,6 +160,7 @@ const char *dstring[] PROGMEM = {
    "Auth OK\n", // 22
    "Auth FAIL\n", //23
    "No auth!!!!\n", //24
+   */
    /*
    //relay.h
    "on valve start\n", //25
@@ -214,6 +218,35 @@ const char *dstring[] PROGMEM = {
    "last"
 };
 
+
+static const char dstring0[] PROGMEM = "FAILED read config!!! Writing defaults."; //0
+static const char dstring1[] PROGMEM = "DS3231 found at address 0x68. Setting SyncProvider... \n"; //1
+static const char dstring2[] PROGMEM = "RTC clock not found! Setting fake millis() SyncProvider... \n"; //2
+static const char dstring3[] PROGMEM = "Startup at: %s \n"; //3
+static const char dstring4[] PROGMEM = "User: %s \n"; //4
+static const char dstring5[] PROGMEM = "Pwd: %s \n"; //5
+static const char dstring6[] PROGMEM = "."; //6
+static const char dstring7[] PROGMEM = "%d \n"; //7
+static const char dstring8[] PROGMEM = "Connected to %s IP address %s \n"; //8
+static const char dstring9[] PROGMEM = "AP is %s AP IP address %s \n"; //9
+static const char dstring10[] PROGMEM = "Server started \n"; //10
+// task.h
+static const char dstring11[] PROGMEM = "Uptime: %s \n"; //11
+static const char dstring12[] PROGMEM = "Write config.\n"; //12
+static const char dstring13[] PROGMEM = "Change user/pwd\n"; //13
+static const char dstring14[] PROGMEM = "NetMask: %0X \n"; //14
+
+//ws.ino
+static const char dstring15[] PROGMEM = "ws[%s][%u] connect\n"; //15
+static const char dstring16[] PROGMEM = "ws[%s][%u] disconnect: %u\n"; //16
+static const char dstring17[] PROGMEM = "ws[%s][%u] error(%u): %s\n"; //17
+static const char dstring18[] PROGMEM = "ws[%s][%u] pong[%u]: %s\n"; //18
+static const char dstring19[] PROGMEM = "[WEBSOCKET] Error parsing data\n"; //19
+static const char dstring20[] PROGMEM = "Hash server: %s \n"; //20
+static const char dstring21[] PROGMEM = "Hash client: %s \n"; //21
+static const char dstring22[] PROGMEM = "Auth OK\n"; // 22
+static const char dstring23[] PROGMEM = "Auth FAIL\n"; //23
+static const char dstring24[] PROGMEM = "No auth!!!!\n"; //24
 
 //relay.h
 static const char dstring25[] PROGMEM = "on valve start\n"; //25

@@ -12,7 +12,7 @@ public:
          int hr =  (t/3600)%24;
          int min = (t%3600)/60;
          snprintf(uptime,32,"%dd:%02dh:%02dm",day,hr,min);
-         DEBUG_MSG1("Uptime: %s \n",dstring[11],uptime);
+         DEBUG_MSG1("Uptime: %s \n",dstring11,uptime);
          return;
       }
 
@@ -95,11 +95,11 @@ public:
          uint32_t ma = 0xFFFFFFFF<<m;
          IPAddress l_sn((ma>>24)&0xFF,(ma>>16)&0xFF,(ma>>8)&0xFF,ma&0xFF);
          cfg.wifi.sta_subnet = l_sn;
-         DEBUG_MSG1("NetMask: %0X \n",dstring[14],cfg.wifi.sta_subnet);
+         DEBUG_MSG1("NetMask: %0X \n",dstring14,cfg.wifi.sta_subnet);
          cfg.wifi.skip_logon = iroot["wifi_tnet"];
 
          WriteConfig(false,false);
-         DEBUG_MSG1("Write config.\n", dstring[12]);
+         DEBUG_MSG1("Write config.\n", dstring12);
 
          cmd = "defaults";
       }
@@ -109,7 +109,7 @@ public:
          snprintf(cfg.wifi.user, 21 ,iroot["adm_un"].as<const char*>());
          snprintf(cfg.wifi.pwd,21, iroot["adm_pwd"].as<const char*>());
          WriteConfig(false,false);
-         DEBUG_MSG1("Change user/pwd\n",dstring[13]);
+         DEBUG_MSG1("Change user/pwd\n",dstring13);
          cmd = "defaults";
       }
 

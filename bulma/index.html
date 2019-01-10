@@ -554,7 +554,7 @@
                                     <td>
                                        <div class='control'>
                                           <div class="select">
-                                             <select id='mqtt_qos'>
+                                             <select id='dev_type'>
                                              <option selected value='0'>Valve</option>
                                              <option value='1'>Relay</option>
                                              </select>
@@ -568,7 +568,7 @@
                                     <td>
                                        <div class='control'>
                                           <div class="select">
-                                             <select id='mqtt_qos'>
+                                             <select id='dev_tmr'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
@@ -582,7 +582,7 @@
                                     <td>
                                        <div class='control'>
                                           <div class="select">
-                                             <select id='mqtt_qos'>
+                                             <select id='dev_mqtt'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
@@ -596,7 +596,7 @@
                                     <td>
                                        <div class='control'>
                                           <div class="select">
-                                             <select id='mqtt_qos'>
+                                             <select id='dev_sens'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
@@ -610,7 +610,7 @@
                                     <td>
                                        <div class='control'>
                                           <div class="select">
-                                             <select id='mqtt_qos'>
+                                             <select id='dev_i2c'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
@@ -624,7 +624,7 @@
                                     <td>
                                        <div class='control'>
                                           <div class="select">
-                                             <select id='mqtt_qos'>
+                                             <select id='dev_ds2482'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
@@ -638,7 +638,7 @@
                                     <td>
                                        <div class='control'>
                                           <div class="select">
-                                             <select id='mqtt_qos'>
+                                             <select id='dev_gpio2'>
                                              <option selected value='0'>Unused</option>
                                              <option value='1'>Alarm input</option>
                                              <option value='2'>Soft 1-Wire</option>
@@ -654,7 +654,7 @@
                                     <td>
                                        <div class='control'>
                                           <div class="select">
-                                             <select id='mqtt_qos'>
+                                             <select id='dev_gpio13'>
                                              <option selected value='0'>Unused</option>
                                              <option value='1'>Alarm input</option>
                                              <option value='2'>Autostop</option>
@@ -664,6 +664,14 @@
                                     </td>
                                  </tr>
 
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">&nbsp</td>
+                                    <td><div class='control'>
+                                       <button class="button is-success" onclick='onTabSettingsHandler(0,"setdev")'>
+                                       <span style="padding:0 2em;">Apply</span>
+                                       </button>
+                                    </div></td>
+                                 </tr>
 
                               </tbody>
                            </table>
@@ -1198,6 +1206,8 @@
                         //  msg['wifi_tnet'] =  document.getElementById('wifi_tnet').value;
                       ];
          var pparams = ["adm_un", "adm_pwd"];
+         var dprarams = ['dev_type', 'dev_tmr', 'dev_mqtt', 'dev_sens',
+                         'dev_i2c', 'dev_ds2482', 'dev_gpio2', 'dev_gpio13'];
 
          if(_cmd=="setwifi")
          {
@@ -1217,6 +1227,13 @@
          if(_cmd=="setpwd")
          {
             pparams.forEach(function(item) {
+               msg[item] =   document.getElementById(item).value;
+            });
+         }
+
+         if(_cmd=="setdev")
+         {
+            dparams.forEach(function(item) {
                msg[item] =   document.getElementById(item).value;
             });
          }
