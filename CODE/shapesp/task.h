@@ -113,6 +113,19 @@ public:
          cmd = "defaults";
       }
 
+      if(cmd=="setdev")
+      {
+         cfg.dev.type = iroot["dev_type"];
+         cfg.dev.en_timer = iroot["dev_tmr"];
+         cfg.dev.en_mqtt = iroot["dev_mqtt"];
+         cfg.dev.en_sensors = iroot["dev_sens"];
+         cfg.dev.scan_i2c = iroot["dev_i2c"];
+         cfg.dev.scan_ds1w = iroot["dev_ds2482"];
+         cfg.dev.gpio2_mode = iroot["dev_gpio2"];
+         cfg.dev.gpio13_mode = iroot["dev_gpio13"];
+         WriteConfig(false,false);
+      }
+
       if(cmd=="defaults")
       {
          ReadConfig();
@@ -131,6 +144,15 @@ public:
          root["wifi_tnet"] = cfg.wifi.skip_logon;
 
          root["adm_un"] = cfg.wifi.user;
+
+         iroot["dev_type"] = cfg.dev.type;
+         iroot["dev_tmr"] = cfg.dev.en_timer;
+         iroot["dev_mqtt"] = cfg.dev.en_mqtt;
+         iroot["dev_sens"] = cfg.dev.en_sensors;
+         iroot["dev_i2c"] = cfg.dev.scan_i2c;
+         iroot["dev_ds2482"] = cfg.dev.scan_ds1w;
+         iroot["dev_gpio2"] = cfg.dev.gpio2_mode;
+         iroot["dev_gpio13"] = cfg.dev.gpio13_mode;
       }
    }
 };
