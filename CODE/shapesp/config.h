@@ -307,3 +307,5 @@ static const char dstring66[] PROGMEM = "settime and response"; //66
 //tmerlib
 static const char dstring67[] PROGMEM = "[SSDP] Schema request\n"; //67
 static const char dstring68[] PROGMEM = "[SSDP] Started\n"; //68
+
+static const char dstring69[] PROGMEM = "Change dev settings\n"; //6

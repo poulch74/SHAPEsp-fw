@@ -124,6 +124,9 @@ public:
          cfg.dev.gpio2_mode = iroot["dev_gpio2"];
          cfg.dev.gpio13_mode = iroot["dev_gpio13"];
          WriteConfig(false,false);
+         DEBUG_MSG1("Change dev settings\n",dstring69);
+         cmd = "defaults";
+
       }
 
       if(cmd=="defaults")
@@ -145,14 +148,14 @@ public:
 
          root["adm_un"] = cfg.wifi.user;
 
-         iroot["dev_type"] = cfg.dev.type;
-         iroot["dev_tmr"] = cfg.dev.en_timer;
-         iroot["dev_mqtt"] = cfg.dev.en_mqtt;
-         iroot["dev_sens"] = cfg.dev.en_sensors;
-         iroot["dev_i2c"] = cfg.dev.scan_i2c;
-         iroot["dev_ds2482"] = cfg.dev.scan_ds1w;
-         iroot["dev_gpio2"] = cfg.dev.gpio2_mode;
-         iroot["dev_gpio13"] = cfg.dev.gpio13_mode;
+         root["dev_type"] = cfg.dev.type;
+         root["dev_tmr"] = cfg.dev.en_timer;
+         root["dev_mqtt"] = cfg.dev.en_mqtt;
+         root["dev_sens"] = cfg.dev.en_sensors;
+         root["dev_i2c"] = cfg.dev.scan_i2c;
+         root["dev_ds2482"] = cfg.dev.scan_ds1w;
+         root["dev_gpio2"] = cfg.dev.gpio2_mode;
+         root["dev_gpio13"] = cfg.dev.gpio13_mode;
       }
    }
 };
