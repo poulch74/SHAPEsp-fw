@@ -100,36 +100,36 @@ uint8_t DS2482::search(uint8_t *newAddr)
    uint8_t i;
    uint8_t direction;
    uint8_t last_zero=0;
-   
+
    if(searchExhausted) return 0;
-   
+
    if(!reset()) return 0;
 
    write(0xF0);
-   
-   for(i=0;i<64;i++) 
+
+   for(i=0;i<64;i++)
    {
       int romByte = i/8;
       int romBit = 1<<(i&7);
-      
+
       if(i < searchLastDisrepancy) direction = searchAddress[romByte] & romBit;
       else direction = i == searchLastDisrepancy;
-      
+
       statusWait();
       uint8_t buf[2] = {0x78,(direction ? 0x80 : 0)};
       i2c_write_buffer(mAddress,buf,2);
       uint8_t status = statusWait();
-      
+
       uint8_t id = status & DS2482_STATUS_SBR;
       uint8_t comp_id = status & DS2482_STATUS_TSB;
       direction = status & DS2482_STATUS_DIR;
-      
+
       if (id && comp_id) return 0;
       else
-      { 
+      {
          if (!id && !comp_id && !direction) last_zero = i;
       }
-      
+
       if(direction) searchAddress[romByte] |= romBit;
       else searchAddress[romByte] &= (uint8_t)~romBit;
    }
@@ -137,7 +137,7 @@ uint8_t DS2482::search(uint8_t *newAddr)
    searchLastDisrepancy = last_zero;
    if(last_zero == 0) searchExhausted = 1;
    for (i=0;i<8;i++) newAddr[i] = searchAddress[i];
-   return 1;  
+   return 1;
 }
 #endif
 
@@ -149,17 +149,17 @@ uint8_t DS2482::search(uint8_t *newAddr)
 uint8_t DS2482::crc8( uint8_t *addr, uint8_t len)
 {
    uint8_t crc=0;
-   
-   for (uint8_t i=0; i<len;i++) 
+
+   for (uint8_t i=0; i<len;i++)
    {
       uint8_t inbyte = addr[i];
-      for (uint8_t j=0;j<8;j++) 
+      for (uint8_t j=0;j<8;j++)
       {
          uint8_t mix = (crc ^ inbyte) & 0x01;
          crc >>= 1;
-         if (mix) 
+         if (mix)
             crc ^= 0x8C;
-         
+
          inbyte >>= 1;
       }
    }

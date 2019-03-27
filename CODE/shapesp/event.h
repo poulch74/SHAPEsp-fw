@@ -34,26 +34,10 @@ class EspEvent
    public:
       EspEvent(int id, int type) { _id = id; _type=type; }
       void attach(EspTask *task) { _tasks.push_back(task); }
-      bool doTasks()
-      {
-         for(int i = 0; i< _tasks.size();i++) _tasks[i]->doTask(_id);
-         return true;
-      }
+      void doTasks() { for(uint32_t i = 0; i< _tasks.size();i++) _tasks[i]->doTask(_id); }
+      void doTasks(std::vector<String> &payload) { for(uint32_t i = 0; i< _tasks.size();i++) { _tasks[i]->doMqttTask(_id, payload); } }
+      void doTasks(JsonObject& iroot, JsonObject& root) { for(uint32_t i = 0; i< _tasks.size();i++) _tasks[i]->doWStask(_id, iroot, root); }
 
-      bool doTasks(std::vector<String> &payload)
-      {
-         for(int i = 0; i< _tasks.size();i++)
-         {
-             _tasks[i]->doMqttTask(_id, payload);
-         }
-         return true;
-      }
-
-      void doTasks(JsonObject& iroot, JsonObject& root)
-      {
-         for(int i = 0; i< _tasks.size();i++) _tasks[i]->doWStask(_id, iroot, root);
-      }
-      
    public:
       int _id;
       int _type;
