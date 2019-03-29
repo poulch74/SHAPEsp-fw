@@ -4,43 +4,12 @@
 class DS1820Sensor: public Sensor
 {
 public:
-   uint8_t adr[8];
-   int step;
-   bool type_s;
-   OneWire *owds;
-   DS2482  *dsds;
-   String name;
-   float temp;
-
-   bool reset()
-   {
-      if(dsds!=nullptr) return dsds->reset();
-      if(owds!=nullptr) return owds->reset();
-   }
-
-   void select(uint8_t addr[8])
-   {
-      if(dsds!=nullptr) { dsds->select(addr); return; }
-      if(owds!=nullptr) { owds->select(addr); return; }
-   }
-
-   void write(uint8_t b, uint8_t power = 0)
-   {
-      if(dsds!=nullptr) { dsds->write(b, power); return; }
-      if(owds!=nullptr) { owds->write(b, power); return; }
-   }
-
-   uint8_t read()
-   {
-      if(dsds!=nullptr) return dsds->read();
-      if(owds!=nullptr) return owds->read();
-   }
 
    DS1820Sensor(DS2482 *bus, uint8_t addr[8]) { dsds = bus; owds = nullptr; init(addr); }
    DS1820Sensor(OneWire *bus, uint8_t addr[8]) { owds = bus; dsds = nullptr; init(addr); }
 
    int init(uint8_t addr[8])
-   { 
+   {
       memcpy(adr,addr,8);
       f_ready=false;
       tcnt = 1;
@@ -54,7 +23,8 @@ public:
          case 0x28: type_s = false; name = "DS18B20"; break;
          case 0x22: type_s = false; name = "DS1822";  break;
          default: f_ok= false;
-      } 
+      }
+      return 0;
    }
 
    int begin()
@@ -68,7 +38,7 @@ public:
             write(0x44);
          }
          return 0;
-      }         
+      }
       return 1;
    }
 
@@ -80,7 +50,7 @@ public:
       {
          if(step==2) {step--; return 0;}
          //DEBUG_MSG("sensor run\n");
-         if((reset()==1))
+         if(reset())
          {
             //DEBUG_MSG("sensor run OK\n");
             select(adr);
@@ -89,7 +59,7 @@ public:
             for (int i = 0; i < 9; i++) { data[i] = read(); }
 
             //DEBUG_MSG("get value OK\n");
-            int16_t raw = (data[1] << 8) | data[0]; 
+            int16_t raw = (data[1] << 8) | data[0];
             if (type_s)
             {
                raw = raw << 3; // 9 bit resolution default
@@ -97,8 +67,8 @@ public:
                {
                   raw = (raw & 0xFFF0) + 12 - data[6]; // "count remain" gives full 12 bit resolution
                }
-            } 
-            else 
+            }
+            else
             {
                byte cfg = (data[4] & 0x60); // at lower res, the low bits are undefined, so let's zero them
                if (cfg == 0x00) raw = raw & ~7;      // 9 bit resolution, 93.75 ms
@@ -144,5 +114,43 @@ public:
       }
       return String("");
    }
+
+private:
+
+   bool reset()
+   {
+      if(dsds!=nullptr) return dsds->reset();
+      if(owds!=nullptr) return owds->reset();
+      return false;
+   }
+
+   void select(uint8_t addr[8])
+   {
+      if(dsds!=nullptr) { dsds->select(addr); return; }
+      if(owds!=nullptr) { owds->select(addr); return; }
+   }
+
+   void write(uint8_t b, uint8_t power = 0)
+   {
+      if(dsds!=nullptr) { dsds->write(b, power); return; }
+      if(owds!=nullptr) { owds->write(b, power); return; }
+   }
+
+   uint8_t read()
+   {
+      if(dsds!=nullptr) return dsds->read();
+      if(owds!=nullptr) return owds->read();
+      return 0;
+   }
+
+
+public:
+   uint8_t adr[8];
+   int step;
+   bool type_s;
+   OneWire *owds;
+   DS2482  *dsds;
+   String name;
+   float temp;
 
 };

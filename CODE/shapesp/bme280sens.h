@@ -22,9 +22,13 @@ class BME280Sensor: public Sensor
          f_ready=false;
          tcnt = 3;
          f_ok = bme280->begin() ? true:false;
+         return 0;
       }
+
       int begin() { return 0;}
+
       int end() {return 0;}
+
       int run()
       {
          //DEBUG_MSG("sensor run\n");
