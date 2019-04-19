@@ -32,7 +32,7 @@
 
 #define MAX_SENSORS_CNT 10 // max sensors IDX cnt for MQTT
 
-// difines of devconfig
+// defines of devconfig
 
 #define GPIO2_MODE_UNUSED  0
 #define GPIO2_MODE_ALARM   1

@@ -30,32 +30,31 @@ public:
       if(evt == EVT_MQTT)
       {
          if(cfg.mqtt.idx_vcc)
-         {
-            String buf = FmtMqttMessage(cfg.mqtt.idx_vcc, 0, String(vcc,1).c_str());
-            payload.push_back(buf);
-         }
+            payload.push_back(FmtMqttMessage(cfg.mqtt.idx_vcc, 0, String(vcc,1).c_str()));
       }
    }
 
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       root["status_wifimode"] = String((wifimode ? "SoftAP":"Station"));
+
       if(wifimode)
       {
-            root["status_wifiip"] = WiFi.softAPIP().toString();
-            root["status_wifissid"] = softAPname;
-         }
-         else
-         {
-            root["status_wifiip"] = WiFi.localIP().toString();
-            root["status_wifissid"] = WiFi.SSID();
-         }
+         root["status_wifiip"] = WiFi.softAPIP().toString();
+         root["status_wifissid"] = softAPname;
+      }
+      else
+      {
+         root["status_wifiip"] = WiFi.localIP().toString();
+         root["status_wifissid"] = WiFi.SSID();
+      }
+
       time_t t = now();
-      root["status_date"] = strDate(t);
-      root["status_time"] = strTime(t);
-      root["status_uptime"] = String(uptime);
-      root["status_voltage"] = String(vcc,2);
-      root["status_heap"] = heap;
+      root["status_date"]     = strDate(t);
+      root["status_time"]     = strTime(t);
+      root["status_uptime"]   = String(uptime);
+      root["status_voltage"]  = String(vcc,2);
+      root["status_heap"]     = heap;
       root["status_wifirssi"] = rssi;
    }
 
@@ -80,83 +79,81 @@ public:
 
       //DEBUG_MSG("sendTask4\n");
 
-      if(cmd=="setwifi")
+      do
       {
+         if((cmd != "setwifi") &&
+            (cmd != "setpwd")  &&
+            (cmd != "setdev")) break; //defaults
 
-         snprintf(cfg.wifi.sta_ssid, 33 ,iroot["wifi_ssid"].as<const char*>());
-         snprintf(cfg.wifi.sta_pwd,65, iroot["wifi_pwd"].as<const char*>());
-         cfg.wifi.sta_dhcp = iroot["wifi_dhcp"];
-         IPAddress ip; ip.fromString(iroot["wifi_ipa"].as<const char*>());
-         cfg.wifi.sta_ip = ip;
-         ip.fromString(iroot["wifi_gw"].as<const char*>());
-         cfg.wifi.sta_gw = ip;
+         if(cmd=="setwifi")
+         {
+            snprintf(cfg.wifi.sta_ssid, 33 ,iroot["wifi_ssid"].as<const char*>());
+            snprintf(cfg.wifi.sta_pwd,65, iroot["wifi_pwd"].as<const char*>());
+            cfg.wifi.sta_dhcp = iroot["wifi_dhcp"];
+            IPAddress ip; ip.fromString(iroot["wifi_ipa"].as<const char*>());
+            cfg.wifi.sta_ip = ip;
+            ip.fromString(iroot["wifi_gw"].as<const char*>());
+            cfg.wifi.sta_gw = ip;
 
-         int m = 32-(iroot["wifi_mask"].as<int>())&0x1F;
-         uint32_t ma = 0xFFFFFFFF<<m;
-         IPAddress l_sn((ma>>24)&0xFF,(ma>>16)&0xFF,(ma>>8)&0xFF,ma&0xFF);
-         cfg.wifi.sta_subnet = l_sn;
-         DEBUG_MSG1("NetMask: %0X \n",dstring14,cfg.wifi.sta_subnet);
-         cfg.wifi.skip_logon = iroot["wifi_tnet"];
+            int m = 32-(iroot["wifi_mask"].as<int>())&0x1F;
+            uint32_t ma = 0xFFFFFFFF<<m;
+            IPAddress l_sn((ma>>24)&0xFF,(ma>>16)&0xFF,(ma>>8)&0xFF,ma&0xFF);
+            cfg.wifi.sta_subnet = l_sn;
+            DEBUG_MSG1("NetMask: %0X \n",dstring14,cfg.wifi.sta_subnet);
+            cfg.wifi.skip_logon = iroot["wifi_tnet"];
+            DEBUG_MSG1("Write config.\n", dstring12);
+         }
+
+         if(cmd=="setpwd")
+         {
+            snprintf(cfg.wifi.user, 21 ,iroot["adm_un"].as<const char*>());
+            snprintf(cfg.wifi.pwd,21, iroot["adm_pwd"].as<const char*>());
+            DEBUG_MSG1("Change user/pwd\n",dstring13);
+         }
+
+         if(cmd=="setdev")
+         {
+            cfg.dev.type = iroot["dev_type"];
+            cfg.dev.en_timer = iroot["dev_tmr"];
+            cfg.dev.en_mqtt = iroot["dev_mqtt"];
+            cfg.dev.en_sensors = iroot["dev_sens"];
+            cfg.dev.scan_i2c = iroot["dev_i2c"];
+            cfg.dev.scan_ds1w = iroot["dev_ds2482"];
+            cfg.dev.gpio2_mode = iroot["dev_gpio2"];
+            cfg.dev.gpio13_mode = iroot["dev_gpio13"];
+            DEBUG_MSG1("Change dev settings\n",dstring69);
+         }
 
          WriteConfig(false,false);
-         DEBUG_MSG1("Write config.\n", dstring12);
 
-         cmd = "defaults";
-      }
+      } while(0);
 
-      if(cmd=="setpwd")
-      {
-         snprintf(cfg.wifi.user, 21 ,iroot["adm_un"].as<const char*>());
-         snprintf(cfg.wifi.pwd,21, iroot["adm_pwd"].as<const char*>());
-         WriteConfig(false,false);
-         DEBUG_MSG1("Change user/pwd\n",dstring13);
-         cmd = "defaults";
-      }
+      //read defaults
+      ReadConfig();
+      IPAddress l_sn(cfg.wifi.sta_subnet);
+      uint32_t ma = (((uint32_t)(l_sn[0]))<<24) + (((uint32_t)(l_sn[1]))<<16)
+                    +(((uint32_t)(l_sn[2]))<<8) + l_sn[3];
+      int m=0; while(ma!=0) { ma<<=1; m++; };
 
-      if(cmd=="setdev")
-      {
-         cfg.dev.type = iroot["dev_type"];
-         cfg.dev.en_timer = iroot["dev_tmr"];
-         cfg.dev.en_mqtt = iroot["dev_mqtt"];
-         cfg.dev.en_sensors = iroot["dev_sens"];
-         cfg.dev.scan_i2c = iroot["dev_i2c"];
-         cfg.dev.scan_ds1w = iroot["dev_ds2482"];
-         cfg.dev.gpio2_mode = iroot["dev_gpio2"];
-         cfg.dev.gpio13_mode = iroot["dev_gpio13"];
-         WriteConfig(false,false);
-         DEBUG_MSG1("Change dev settings\n",dstring69);
-         cmd = "defaults";
+      root["action"] = "wifi";
+      root["wifi_ssid"] = cfg.wifi.sta_ssid;
+      root["wifi_pwd"] = cfg.wifi.sta_pwd;
+      root["wifi_dhcp"] = cfg.wifi.sta_dhcp;
+      root["wifi_ipa"] = IPAddress(cfg.wifi.sta_ip).toString();
+      root["wifi_gw"] = IPAddress(cfg.wifi.sta_gw).toString();
+      root["wifi_mask"] = m;
+      root["wifi_tnet"] = cfg.wifi.skip_logon;
 
-      }
+      root["adm_un"] = cfg.wifi.user;
 
-      if(cmd=="defaults")
-      {
-         ReadConfig();
-         IPAddress l_sn(cfg.wifi.sta_subnet);
-         uint32_t ma = (((uint32_t)(l_sn[0]))<<24) + (((uint32_t)(l_sn[1]))<<16)
-                       +(((uint32_t)(l_sn[2]))<<8) + l_sn[3];
-         int m=0; while(ma!=0) { ma<<=1; m++; };
-
-         root["action"] = "wifi";
-         root["wifi_ssid"] = cfg.wifi.sta_ssid;
-         root["wifi_pwd"] = cfg.wifi.sta_pwd;
-         root["wifi_dhcp"] = cfg.wifi.sta_dhcp;
-         root["wifi_ipa"] = IPAddress(cfg.wifi.sta_ip).toString();
-         root["wifi_gw"] = IPAddress(cfg.wifi.sta_gw).toString();
-         root["wifi_mask"] = m;
-         root["wifi_tnet"] = cfg.wifi.skip_logon;
-
-         root["adm_un"] = cfg.wifi.user;
-
-         root["dev_type"] = cfg.dev.type;
-         root["dev_tmr"] = cfg.dev.en_timer;
-         root["dev_mqtt"] = cfg.dev.en_mqtt;
-         root["dev_sens"] = cfg.dev.en_sensors;
-         root["dev_i2c"] = cfg.dev.scan_i2c;
-         root["dev_ds2482"] = cfg.dev.scan_ds1w;
-         root["dev_gpio2"] = cfg.dev.gpio2_mode;
-         root["dev_gpio13"] = cfg.dev.gpio13_mode;
-      }
+      root["dev_type"] = cfg.dev.type;
+      root["dev_tmr"] = cfg.dev.en_timer;
+      root["dev_mqtt"] = cfg.dev.en_mqtt;
+      root["dev_sens"] = cfg.dev.en_sensors;
+      root["dev_i2c"] = cfg.dev.scan_i2c;
+      root["dev_ds2482"] = cfg.dev.scan_ds1w;
+      root["dev_gpio2"] = cfg.dev.gpio2_mode;
+      root["dev_gpio13"] = cfg.dev.gpio13_mode;
    }
 };
 

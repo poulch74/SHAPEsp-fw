@@ -1,6 +1,8 @@
 std::vector<Sensor *> sensors;
 
-OneWire owbus(2);
+//OneWire owbus(2);
+int8_t ow_pin = 2;
+OneWire *owbus;
 DS2482 *dsbus;
 
 class TaskSens : public EspTask
@@ -10,60 +12,75 @@ public:
    void Initialize()
    {
 
-      if(i2cCheck(0x76)==0)
+      if(cfg.dev.en_sensors)
       {
-         DEBUG_MSG1("BME280 found at address 0x76. Adding... \n", dstring55);
-         BME280Sensor *bme = new BME280Sensor(0x76);
-         sensors.push_back(bme);
-      }
 
-      if(i2cCheck(0x77)==0)
-      {
-         DEBUG_MSG1("BME280 found at address 0x77. Adding... \n", dstring56);
-         BME280Sensor *bme = new BME280Sensor(0x77);
-         sensors.push_back(bme);
-      }
-
-      if(i2cCheck(0x18)==0)
-      {
-         DEBUG_MSG1("I2C-1W bridge found at address 0x18. Adding... \n", dstring57);
-
-         dsbus = new DS2482(0);
-
-         uint8_t addr[8];
-         while(dsbus->search(addr))
+         if(cfg.dev.scan_i2c)
          {
-            DEBUG_MSG1("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n", dstring58,
-                      addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
 
-            if(DS2482::crc8(addr,7) != addr[7]) { DEBUG_MSG1("CRC is not valid! \n", dstring59); }
-            else
+            if(i2cCheck(0x76)==0)
             {
-               DEBUG_MSG1("Add into sensors list! \n", dstring60);
-               DS1820Sensor *dss = new DS1820Sensor(dsbus,addr);
-               sensors.push_back(dss);
+               DEBUG_MSG1("BME280 found at address 0x76. Adding... \n", dstring55);
+               BME280Sensor *bme = new BME280Sensor(0x76);
+               sensors.push_back(bme);
+            }
+
+            if(i2cCheck(0x77)==0)
+            {
+               DEBUG_MSG1("BME280 found at address 0x77. Adding... \n", dstring56);
+               BME280Sensor *bme = new BME280Sensor(0x77);
+               sensors.push_back(bme);
+            }
+
+            if(i2cCheck(0x18)==0)
+            {
+               DEBUG_MSG1("I2C-1W bridge found at address 0x18. Adding... \n", dstring57);
+               dsbus = new DS2482(0);
+            }
+
+            if(cfg.dev.scan_ds1w)
+            {
+               uint8_t addr[8];
+               while(dsbus->search(addr))
+               {
+                  DEBUG_MSG1("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n", dstring58,
+                           addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
+
+                  if(DS2482::crc8(addr,7) != addr[7]) { DEBUG_MSG1("CRC is not valid! \n", dstring59); }
+                  else
+                  {
+                     DEBUG_MSG1("Add into sensors list! \n", dstring60);
+                     DS1820Sensor *dss = new DS1820Sensor(dsbus,addr);
+                     sensors.push_back(dss);
+                  }
+               }
+               DEBUG_MSG1("No more addresses. \n", dstring61);
+               dsbus->reset_search();
             }
          }
-         DEBUG_MSG1("No more addresses. \n", dstring61);
-         dsbus->reset_search();
-      }
 
-      uint8_t addr[8];
-      while(owbus.search(addr))
-      {
-         DEBUG_MSG1("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n", dstring58,
-                      addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
-
-         if(OneWire::crc8(addr,7) != addr[7]) { DEBUG_MSG1("CRC is not valid! \n", dstring59); }
-         else
+         if(ow_pin!=(-1))
          {
-            DEBUG_MSG1("Add into sensors list! \n", dstring60);
-            DS1820Sensor *dss = new DS1820Sensor(&owbus,addr);
-            sensors.push_back(dss);
+            owbus = new OneWire((uint8_t)ow_pin);
+            uint8_t addr[8];
+            while(owbus->search(addr))
+            {
+               DEBUG_MSG1("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n", dstring58,
+                           addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
+
+               if(OneWire::crc8(addr,7) != addr[7]) { DEBUG_MSG1("CRC is not valid! \n", dstring59); }
+               else
+               {
+                  DEBUG_MSG1("Add into sensors list! \n", dstring60);
+                  DS1820Sensor *dss = new DS1820Sensor(owbus,addr);
+                  sensors.push_back(dss);
+               }
+            }
+            DEBUG_MSG1("No more addresses. \n", dstring61);
+            owbus->reset_search();
          }
       }
-      DEBUG_MSG1("No more addresses. \n", dstring61);
-      owbus.reset_search();
+
 
       sens_count = 0;
 
@@ -132,6 +149,7 @@ public:
          }
       }
    }
+
 private:
    int sens_count;
 

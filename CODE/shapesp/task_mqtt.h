@@ -8,42 +8,50 @@ public:
 
    void Initialize()
    {
-      mqttClient.onConnect(onMqttConnect);
-      mqttClient.onMessage(onMqttMessage);
-
-      mqttClient.setServer(cfg.mqtt.server, cfg.mqtt.port);
-      if(strlen(cfg.mqtt.clientID) > 0)
+      if(cfg.dev.en_mqtt) // enabled
       {
-         mqttClient.setClientId(cfg.mqtt.clientID);
+         mqttClient.onConnect(onMqttConnect);
+         mqttClient.onMessage(onMqttMessage);
+
+         mqttClient.setServer(cfg.mqtt.server, cfg.mqtt.port);
+         if(strlen(cfg.mqtt.clientID) > 0)
+         {
+            mqttClient.setClientId(cfg.mqtt.clientID);
+         }
+
+         mqttClient.setKeepAlive(cfg.mqtt.keepAlive);
+         mqttClient.setCleanSession(false);
+
+         if(strlen(cfg.mqtt.willTopic) > 0)
+         {
+            mqttClient.setWill(cfg.mqtt.willTopic, cfg.mqtt.qos, cfg.mqtt.retain, "0");
+         }
+
+         if ((strlen(cfg.mqtt.user) > 0) && (strlen(cfg.mqtt.pwd) > 0))
+         {
+            mqttClient.setCredentials(cfg.mqtt.user, cfg.mqtt.pwd);
+         }
+
+         DEBUG_MSG1("Init MQTT task.\n", dstring30);
+         DEBUG_MSG1(" Host: %s\n", dstring31,cfg.mqtt.server);
+         DEBUG_MSG1(" Port: %d\n", dstring32,cfg.mqtt.port);
+         DEBUG_MSG1(" ClientID: %s\n", dstring33,cfg.mqtt.clientID);
+         DEBUG_MSG1(" keepAlive: %d\n", dstring34,cfg.mqtt.keepAlive);
+         DEBUG_MSG1(" User: %s\n", dstring35,cfg.mqtt.user);
+         DEBUG_MSG1(" Password: %s\n", dstring36,cfg.mqtt.pwd);
+         DEBUG_MSG1(" QoS: %d\n", dstring37,cfg.mqtt.qos);
+         DEBUG_MSG1(" Retain: %d\n", dstring38,cfg.mqtt.retain);
+         DEBUG_MSG1(" Will topic: %s\n", dstring39,cfg.mqtt.willTopic);
+         DEBUG_MSG1(" In topic: %s\n", dstring40,cfg.mqtt.inTopic);
+         DEBUG_MSG1(" Out topic: %s\n", dstring41, cfg.mqtt.outTopic);
+
+         mqttClient.connect();
+      }
+      else
+      {
+         DEBUG_MSG_P(PSTR("MQTT task disabled!!!.\n"));
       }
 
-      mqttClient.setKeepAlive(cfg.mqtt.keepAlive);
-      mqttClient.setCleanSession(false);
-
-      if(strlen(cfg.mqtt.willTopic) > 0)
-      {
-         mqttClient.setWill(cfg.mqtt.willTopic, cfg.mqtt.qos, cfg.mqtt.retain, "0");
-      }
-
-      if ((strlen(cfg.mqtt.user) > 0) && (strlen(cfg.mqtt.pwd) > 0))
-      {
-         mqttClient.setCredentials(cfg.mqtt.user, cfg.mqtt.pwd);
-      }
-
-      DEBUG_MSG1("Init MQTT task.\n", dstring30);
-      DEBUG_MSG1(" Host: %s\n", dstring31,cfg.mqtt.server);
-      DEBUG_MSG1(" Port: %d\n", dstring32,cfg.mqtt.port);
-      DEBUG_MSG1(" ClientID: %s\n", dstring33,cfg.mqtt.clientID);
-      DEBUG_MSG1(" keepAlive: %d\n", dstring34,cfg.mqtt.keepAlive);
-      DEBUG_MSG1(" User: %s\n", dstring35,cfg.mqtt.user);
-      DEBUG_MSG1(" Password: %s\n", dstring36,cfg.mqtt.pwd);
-      DEBUG_MSG1(" QoS: %d\n", dstring37,cfg.mqtt.qos);
-      DEBUG_MSG1(" Retain: %d\n", dstring38,cfg.mqtt.retain);
-      DEBUG_MSG1(" Will topic: %s\n", dstring39,cfg.mqtt.willTopic);
-      DEBUG_MSG1(" In topic: %s\n", dstring40,cfg.mqtt.inTopic);
-      DEBUG_MSG1(" Out topic: %s\n", dstring41, cfg.mqtt.outTopic);
-
-      mqttClient.connect();
    }
 
    static void onMqttConnect(bool sessionPresent)
@@ -122,11 +130,13 @@ public:
       {
          for(int i=0;i<payload.size();i++)
          {
-            uint16_t packetIdPub1 = mqttClient.publish(cfg.mqtt.inTopic, cfg.mqtt.qos, cfg.mqtt.retain, payload[i].c_str());
+            uint16_t packetIdPub1 = mqttClient.publish(cfg.mqtt.inTopic, cfg.mqtt.qos, cfg.mqtt.retain,
+                                                         payload[i].c_str());
          }
       }
    }
 
+   // work always - configuration part of task
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       String cmd = iroot["cmd"];
@@ -153,50 +163,39 @@ public:
             cfg.mqtt.idx_vcc = iroot["mqtt_vcc"];
             cfg.mqtt.idx_status = iroot["mqtt_status"];
             cfg.mqtt.idx_mode = iroot["mqtt_mode"];
-            cfg.mqtt.idx_sens[0] = iroot["mqtt_sens0"];
-            cfg.mqtt.idx_sens[1] = iroot["mqtt_sens1"];
-            cfg.mqtt.idx_sens[2] = iroot["mqtt_sens2"];
-            cfg.mqtt.idx_sens[3] = iroot["mqtt_sens3"];
-            cfg.mqtt.idx_sens[4] = iroot["mqtt_sens4"];
-            cfg.mqtt.idx_sens[5] = iroot["mqtt_sens5"];
-            cfg.mqtt.idx_sens[6] = iroot["mqtt_sens6"];
-            cfg.mqtt.idx_sens[7] = iroot["mqtt_sens7"];
-            cfg.mqtt.idx_sens[8] = iroot["mqtt_sens8"];
-            cfg.mqtt.idx_sens[9] = iroot["mqtt_sens9"];
-            WriteConfig(false,false);
 
-            cmd = "defaults";
+            for(int i=0; i<MAX_SENSORS_CNT; i++)
+            {
+               String mqttstr = "mqtt_sens" + String(i);
+               cfg.mqtt.idx_sens[i] = iroot[mqttstr];
+            }
+            WriteConfig(false,false);
          }
 
-         if(cmd == "defaults") // send reply
+         // defaults
+         ReadConfig();
+         root["action"] = "mqtt";
+         root["mqtt_server"] = String(cfg.mqtt.server);
+         root["mqtt_port"] = cfg.mqtt.port;
+         root["mqtt_user"] = String(cfg.mqtt.user);
+         root["mqtt_pwd"] = String(cfg.mqtt.pwd);
+         root["mqtt_intopic"] = String(cfg.mqtt.inTopic);
+         root["mqtt_outtopic"] = String(cfg.mqtt.outTopic);
+         root["mqtt_willtopic"] = String(cfg.mqtt.willTopic);
+         root["mqtt_clientid"] = String(cfg.mqtt.clientID);
+         root["mqtt_qos"] = cfg.mqtt.qos;
+         root["mqtt_keepalive"] = cfg.mqtt.keepAlive;
+         root["mqtt_retain"] = cfg.mqtt.retain;
+         root["mqtt_relay"] = cfg.mqtt.idx_relay;
+         root["mqtt_mbtn"] = cfg.mqtt.idx_mbtn;
+         root["mqtt_vcc"] = cfg.mqtt.idx_vcc;
+         root["mqtt_status"] = cfg.mqtt.idx_status;
+         root["mqtt_mode"] = cfg.mqtt.idx_mode;
+
+         for(int i=0; i<MAX_SENSORS_CNT; i++)
          {
-            root["action"] = "mqtt";
-            root["mqtt_server"] = String(cfg.mqtt.server);
-            root["mqtt_port"] = cfg.mqtt.port;
-            root["mqtt_user"] = String(cfg.mqtt.user);
-            root["mqtt_pwd"] = String(cfg.mqtt.pwd);
-            root["mqtt_intopic"] = String(cfg.mqtt.inTopic);
-            root["mqtt_outtopic"] = String(cfg.mqtt.outTopic);
-            root["mqtt_willtopic"] = String(cfg.mqtt.willTopic);
-            root["mqtt_clientid"] = String(cfg.mqtt.clientID);
-            root["mqtt_qos"] = cfg.mqtt.qos;
-            root["mqtt_keepalive"] = cfg.mqtt.keepAlive;
-            root["mqtt_retain"] = cfg.mqtt.retain;
-            root["mqtt_relay"] = cfg.mqtt.idx_relay;
-            root["mqtt_mbtn"] = cfg.mqtt.idx_mbtn;
-            root["mqtt_vcc"] = cfg.mqtt.idx_vcc;
-            root["mqtt_status"] = cfg.mqtt.idx_status;
-            root["mqtt_mode"] = cfg.mqtt.idx_mode;
-            root["mqtt_sens0"] = cfg.mqtt.idx_sens[0];
-            root["mqtt_sens1"] = cfg.mqtt.idx_sens[1];
-            root["mqtt_sens2"] = cfg.mqtt.idx_sens[2];
-            root["mqtt_sens3"] = cfg.mqtt.idx_sens[3];
-            root["mqtt_sens4"] = cfg.mqtt.idx_sens[4];
-            root["mqtt_sens5"] = cfg.mqtt.idx_sens[5];
-            root["mqtt_sens6"] = cfg.mqtt.idx_sens[6];
-            root["mqtt_sens7"] = cfg.mqtt.idx_sens[7];
-            root["mqtt_sens8"] = cfg.mqtt.idx_sens[8];
-            root["mqtt_sens9"] = cfg.mqtt.idx_sens[9];
+            String mqttstr = "mqtt_sens" + String(i);
+            root[mqttstr] = cfg.mqtt.idx_sens[i];
          }
       }
    }

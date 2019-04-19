@@ -22,16 +22,17 @@ public:
    bool skiptmr;
 
 public:
-   void sendMqttDefaults()
+
+   void sendMqttState(int state, int mode)
    {
       std::vector<String> payload;
 
-      if(cfg.mqtt.idx_relay)
+      if(cfg.mqtt.idx_relay && (state!=0))
       {
          payload.push_back(FmtMqttMessage(cfg.mqtt.idx_relay, relay->GetState(), "Status"));
       }
 
-      if(cfg.mqtt.idx_mbtn)
+      if(cfg.mqtt.idx_mbtn && mode)
       {
          payload.push_back(FmtMqttMessage(cfg.mqtt.idx_mbtn, (skiptmr ? 0:1), "Status"));
       }
@@ -44,39 +45,33 @@ public:
       int vstate = 0;
       bool updatemode = false;
 
-      if(evt == EVT_VSTARTUP) { sendMqttDefaults(); return;}
-
-      if(evt == EVT_VCLOSE) { skiptmr = true; vstate = -1; updatemode = true;}
-      if(evt == EVT_VOPEN) { skiptmr = true; vstate = 1; updatemode = true;}
-      if(evt == EVT_VAUTO) { skiptmr =  false; updatemode = true;}
-
-      if(!skiptmr)
+      do
       {
-         time_t ct = now();
+         if(evt == EVT_VSTARTUP) { vstate=1; updatemode=true; break;}
 
-         uint16_t tcur = (uint16_t)((ct-previousMidnight(ct))/60);
-         uint8_t shift = (dayOfWeek(ct)-1) ? (dayOfWeek(ct)-2):6;
-         uint8_t cdow = 1 << shift; // 0 based day of week 0 monday
-         for(int i=0;i<10;i++)
-            if((cfg.tmr[i].active)&&(tcur==cfg.tmr[i].on_ts)&&(cdow&cfg.tmr[i].on_dowmask)) { vstate = 1; break;}
-         for(int i=0;i<10;i++)
-            if((cfg.tmr[i].active)&&(tcur==cfg.tmr[i].off_ts)&&(cdow&cfg.tmr[i].off_dowmask)) { vstate = -1; break;}
-      }
+         if(evt == EVT_VCLOSE) { skiptmr = true;  updatemode = true; vstate = -1; }
+         if(evt == EVT_VOPEN)  { skiptmr = true;  updatemode = true; vstate = 1; }
+         if(evt == EVT_VAUTO)  { skiptmr = false; updatemode = true;}
 
-      std::vector<String> payload;
+         if((cfg.dev.en_timer) && (!skiptmr)) // if timer enabled - check
+         {
+            time_t ct = now();
 
-      if(vstate!=0)   // publish relay status to keep tracking
-      {
-         int state = relay->SetState(((vstate>0) ? 1:0));
-         if(cfg.mqtt.idx_relay) payload.push_back(FmtMqttMessage(cfg.mqtt.idx_relay, state, "Status"));
-      }
+            uint16_t tcur = (uint16_t)((ct-previousMidnight(ct))/60);
+            uint8_t shift = (dayOfWeek(ct)-1) ? (dayOfWeek(ct)-2):6;
+            uint8_t cdow = 1 << shift; // 0 based day of week 0 monday
+            for(int i=0;i<10;i++)
+               if((cfg.tmr[i].active)&&(tcur==cfg.tmr[i].on_ts)&&(cdow&cfg.tmr[i].on_dowmask)) { vstate = 1; break;}
+            for(int i=0;i<10;i++)
+               if((cfg.tmr[i].active)&&(tcur==cfg.tmr[i].off_ts)&&(cdow&cfg.tmr[i].off_dowmask)) { vstate = -1; break;}
+         }
 
-      if(updatemode) // publish mode to keep tracking
-      {
-         if(cfg.mqtt.idx_mbtn) payload.push_back(FmtMqttMessage(cfg.mqtt.idx_mbtn, (skiptmr ? 0:1), "Status"));
-      }
+         if(vstate!=0) { relay->SetState(((vstate>0) ? 1:0)); }
 
-      GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
+      } while(0);
+
+      // publish relay status to keep tracking
+      sendMqttState(vstate,updatemode);
    }
 
    void doMqttTask(int evt, std::vector<String> &payload)
@@ -84,16 +79,10 @@ public:
       if(evt == EVT_MQTT)
       {
          if(cfg.mqtt.idx_mode) // non zero -> publish
-         {
-            String buf = FmtMqttMessage(cfg.mqtt.idx_mode,0, (skiptmr ? "Manual":"Auto"));
-            payload.push_back(buf);
-         }
+            payload.push_back(FmtMqttMessage(cfg.mqtt.idx_mode,0, (skiptmr ? "Manual":"Auto")));
 
          if(cfg.mqtt.idx_status)
-         {
-            String buf = FmtMqttMessage(cfg.mqtt.idx_status, relay->GetState(), (relay->GetState() ? "Open":"Close"));
-            payload.push_back(buf);
-         }
+            payload.push_back(FmtMqttMessage(cfg.mqtt.idx_status, relay->GetState(), (relay->GetState() ? "Open":"Close")));
       }
    }
 

@@ -1,13 +1,13 @@
 #define DEFINE_EVENT(id,num) const int id = num; EspEvent __evt##id(id,EVT_TASK);
 
 #define EVENT_BEGIN_REGISTER_TASKS void EventRegisterTasks() {
-#define EVENT_REGISTER_TASK(id,task) __evt##id.attach((EspTask *)&task);
+#define EVENT_REGISTER_TASK(id,task,enable) if(enable) { __evt##id.attach((EspTask *)&task); }
 #define EVENT_END_REGISTER_TASKS }
 
 #define DEFINE_MSG(id,num) const int id = num; EspEvent __msg##id(id,EVT_MSG);
 
 #define MSG_BEGIN_REGISTER_TASKS void MsgRegisterTasks() {
-#define MSG_REGISTER_TASK(id,task) __msg##id.attach((EspTask *)&task);
+#define MSG_REGISTER_TASK(id,task,enable) if(enable) { __msg##id.attach((EspTask *)&task); }
 #define MSG_END_REGISTER_TASKS }
 
 #define MSG_BEGIN_SUBSCRIBE void MsgSubscribe() {

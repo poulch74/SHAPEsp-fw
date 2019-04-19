@@ -36,11 +36,11 @@
 #define PDEBUG
 
 #ifdef PDEBUG
-    //#define DEBUG_MSG(...) debugSend(__VA_ARGS__)
+    #define DEBUG_MSG(...) debugSend(__VA_ARGS__)
     #define DEBUG_MSG_P(...) debugSend_P(__VA_ARGS__)
     #define DEBUG_MSG1(str,...) debugSend_P(__VA_ARGS__);
 #else
-    //#define DEBUG_MSG(...)
+    #define DEBUG_MSG(...)
     #define DEBUG_MSG_P(...)
     #define DEBUG_MSG1(str,...)
 #endif
@@ -97,38 +97,38 @@ DEFINE_MSG(MSG_MQTT,105)
 //static int sec60cnt = 0;
 
 EVENT_BEGIN_REGISTER_TASKS
-   EVENT_REGISTER_TASK(EVT_1SEC,task1) // периодические события
-   EVENT_REGISTER_TASK(EVT_60SEC,task1) // обновление
-   EVENT_REGISTER_TASK(EVT_1SEC,taskTimer)
-   EVENT_REGISTER_TASK(EVT_1SEC,sens_task)
-   EVENT_REGISTER_TASK(EVT_1SEC,mqtt_task)
+   EVENT_REGISTER_TASK(EVT_1SEC,task1,true) // периодические события
+   EVENT_REGISTER_TASK(EVT_60SEC,task1,true) // обновление
+   EVENT_REGISTER_TASK(EVT_1SEC,taskTimer,true)
+   EVENT_REGISTER_TASK(EVT_1SEC,sens_task,cfg.dev.en_sensors)
+   EVENT_REGISTER_TASK(EVT_1SEC,mqtt_task,cfg.dev.en_mqtt)
 
-   EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer) // асинхронные события в очереди
-   EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer)
-   EVENT_REGISTER_TASK(EVT_VAUTO,taskTimer)
+   EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer,true) // асинхронные события в очереди
+   EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer,true)
+   EVENT_REGISTER_TASK(EVT_VAUTO,taskTimer,true)
 
-   EVENT_REGISTER_TASK(EVT_VSTARTUP,taskTimer) //загрузка значений по умолчанию
+   EVENT_REGISTER_TASK(EVT_VSTARTUP,taskTimer,true) //загрузка значений по умолчанию
 
-   EVENT_REGISTER_TASK(EVT_MQTTPUB, mqtt_task) // публикация
+   EVENT_REGISTER_TASK(EVT_MQTTPUB, mqtt_task,cfg.dev.en_mqtt) // публикация
 
-   EVENT_REGISTER_TASK(EVT_MQTT,task1)
-   EVENT_REGISTER_TASK(EVT_MQTT,taskTimer)
-   EVENT_REGISTER_TASK(EVT_MQTT,sens_task)
+   EVENT_REGISTER_TASK(EVT_MQTT,task1,true)
+   EVENT_REGISTER_TASK(EVT_MQTT,taskTimer,true)
+   EVENT_REGISTER_TASK(EVT_MQTT,sens_task,cfg.dev.en_sensors)
 EVENT_END_REGISTER_TASKS
 
 // обмен с web интерфейсом
 MSG_BEGIN_REGISTER_TASKS
-   MSG_REGISTER_TASK(MSG_STATUS,task1)
-   MSG_REGISTER_TASK(MSG_STATUS,taskTimer)
-   MSG_REGISTER_TASK(MSG_STATUS,sens_task)
+   MSG_REGISTER_TASK(MSG_STATUS,task1,true)
+   MSG_REGISTER_TASK(MSG_STATUS,taskTimer,true)
+   MSG_REGISTER_TASK(MSG_STATUS,sens_task,true)
 
-   MSG_REGISTER_TASK(MSG_SET_TIME,taskTimer)
+   MSG_REGISTER_TASK(MSG_SET_TIME,taskTimer,true)
 
-   MSG_REGISTER_TASK(MSG_SET_SETTINGS,taskSettings)
+   MSG_REGISTER_TASK(MSG_SET_SETTINGS,taskSettings,true)
 
-   MSG_REGISTER_TASK(MSG_SENSORS, sens_task)
+   MSG_REGISTER_TASK(MSG_SENSORS, sens_task,true)
 
-   MSG_REGISTER_TASK(MSG_MQTT, mqtt_task)
+   MSG_REGISTER_TASK(MSG_MQTT, mqtt_task,true)
 MSG_END_REGISTER_TASKS
 
 MSG_BEGIN_SUBSCRIBE
@@ -175,7 +175,7 @@ void setup()
 
    setDebugPort(((cfg.dev.gpio2_mode == GPIO2_MODE_DEBUG) ? 1:0),115200);
 
-   if(defaults ) DEBUG_MSG1("FAILED read config!!! Writing defaults.",dstring0);
+   if(defaults) DEBUG_MSG1("FAILED read config!!! Writing defaults.",dstring0);//DEBUG_MSG_P(PSTR("FAILED read config!!! Writing defaults."));
 
    taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
 
@@ -226,7 +226,7 @@ void setup()
    }
 
 
-   uint16_t to = 50;
+   uint16_t to = 60;
    while(WiFi.status() != WL_CONNECTED )
    {
       DEBUG_MSG1(".",dstring6); delay(500); to--;
