@@ -174,10 +174,13 @@ void setup()
    }
 
    setDebugPort(((cfg.dev.gpio2_mode == GPIO2_MODE_DEBUG) ? 1:0),115200);
+   DEBUG_MSG_P(PSTR("\n"));
 
-   if(defaults) DEBUG_MSG1("FAILED read config!!! Writing defaults.",dstring0);//DEBUG_MSG_P(PSTR("FAILED read config!!! Writing defaults."));
+   if(defaults) DEBUG_MSG1("FAILED read config!!! Writing defaults. \n",dstring0);//DEBUG_MSG_P(PSTR("FAILED read config!!! Writing defaults."));
 
-   taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран реле.
+   if(cfg.dev.gpio2_mode == GPIO2_MODE_1WIRE) { ow_pin = 2; DEBUG_MSG_P(PSTR("Set 1-Wire pin -> 2.\n"));}
+
+   taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран/реле.
 
    i2c_setup(4,5,200,400);
 

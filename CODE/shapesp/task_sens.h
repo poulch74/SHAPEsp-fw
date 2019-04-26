@@ -1,7 +1,7 @@
 std::vector<Sensor *> sensors;
 
 //OneWire owbus(2);
-int8_t ow_pin = 2;
+int8_t ow_pin = -1;
 OneWire *owbus;
 DS2482 *dsbus;
 
@@ -15,7 +15,7 @@ public:
       if(cfg.dev.en_sensors)
       {
 
-         if(cfg.dev.scan_i2c)
+         if(cfg.dev.scan_i2c) // i2c sensors
          {
 
             if(i2cCheck(0x76)==0)
@@ -32,20 +32,20 @@ public:
                sensors.push_back(bme);
             }
 
+         }
+
+         if(cfg.dev.scan_ds1w) // ds1w sensors on i2c-1w bridge
+         {
             if(i2cCheck(0x18)==0)
             {
                DEBUG_MSG1("I2C-1W bridge found at address 0x18. Adding... \n", dstring57);
                dsbus = new DS2482(0);
-            }
 
-            if(cfg.dev.scan_ds1w)
-            {
                uint8_t addr[8];
                while(dsbus->search(addr))
                {
                   DEBUG_MSG1("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n", dstring58,
                            addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
-
                   if(DS2482::crc8(addr,7) != addr[7]) { DEBUG_MSG1("CRC is not valid! \n", dstring59); }
                   else
                   {
@@ -54,12 +54,12 @@ public:
                      sensors.push_back(dss);
                   }
                }
-               DEBUG_MSG1("No more addresses. \n", dstring61);
+               DEBUG_MSG1("No more addresses on I2C-1W bridge. \n", dstring61);
                dsbus->reset_search();
             }
          }
 
-         if(ow_pin!=(-1))
+         if(ow_pin!=(-1)) // soft ds1w sensors on i/o pin
          {
             owbus = new OneWire((uint8_t)ow_pin);
             uint8_t addr[8];
@@ -80,7 +80,6 @@ public:
             owbus->reset_search();
          }
       }
-
 
       sens_count = 0;
 
