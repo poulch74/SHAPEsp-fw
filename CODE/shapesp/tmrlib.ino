@@ -49,7 +49,7 @@ const char _ssdp_template[] PROGMEM=
 
 void handleSSDP(AsyncWebServerRequest *request)
 {
-   DEBUG_MSG1("[SSDP] Schema request\n", dstring67);
+   DEBUG_MSG_P(PSTR("[SSDP] Schema request\n"));
 
    IPAddress ip = WiFi.localIP();
    uint32_t chipId = ESP.getChipId();
@@ -86,7 +86,7 @@ void ssdpSetup()
    SSDP.setManufacturerURL("");
    SSDP.begin();
 
-   DEBUG_MSG1("[SSDP] Started\n", dstring68);
+   DEBUG_MSG_P(PSTR("[SSDP] Started\n"));
 }
 
 

@@ -42,13 +42,13 @@ public:
          if(rmode==R_VALVE)
          {
             timer.once_ms(5100, alarm1, this);
-            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG1("on valve start\n", dstring25); }
-            if(state==0) { a1=LOW;  a2=HIGH; DEBUG_MSG1("off valve start\n", dstring26);}
+            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG_P(PSTR("on valve start\n")); }
+            if(state==0) { a1=LOW;  a2=HIGH; DEBUG_MSG_P(PSTR("off valve start\n"));}
          }
          else
          {
-            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG1("on relay\n", dstring27); }
-            if(state==0) { a1=LOW;  a2=LOW;  DEBUG_MSG1("off relay\n", dstring28); }
+            if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG_P(PSTR("on relay\n")); }
+            if(state==0) { a1=LOW;  a2=LOW;  DEBUG_MSG_P(PSTR("off relay\n")); }
          }
 
          digitalWrite(pinA1, a1);
@@ -81,5 +81,5 @@ void alarm1(Relay *r)
       digitalWrite(r->pinA1, LOW);
       digitalWrite(r->pinA2, LOW);
    }
-   DEBUG_MSG1("OFF relay\n", dstring29);
+   DEBUG_MSG_P(PSTR("OFF relay\n"));
 }

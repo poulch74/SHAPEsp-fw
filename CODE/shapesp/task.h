@@ -12,7 +12,7 @@ public:
          int hr =  (t/3600)%24;
          int min = (t%3600)/60;
          snprintf(uptime,32,"%dd:%02dh:%02dm",day,hr,min);
-         DEBUG_MSG1("Uptime: %s \n",dstring11,uptime);
+         DEBUG_MSG_P(PSTR("Uptime: %s \n"), uptime);
          return;
       }
 
@@ -99,16 +99,16 @@ public:
             uint32_t ma = 0xFFFFFFFF<<m;
             IPAddress l_sn((ma>>24)&0xFF,(ma>>16)&0xFF,(ma>>8)&0xFF,ma&0xFF);
             cfg.wifi.sta_subnet = l_sn;
-            DEBUG_MSG1("NetMask: %0X \n",dstring14,cfg.wifi.sta_subnet);
+            DEBUG_MSG_P(PSTR("NetMask: %0X \n"), cfg.wifi.sta_subnet);
             cfg.wifi.skip_logon = iroot["wifi_tnet"];
-            DEBUG_MSG1("Write config.\n", dstring12);
+            DEBUG_MSG_P(PSTR("Write config.\n"));
          }
 
          if(cmd=="setpwd")
          {
             snprintf(cfg.wifi.user, 21 ,iroot["adm_un"].as<const char*>());
             snprintf(cfg.wifi.pwd,21, iroot["adm_pwd"].as<const char*>());
-            DEBUG_MSG1("Change user/pwd\n",dstring13);
+            DEBUG_MSG_P(PSTR("Change user/pwd\n"));
          }
 
          if(cmd=="setdev")
@@ -121,7 +121,7 @@ public:
             cfg.dev.scan_ds1w = iroot["dev_ds2482"];
             cfg.dev.gpio2_mode = iroot["dev_gpio2"];
             cfg.dev.gpio13_mode = iroot["dev_gpio13"];
-            DEBUG_MSG1("Change dev settings\n",dstring69);
+            DEBUG_MSG_P(PSTR("Change dev settings\n"));
          }
 
          WriteConfig(false,false);

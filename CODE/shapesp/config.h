@@ -128,9 +128,9 @@ typedef struct settings
    ESP_DEV_S  dev;
 } ESP_SET;
 
-
+/*
 const char *dstring[] PROGMEM = {
-   /*
+
    "FAILED read config!!! Writing defaults.", //0
    "DS3231 found at address 0x68. Setting SyncProvider... \n", //1
    "RTC clock not found! Setting fake millis() SyncProvider... \n", //2
@@ -147,8 +147,7 @@ const char *dstring[] PROGMEM = {
    "Write config.\n", //12
    "Change user/pwd\n", //13
    "NetMask: %0X \n", //14
-   */
-   /*
+
    //ws.ino
    "ws[%s][%u] connect\n", //15
    "ws[%s][%u] disconnect: %u\n", //16
@@ -194,7 +193,7 @@ const char *dstring[] PROGMEM = {
    "[DOMOTICZ] Received value for Button %u for IDX %u\n", //50
    "SCHEDULE AUTO MQTT\n", //51
    "setmqtt and response", //52
-   */
+   
    //i2c.ino
 //   "[I2C] Device found at address 0x%02X\n", //53
   // "[I2C] No devices found\n", //54
@@ -215,10 +214,11 @@ const char *dstring[] PROGMEM = {
    //tmerlib
    //"[SSDP] Schema request\n", //67
    //"[SSDP] Started\n", //68
-   "last"
-};
+//   "last"
+//};
+*/
 
-
+/*
 static const char dstring0[] PROGMEM = "FAILED read config!!! Writing defaults."; //0
 static const char dstring1[] PROGMEM = "DS3231 found at address 0x68. Setting SyncProvider... \n"; //1
 static const char dstring2[] PROGMEM = "RTC clock not found! Setting fake millis() SyncProvider... \n"; //2
@@ -309,3 +309,4 @@ static const char dstring67[] PROGMEM = "[SSDP] Schema request\n"; //67
 static const char dstring68[] PROGMEM = "[SSDP] Started\n"; //68
 
 static const char dstring69[] PROGMEM = "Change dev settings\n"; //6
+*/

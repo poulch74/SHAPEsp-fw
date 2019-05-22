@@ -191,9 +191,9 @@ void i2cScan()
       unsigned char error = i2cCheck(address);
       if (error == 0)
       {
-         DEBUG_MSG1("[I2C] Device found at address 0x%02X\n", dstring53, address);
+         DEBUG_MSG_P(PSTR("[I2C] Device found at address 0x%02X\n"), address);
          nDevices++;
       }
    }
-   if (nDevices == 0) DEBUG_MSG1("[I2C] No devices found\n", dstring54);
+   if (nDevices == 0) DEBUG_MSG_P(PSTR("[I2C] No devices found\n"));
 }

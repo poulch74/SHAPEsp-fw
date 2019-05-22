@@ -176,7 +176,7 @@ void setup()
    setDebugPort(((cfg.dev.gpio2_mode == GPIO2_MODE_DEBUG) ? 1:0),115200);
    DEBUG_MSG_P(PSTR("\n"));
 
-   if(defaults) DEBUG_MSG1("FAILED read config!!! Writing defaults. \n",dstring0);//DEBUG_MSG_P(PSTR("FAILED read config!!! Writing defaults."));
+   if(defaults) DEBUG_MSG_P(PSTR("FAILED read config!!! Writing defaults. \n"));//DEBUG_MSG_P(PSTR("FAILED read config!!! Writing defaults."));
 
    if(cfg.dev.gpio2_mode == GPIO2_MODE_1WIRE) { ow_pin = 2; DEBUG_MSG_P(PSTR("Set 1-Wire pin -> 2.\n"));}
 
@@ -186,18 +186,18 @@ void setup()
 
    if(i2cCheck(0x68)==0)
    {
-      DEBUG_MSG1("DS3231 found at address 0x68. Setting SyncProvider... \n",dstring1);
+      DEBUG_MSG_P(PSTR("DS3231 found at address 0x68. Setting SyncProvider... \n"));
       setSyncProvider(getTime_rtc);   // the function to get the time from the RTC
    }
    else
    {
-      DEBUG_MSG1("RTC clock not found! Setting fake millis() SyncProvider... \n", dstring2);
+      DEBUG_MSG_P(PSTR("RTC clock not found! Setting fake millis() SyncProvider... \n"));
       setSyncProvider(getTime_stub);
    }
 
    time_t startup = startUptime(); // start uptime calculation
 
-   DEBUG_MSG1("Startup at: %s \n", dstring3, strDateTime(startup).c_str());
+   DEBUG_MSG_P(PSTR("Startup at: %s \n"), strDateTime(startup).c_str());
 
    randomSeed(second());
 
@@ -207,8 +207,8 @@ void setup()
 
    i2cScan();
 
-   DEBUG_MSG1("User: %s \n", dstring4, cfg.wifi.user);
-   DEBUG_MSG1("Pwd: %s \n", dstring5, cfg.wifi.pwd);
+   DEBUG_MSG_P(PSTR("User: %s \n"), cfg.wifi.user);
+   DEBUG_MSG_P(PSTR("Pwd: %s \n"), cfg.wifi.pwd);
 
    //WiFi.setOutputPower(20);
    //system_phy_set_max_tpw(50);
@@ -232,11 +232,11 @@ void setup()
    uint16_t to = 60;
    while(WiFi.status() != WL_CONNECTED )
    {
-      DEBUG_MSG1(".",dstring6); delay(500); to--;
+      DEBUG_MSG_P(PSTR(".")); delay(500); to--;
       //Serial.print("."); delay(500); to--;
       if(to==0) break;
    };
-   DEBUG_MSG1("%d \n",dstring7,to);
+   DEBUG_MSG_P(PSTR("%d \n"), to);
    //Serial.println(to);
    //Serial.println("");
 
@@ -247,8 +247,7 @@ void setup()
       wifimode = 0; // station
       //Serial.print("Connected to "); Serial.println(cfg.wifi.sta_ssid);
       //Serial.print("IP address: "); Serial.println(WiFi.localIP());
-      DEBUG_MSG1("Connected to %s IP address %s \n",dstring8,
-                   cfg.wifi.sta_ssid, WiFi.localIP().toString().c_str());
+      DEBUG_MSG_P(PSTR("Connected to %s IP address %s \n"), cfg.wifi.sta_ssid, WiFi.localIP().toString().c_str());
    }
    else
    {
@@ -260,8 +259,7 @@ void setup()
       WiFi.disconnect(false);
       //Serial.print("AP is "); Serial.println(softAPname);
       //Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
-      DEBUG_MSG1("AP is %s AP IP address %s \n",dstring9,
-                   softAPname.c_str(), WiFi.softAPIP().toString().c_str());
+      DEBUG_MSG_P(PSTR("AP is %s AP IP address %s \n"), softAPname.c_str(), WiFi.softAPIP().toString().c_str());
 
    }
 
@@ -364,7 +362,7 @@ void setup()
    server.begin();
    delay(10);
 
-   DEBUG_MSG1("Server started \n",dstring10);
+   DEBUG_MSG_P(PSTR("Server started. \n"));
 
    // test deepsleep
    //    DbgPrintln(("Deepsleep for 10s"));
