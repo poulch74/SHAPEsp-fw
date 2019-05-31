@@ -1,8 +1,8 @@
 #include "relay.h"
 
 
-const int drvA1   = 14; // close pin
-const int drvA2   = 12; // open pin
+const int drvA1   = 15;//14; // close pin
+const int drvA2   = 14;//12; // open pin
 const int drvSTBY = 13; // open pin
 
 
@@ -10,10 +10,10 @@ class TimerTask : public EspTask
 {
 public:
    TimerTask() : EspTask() { }
-   void Initialize()
+   void Initialize(uint8_t typ)
    {
       skiptmr = false;
-      relay = new Relay(drvA1,drvA2,drvSTBY,R_RELAY,1); // 1 use autostop R_VALVE
+      relay = new Relay(drvA1,drvA2,drvSTBY,typ,1); // 1 use autostop R_VALVE
       relay->Initialize();
    }
 

@@ -180,7 +180,7 @@ void setup()
 
    if(cfg.dev.gpio2_mode == GPIO2_MODE_1WIRE) { ow_pin = 2; DEBUG_MSG_P(PSTR("Set 1-Wire pin -> 2.\n"));}
 
-   taskTimer.Initialize(); // первым делом инициализировали задачу таймера и закрыли кран/реле.
+   taskTimer.Initialize(cfg.dev.type); // первым делом инициализировали задачу таймера и закрыли кран/реле.
 
    i2c_setup(4,5,200,400);
 
@@ -257,10 +257,11 @@ void setup()
       softAPname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
       WiFi.softAP(softAPname.c_str());
       WiFi.disconnect(false);
+      delay(500); // delay for ao startup, config work right after
+      //WiFi.softAPConfig(apIP,apIP,IPAddress(255,255,255,0));
       //Serial.print("AP is "); Serial.println(softAPname);
       //Serial.print("AP IP address: "); Serial.println(WiFi.softAPIP());
       DEBUG_MSG_P(PSTR("AP is %s AP IP address %s \n"), softAPname.c_str(), WiFi.softAPIP().toString().c_str());
-
    }
 
    //DEBUG_MSG("write cfg \n");
