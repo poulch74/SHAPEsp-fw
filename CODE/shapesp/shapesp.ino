@@ -59,6 +59,10 @@ int battery = 100; // 0-100 percentage 10.8 - 12.5 map to 10-90%
 int minbat = 108;
 int maxbat = 140;
 
+#include "eeprom24.h"
+
+EEPROM24Class eeprom(0x50,32,128);
+
 #include "event.h"
 
 std::queue<EspEvent *> sysqueue; // очередь сообщений
@@ -209,6 +213,32 @@ void setup()
 
    DEBUG_MSG_P(PSTR("User: %s \n"), cfg.wifi.user);
    DEBUG_MSG_P(PSTR("Pwd: %s \n"), cfg.wifi.pwd);
+
+/////////////////////////////////////////////
+   DEBUG_MSG_P(PSTR("Test EEPROM \n"));
+   /*
+   eeprom.begin(0,2);
+   uint8_t d[32];
+   for(uint16_t ij=0;ij<32;ij++)
+   {
+      d[ij] = ij+10;
+   }
+
+   int s = millis();
+   for(uint16_t j=0;j<64;j++)
+   {
+       eeprom.write(j, (uint8_t)j+1);
+   }
+   eeprom.end();
+*/
+   eeprom.begin(0,2);
+   for(uint16_t j=0;j<64;j++)
+   {
+      DEBUG_MSG_P(PSTR("EEPROM[%d] %d\n"), j, eeprom.read(j));
+      //eeprom.read(j*32, d);
+   }
+   DEBUG_MSG_P(PSTR("write millis %d\n"), millis()-s);
+   eeprom.end();
 
    //WiFi.setOutputPower(20);
    //system_phy_set_max_tpw(50);

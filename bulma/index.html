@@ -1096,7 +1096,7 @@
       {
          console.log(evt);
 
-         var resp = JSON.parse(evt.data);
+         let resp = JSON.parse(evt.data);
 
          if(resp.action == "auth")
          {
@@ -1179,22 +1179,23 @@
 
       function onTabTimerHandler(_id,_cmd)
       {
-         var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", cmd: _cmd, id: _id };
+         let msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", cmd: _cmd, id: _id };
+         let params;
          if(_cmd=="settime")
          {
-               var params = ['time_year', 'time_month', 'time_day', 'time_dow', 'time_hour', 'time_min', 'time_sec'];
+               params = ['time_year', 'time_month', 'time_day', 'time_dow', 'time_hour', 'time_min', 'time_sec'];
                params.forEach(function(item) {
-                  msg[item] =   document.getElementById(item).value;
+                  msg[item] = document.getElementById(item).value;
                });
          }
 
          if(_cmd=="settimer" || _cmd=="savetimer" || _cmd=="resettimer")
          {
-            var params = ['time_sact', 'time_sdmask', 'time_shour', 'time_smin', 'time_edmask', 'time_ehour', 'time_emin'];
-            for(var i=0;i<10;i++)
+            params = ['time_sact', 'time_sdmask', 'time_shour', 'time_smin', 'time_edmask', 'time_ehour', 'time_emin'];
+            for(let i=0;i<10;i++)
             {
                params.forEach(function(item) {
-                  msg[item+i] =   document.getElementById(item+i).value;
+                  msg[item+i] = document.getElementById(item+i).value;
                });
             }
          }

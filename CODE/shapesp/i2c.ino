@@ -26,6 +26,14 @@ uint8_t i2c_write_buffer(uint8_t address, uint8_t * buffer, size_t len) {
     return brzo_i2c_end_transaction();
 }
 
+uint8_t i2c_write_bufferACK(uint8_t address, uint8_t * buffer, size_t len) {
+    brzo_i2c_start_transaction(address, _i2c_scl_frequency);
+    brzo_i2c_write(buffer, len, false);
+    brzo_i2c_ACK_polling(10000);
+    return brzo_i2c_end_transaction();
+}
+
+
 uint8_t i2c_read_uint8(uint8_t address, uint8_t reg) {
     uint8_t buffer[1] = {reg};
     brzo_i2c_start_transaction(address, _i2c_scl_frequency);
@@ -34,6 +42,16 @@ uint8_t i2c_read_uint8(uint8_t address, uint8_t reg) {
     brzo_i2c_end_transaction();
     return buffer[0];
 };
+
+uint8_t i2c_read_uint8(uint8_t address, uint16_t reg) {
+    uint8_t buffer[2] = {((reg>>8)&0xFF),reg&0xFF};
+    brzo_i2c_start_transaction(address, _i2c_scl_frequency);
+    brzo_i2c_write(buffer, 2, false);
+    brzo_i2c_read(buffer, 1, false);
+    brzo_i2c_end_transaction();
+    return buffer[0];
+};
+
 
 uint16_t i2c_read_uint16(uint8_t address, uint8_t reg) {
     uint8_t buffer[2] = {reg, 0};
