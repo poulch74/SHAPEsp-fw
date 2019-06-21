@@ -524,7 +524,7 @@
                                        <div>&nbsp</div>
                                        <div class="control">
                                           <button class="button is-warning" >
-                                          <span style="padding:0 2em;">Update</span>
+                                          <span id="status_update" style="padding:0 2em;">Update</span>
                                           </button>
                                        </div>
                                     </form>
@@ -1003,6 +1003,7 @@
       })();
 
 
+      var fwupdate = false;
       var websock;
 
       websock = new WebSocket("ws://" + window.location.host + "/ws");
@@ -1089,7 +1090,7 @@
       {
          sessionStorage.removeItem("hash");
          sessionStorage.removeItem("sensCount");
-         window.location.reload(false);
+         if(!fwupdate) window.location.reload(false);
       }
 
       function onMessageHandler(evt)
@@ -1413,9 +1414,10 @@
 
       function reload(f)
       {
-         sessionStorage.removeItem("hash");
-         sessionStorage.removeItem("sensCount");
-         //websock.close();
+         fwupdate = true;
+//         sessionStorage.removeItem("hash");
+//         sessionStorage.removeItem("sensCount");
+//         websock.close();
          f.submit();
          return false;
       }

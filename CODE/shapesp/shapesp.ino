@@ -54,14 +54,17 @@ void prototypes(void) {} // here we collect all func prototypes
 int wifimode;
 String softAPname;
 
+bool do_update = false;
+String uprogress;
+
+
 int rssi = 50; // store global, so any can access this
 int battery = 100; // 0-100 percentage 10.8 - 12.5 map to 10-90%
 int minbat = 108;
 int maxbat = 140;
 
-#include "eeprom24.h"
-
-EEPROM24Class eeprom(0x50,32,128);
+//#include "eeprom24.h"
+//EEPROM24Class eeprom(0x50,32,128);
 
 #include "event.h"
 
@@ -150,7 +153,9 @@ const char* ssid = "DIR-300";
 //const char* ssid = "CH1-Home";
 const char* password = "chps74qwerty";
 
-const int led = 2; // led pin
+const int led = 2; // led ow_pin
+
+uint32_t maxSketchSpace = 0;
 
 Ticker timer;
 void alarm()
@@ -168,6 +173,8 @@ AsyncWebSocket ws("/ws");
 
 void setup()
 {
+   maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+
    wifimode = 0; // station
 
    bool defaults = false;
@@ -214,9 +221,9 @@ void setup()
    DEBUG_MSG_P(PSTR("User: %s \n"), cfg.wifi.user);
    DEBUG_MSG_P(PSTR("Pwd: %s \n"), cfg.wifi.pwd);
 
-/////////////////////////////////////////////
+/*////////////////////////////////////////////
    DEBUG_MSG_P(PSTR("Test EEPROM \n"));
-   /*
+
    eeprom.begin(0,2);
    uint8_t d[32];
    for(uint16_t ij=0;ij<32;ij++)
@@ -230,7 +237,9 @@ void setup()
        eeprom.write(j, (uint8_t)j+1);
    }
    eeprom.end();
-*/
+
+   int s = millis();
+
    eeprom.begin(0,2);
    for(uint16_t j=0;j<64;j++)
    {
@@ -239,6 +248,7 @@ void setup()
    }
    DEBUG_MSG_P(PSTR("write millis %d\n"), millis()-s);
    eeprom.end();
+*/
 
    //WiFi.setOutputPower(20);
    //system_phy_set_max_tpw(50);
@@ -258,17 +268,13 @@ void setup()
       WiFi.config(IPAddress(cfg.wifi.sta_ip), IPAddress(cfg.wifi.sta_gw), IPAddress(cfg.wifi.sta_subnet));
    }
 
-
    uint16_t to = 60;
    while(WiFi.status() != WL_CONNECTED )
    {
       DEBUG_MSG_P(PSTR(".")); delay(500); to--;
-      //Serial.print("."); delay(500); to--;
       if(to==0) break;
    };
    DEBUG_MSG_P(PSTR("%d \n"), to);
-   //Serial.println(to);
-   //Serial.println("");
 
    if(to)
    {
@@ -316,36 +322,19 @@ void setup()
    [](AsyncWebServerRequest *request)
    {
       String str;
-      if(isauth())
-      {
-         str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Rebooting... Wait about 15 sec.\n";
-         deferredReset(200);
-      }
-      else
-      {
-         str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">No Auth!!! Rejected! \n ";
-      }
+      str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Try to reboot... Wait about 15 sec.";
+      if(isauth()) { deferredReset(200); }
       AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
       request->send(response);
    });
-
 
    server.on("/update", HTTP_POST,
    [](AsyncWebServerRequest *request)
    {
       String str;
-      if(isauth())
-      {
-         // the request handler is triggered after the upload has finished...
-         // create the response, add header, and send response
-         str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Update ";
-         str += String((Update.hasError())?"FAIL! ":"Success! ") + "Rebooting... Wait about 15 sec.\n";
-         deferredReset(200);
-      }
-      else
-      {
-         str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">No Auth!!! Rejected! \n ";
-      }
+      str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Update ";
+      str += String((Update.hasError())?"FAIL! ":"Success! ") + "Rebooting... Wait about 15 sec.";
+      deferredReset(200);
       AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
       request->send(response);
    },
@@ -354,36 +343,47 @@ void setup()
       //Upload handler chunks in data
       if(isauth())
       {
-      if(!index)
-      { // if index == 0 then this is the first frame of data
-         Serial.printf("UploadStart: %s\n", filename.c_str());
+         HardwareSerial *dbg = getDebugPort();
+         if(!index)
+         { // if index == 0 then this is the first frame of data
+            dbg->printf("UploadStart: %s\n", filename.c_str());
 
-         Serial.setDebugOutput(true);
+            dbg->setDebugOutput(true);
 
-         // calculate sketch space required for the update
-         uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-         if(!Update.begin(maxSketchSpace))
-         {//start with max available size
-            Update.printError(Serial);
+            do_update = true;
+            uprogress="0%";
+
+            // calculate sketch space required for the update
+   //         uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+            if(!Update.begin(maxSketchSpace))
+            {//start with max available size
+               Update.printError(*dbg);
+            }
+            Update.runAsync(true); // tell the updaterClass to run in async mode
          }
-         Update.runAsync(true); // tell the updaterClass to run in async mode
-      }
 
-      //Write chunked data to the free sketch space
-      if(Update.write(data, len) != len) { Update.printError(Serial); }
-
-      if(last)
-      { // if the final flag is set then this is the last frame of data
-         if(Update.end(true))
-         { //true to set the size to the current progress
-            Serial.printf("Update Success: %u B\nRebooting...\n", index+len);
-         }
+         //Write chunked data to the free sketch space
+         if(Update.write(data, len) != len) { Update.printError(*dbg); }
          else
          {
-            Update.printError(Serial);
+            dbg->printf("Update progress: %u B\n", index);
+            uint32_t p = 100*index/maxSketchSpace;
+            uprogress = String(p)+"%";
          }
-        Serial.setDebugOutput(false);
-      }
+
+         if(last)
+         { // if the final flag is set then this is the last frame of data
+            if(Update.end(true))
+            { //true to set the size to the current progress
+               dbg->printf("Update Success: %u B\nRebooting...\n", index+len);
+               uprogress = "100%";
+            }
+            else
+            {
+               Update.printError(*dbg);
+            }
+            dbg->setDebugOutput(false);
+         }
       }
    });
 

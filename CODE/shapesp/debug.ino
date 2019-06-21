@@ -3,6 +3,8 @@
 
 HardwareSerial *debug_port = &Serial;
 
+HardwareSerial *getDebugPort() { return debug_port; }
+
 void setDebugPort(int port, int baud)
 {
    if(port) debug_port = &Serial1; else debug_port = &Serial;

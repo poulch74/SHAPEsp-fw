@@ -56,6 +56,7 @@ public:
       root["status_voltage"]  = String(vcc,2);
       root["status_heap"]     = heap;
       root["status_wifirssi"] = rssi;
+      if(do_update) root["status_update"] = uprogress;
    }
 
 private:
