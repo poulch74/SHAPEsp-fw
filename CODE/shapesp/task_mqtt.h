@@ -119,6 +119,7 @@ public:
       }
       else
       {
+         DEBUG_MSG_P(PSTR("try reconnect"));
          if(WiFi.status() == WL_CONNECTED ) mqttClient.connect();
       }
    }

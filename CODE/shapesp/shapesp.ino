@@ -22,9 +22,6 @@
 #include <queue>
 #include <map>
 
-//#include <FS.h>
-//#include <ESP8266HTTPUpdateServer.h>
-
 #include "TimeLib.h"
 
 #include "brzo_i2c.h"
@@ -53,10 +50,6 @@ void prototypes(void) {} // here we collect all func prototypes
 
 int wifimode;
 String softAPname;
-
-bool do_update = false;
-String uprogress;
-
 
 int rssi = 50; // store global, so any can access this
 int battery = 100; // 0-100 percentage 10.8 - 12.5 map to 10-90%
@@ -147,15 +140,11 @@ MSG_BEGIN_SUBSCRIBE
 MSG_END_SUBSCRIBE
 
 
-const int VALVE = 1; // 1 valve 0 relay
-
 const char* ssid = "DIR-300";
 //const char* ssid = "CH1-Home";
 const char* password = "chps74qwerty";
 
-const int led = 2; // led ow_pin
-
-uint32_t maxSketchSpace = 0;
+//const int led = 2; // led ow_pin
 
 Ticker timer;
 void alarm()
@@ -173,18 +162,48 @@ AsyncWebSocket ws("/ws");
 
 void setup()
 {
-   maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+   Serial.begin(115200);
+   Serial.flush();
+   Serial.write('R');
+   delay(5);
+   char ch = Serial.read();
+   Serial.end();
+
+   if(ch=='R') // reset to defaults if jumper RX-TX set
+   {
+      WriteConfig(true,false);
+
+      pinMode(2, OUTPUT);
+      while(1)
+      {
+         digitalWrite(2, LOW);
+         delay(500);
+         digitalWrite(2, HIGH);
+         delay(500);
+      }
+   }
 
    wifimode = 0; // station
 
    bool defaults = false;
    if(!ReadConfig())
    {
-      WriteConfig(true,false);
+      WriteConfig(true,true);
       defaults = true;
    }
 
+   String hostname(cfg.wifi.hostname);
+   if(hostname=="")
+   {
+      String mac = WiFi.macAddress();
+      hostname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
+      snprintf(cfg.wifi.hostname,33,hostname.c_str());
+   }
+
    setDebugPort(((cfg.dev.gpio2_mode == GPIO2_MODE_DEBUG) ? 1:0),115200);
+
+   debugRecStart();
+
    DEBUG_MSG_P(PSTR("\n"));
 
    if(defaults) DEBUG_MSG_P(PSTR("FAILED read config!!! Writing defaults. \n"));//DEBUG_MSG_P(PSTR("FAILED read config!!! Writing defaults."));
@@ -212,12 +231,12 @@ void setup()
 
    randomSeed(second());
 
-   //SPIFFS.begin();
-
    info();
 
    i2cScan();
 
+   DEBUG_MSG_P(PSTR("eeprom Hostname: %s \n"), cfg.wifi.hostname);
+   DEBUG_MSG_P(PSTR("Hostname: %s \n"), hostname.c_str());
    DEBUG_MSG_P(PSTR("User: %s \n"), cfg.wifi.user);
    DEBUG_MSG_P(PSTR("Pwd: %s \n"), cfg.wifi.pwd);
 
@@ -253,11 +272,10 @@ void setup()
    //WiFi.setOutputPower(20);
    //system_phy_set_max_tpw(50);
    //WiFi.setAutoConnect(false);
+
    WiFi.mode(WIFI_OFF);
    delay(200);
    WiFi.mode(WIFI_STA);
-   String mac = WiFi.macAddress();
-   String hostname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
 
    WiFi.hostname(hostname);
 
@@ -300,6 +318,10 @@ void setup()
       DEBUG_MSG_P(PSTR("AP is %s AP IP address %s \n"), softAPname.c_str(), WiFi.softAPIP().toString().c_str());
    }
 
+   debugRecStop();
+
+   debugRecSend();
+
    //DEBUG_MSG("write cfg \n");
    //if(false) WriteConfig(true,false); // if pin pushed write def config
    //DEBUG_MSG("write cfg end \n");
@@ -315,77 +337,10 @@ void setup()
    server.on("/index.html", handleIndex);
    server.onNotFound(handleNotFound);
    server.on("/description.xml", HTTP_GET, handleSSDP);
+   server.on("/reboot",HTTP_POST,handleReboot);
+   server.on("/update", HTTP_POST,handleReset,handleUpload); // first upload then reset
    ws.onEvent(onWsEvent);
    server.addHandler(&ws);
-
-   server.on("/reboot",HTTP_POST,
-   [](AsyncWebServerRequest *request)
-   {
-      String str;
-      str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Try to reboot... Wait about 15 sec.";
-      if(isauth()) { deferredReset(200); }
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
-      request->send(response);
-   });
-
-   server.on("/update", HTTP_POST,
-   [](AsyncWebServerRequest *request)
-   {
-      String str;
-      str = "<META http-equiv=\"refresh\" content=\"15;URL=/\">Update ";
-      str += String((Update.hasError())?"FAIL! ":"Success! ") + "Rebooting... Wait about 15 sec.";
-      deferredReset(200);
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/html", str);
-      request->send(response);
-   },
-   [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool last)
-   {
-      //Upload handler chunks in data
-      if(isauth())
-      {
-         HardwareSerial *dbg = getDebugPort();
-         if(!index)
-         { // if index == 0 then this is the first frame of data
-            dbg->printf("UploadStart: %s\n", filename.c_str());
-
-            dbg->setDebugOutput(true);
-
-            do_update = true;
-            uprogress="0%";
-
-            // calculate sketch space required for the update
-   //         uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-            if(!Update.begin(maxSketchSpace))
-            {//start with max available size
-               Update.printError(*dbg);
-            }
-            Update.runAsync(true); // tell the updaterClass to run in async mode
-         }
-
-         //Write chunked data to the free sketch space
-         if(Update.write(data, len) != len) { Update.printError(*dbg); }
-         else
-         {
-            dbg->printf("Update progress: %u B\n", index);
-            uint32_t p = 100*index/maxSketchSpace;
-            uprogress = String(p)+"%";
-         }
-
-         if(last)
-         { // if the final flag is set then this is the last frame of data
-            if(Update.end(true))
-            { //true to set the size to the current progress
-               dbg->printf("Update Success: %u B\nRebooting...\n", index+len);
-               uprogress = "100%";
-            }
-            else
-            {
-               Update.printError(*dbg);
-            }
-            dbg->setDebugOutput(false);
-         }
-      }
-   });
 
    ssdpSetup();
 
@@ -406,12 +361,22 @@ void setup()
    timer.attach_ms(1000,alarm); // start sheduler&timeout timer
 }
 
+//uint32_t sum = 0;
+
 void loop()
 {
    if(!sysqueue.empty())
    {
+      /*
+      if(sysqueue.front() == &GetEvent(EVT_1SEC))
+      {
+         DEBUG_MSG_P(PSTR("evt 1sec. %u\n") , sum);
+         sum = 0;
+      }*/
+      //uint32_t start = millis();
       sysqueue.front()->doTasks();
       sysqueue.pop();
+      //sum +=(millis()-start+1);
    }
-   yield();
+   delay(1);
 }

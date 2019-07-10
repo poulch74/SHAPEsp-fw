@@ -171,11 +171,11 @@
                               <tr><td class="has-text-right">Valve&nbspstatus:</td><td><span class="tag is-info" id="status_vstatus">11</span></td></tr>
                            </tbody>
                         </table>
-                        <div class="field is-grouped">
-                           <p class="control"><a class="button is-light" onclick='onTabTimerHandler(0,"open")'>Open</a></p>
-                           <p class="control"><a class="button is-light" onclick='onTabTimerHandler(0,"close")'>Close</a></p>
-                           <p class="control"><a class="button is-success" onclick='onTabTimerHandler(0,"auto")'>Auto</a></p>
-                        </div>
+                        <span class="buttons has-addons is-centered">
+                           <a class="button is-light" onclick='onTabTimerHandler(0,"open")'>Open</a>
+                           <a class="button is-light" onclick='onTabTimerHandler(0,"close")'>Close</a>
+                           <a class="button is-success" onclick='onTabTimerHandler(0,"auto")'>Auto</a>
+                        </span>
                      </div>
 
                      <div class="column is-narrow">
@@ -186,7 +186,7 @@
                               <th></th>
                               </tr>
                            </thead>
-                           <tbody id="sens_list"> </tbody>
+                           <tbody id="sens_list"></tbody>
                         </table>
                      </div>
                   </div>
@@ -226,30 +226,30 @@
                               <tbody>
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Year:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class='input' type='number' id='time_year' min='2000' max='2032' step='1' value ='2017'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Month:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class='input' type='number' id='time_month' min='1' max='12' step='1' value ='1'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Day:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class='input' type='number' id='time_day' min='1' max='31' step='1' value ='1'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">DayOfWeek:</td>
                                     <td>
-                                       <div class='control'>
-                                       <div class='select'>
+                                       <span class='control is-expanded'>
+                                       <span class='select is-fullwidth'>
                                        <select id='time_dow'>
                                           <option selected value='1'>Mon</option>
                                           <option value='2'>Tue</option>
@@ -259,40 +259,40 @@
                                           <option value='6'>Sat</option>
                                           <option value='7'>Sun</option>
                                        </select>
-                                       </div>
-                                       </div>
+                                       </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Hour:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class='input' type='number' id='time_hour' min='0' max='23' step='1' value ='1'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Minute:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class='input' type='number' id='time_min' min='0' max='59' step='1' value ='1'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Seconds:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class='input' type='number' id='time_sec' min='0' max='59' step='1' value ='1'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td></td>
                                     <td>
-                                       <div class='control has-text-right'>
-                                       <button class='button is-info' onclick='onTabTimerHandler(0,"settime")'>
-                                       <span style="padding:0 0.5em;">Set</span>
-                                       </button>
-                                       </div>
+                                       <span class='control has-text-right'>
+                                          <button class='button is-info is-fullwidth' onclick='onTabTimerHandler(0,"settime")'>
+                                          <span style="padding:0 0.5em;">Set</span>
+                                          </button>
+                                       </span>
                                     </td>
                                  </tr>
 
@@ -343,16 +343,16 @@
                         </div></div></div>
 
                         <div class="field is-grouped is-grouped-centered">
-                           <div class="control">
+                           <span class="control">
                               <button class="button is-success" onclick='onTabTimerHandler(0,"resettimer")'>
                               <span style="padding:0 2em;">Reset</span>
                               </button>
-                           </div>
-                           <div class="control">
+                           </span>
+                           <span class="control">
                               <button class="button is-success" onclick='onTabTimerHandler(0,"savetimer")'>
                               <span style="padding:0 2em;">Apply</span>
                               </button>
-                           </div>
+                           </span>
                         </div>
 
                      </div>
@@ -387,51 +387,59 @@
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">SSID:</td>
-                                 <td><div class='control'>
-                                    <input class="input" type="text" id='wifi_ssid' maxlength='32' value='DIR-300'>
-                                 </div></td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_ssid' maxlength='32' value='DIR-300'>
+                                    </span>
+                                 </td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">PWD:</td>
-                                 <td><div class='control'>
-                                    <input class="input" type="text" id='wifi_pwd' maxlength='64' value=''>
-                                 </div></td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_pwd' maxlength='64' value=''>
+                                    </span>
+                                 </td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">DHCP:</td>
                                  <td>
-                                    <div class='control'>
-                                       <div class="select">
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
                                           <select id='wifi_dhcp'>
                                              <option value='0'>No</option>
                                              <option selected value='1'>Yes</option>
                                           </select>
-                                       </div>
-                                    </div>
+                                       </span>
+                                    </span>
                                  </td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">IP addr:</td>
-                                 <td><div class='control'>
-                                    <input class="input" type="text" id='wifi_ipa' required value ='' title = 'Input ip address d.d.d.d'>
-                                 </div></td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_ipa' required value ='' title = 'Input ip address d.d.d.d'>
+                                    </span>
+                                 </td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">Gateway:</td>
-                                 <td><div class='control'>
-                                    <input class="input" type="text" id='wifi_gw' required value ='' title = 'Input gateway address d.d.d.d'>
-                                 </div></td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_gw' required value ='' title = 'Input gateway address d.d.d.d'>
+                                    </span>
+                                 </td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">Netmask:</td>
                                  <td>
-                                    <div class='control'>
-                                       <div class="select">
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
                                           <select id='wifi_mask'>
                                              <option selected value='24'>&nbsp/24</option>
                                              <option value='23'>&nbsp/23</option>
@@ -443,18 +451,20 @@
                                              <option value='17'>&nbsp/17</option>
                                              <option value='16'>&nbsp/16</option>
                                           </select>
-                                       </div>
-                                    </div>
+                                       </span>
+                                    </span>
                                  </td>
                               </tr>
 
                              <tr>
                                  <td class="has-text-right has-text-weight-semibold">&nbsp</td>
-                                 <td><div class='control'>
-                                    <button class="button is-success" onclick='onTabSettingsHandler(0,"setwifi")'>
-                                    <span style="padding:0 2em;">Apply</span>
-                                     </button>
-                                 </div></td>
+                                 <td>
+                                    <span class='control'>
+                                       <button class="button is-success is-fullwidth" onclick='onTabSettingsHandler(0,"setwifi")'>
+                                          <span style="padding:0 2em;">Apply</span>
+                                       </button>
+                                    </span>
+                                 </td>
                               </tr>
 
                            </tbody>
@@ -477,59 +487,58 @@
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">New User:</td>
-                                 <td><div class='control'>
+                                 <td><span class='control'>
                                     <input class="input" type="text" id='adm_un' maxlength='20' value='' placeholder="Username">
-                                 </div></td>
+                                 </span></td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">New PWD:</td>
-                                 <td><div class='control'>
+                                 <td><span class='control'>
                                     <input class="input" type="text" id='adm_pwd' maxlength='20' value='' placeholder="Password">
-                                 </div></td>
+                                 </span></td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">&nbsp</td>
-                                 <td><div class='control'>
-                                    <button class="button is-success" onclick='onTabSettingsHandler(0,"setpwd")'>
+                                 <td><span class='control'>
+                                    <button class="button is-success is-fullwidth" onclick='onTabSettingsHandler(0,"setpwd")'>
                                     <span style="padding:0 2em;">Change</span>
                                      </button>
-                                 </div></td>
+                                 </span></td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">&nbsp</td>
-                                 <td><div class='control'>
+                                 <td><span class='control'>
                                     <form method='POST' action='/reboot' onsubmit='return reload(this);'>
-                                       <button class="button is-danger">
+                                       <button class="button is-danger is-fullwidth">
                                        <span style="padding:0 2em;">Reboot</span>
                                        </button>
                                     </form>
-                                 </div></td>
+                                 </span></td>
                               </tr>
 
                               <tr>
                                  <td class="has-text-right has-text-weight-semibold">Firmware:</td>
-                                 <td><div class='control'>
+                                 <td><span class='control'>
                                     <form method='POST' action='/update' enctype='multipart/form-data' onsubmit='return reload(this);'>
-                                       <div class="file">
+                                       <span class="file">
                                           <label class="file-label">
                                              <input class="file-input" type="file" name="update">
                                              <span class="file-cta">
                                                 <span class="file-label">File…</span>
                                              </span>
                                           </label>
-                                       </div>
-                                       <div>&nbsp</div>
-                                       <div class="control">
-                                          <button class="button is-warning" >
+                                       </span>
+                                       <span>&nbsp</span>
+                                       <span class="control">
+                                          <button class="button is-warning is-fullwidth" >
                                           <span id="status_update" style="padding:0 2em;">Update</span>
                                           </button>
-                                       </div>
+                                       </span>
                                     </form>
-
-                                 </div></td>
+                                 </span></td>
                               </tr>
 
                               </tbody>
@@ -553,125 +562,132 @@
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Type:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='dev_type'>
                                              <option selected value='0'>Valve</option>
                                              <option value='1'>Relay</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Enable Timer:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='dev_tmr'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Enable MQTT:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='dev_mqtt'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Enable Sensors:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='dev_sens'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Scan I2C:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='dev_i2c'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Scan DS2482:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='dev_ds2482'>
                                              <option selected value='0'>No</option>
                                              <option value='1'>Yes</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">GPIO2 mode:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='dev_gpio2'>
                                              <option selected value='0'>Unused</option>
                                              <option value='1'>Alarm input</option>
                                              <option value='2'>Soft 1-Wire</option>
                                              <option value='3'>Debug UART</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">GPIO13 mode:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='dev_gpio13'>
                                              <option selected value='0'>Unused</option>
                                              <option value='1'>Alarm input</option>
                                              <option value='2'>Autostop</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
+                                    <td class="has-text-right has-text-weight-semibold">ADC coef(*100):</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='dev_adcc' min='0' max='100000' step='1' value ='1563'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
                                     <td class="has-text-right has-text-weight-semibold">&nbsp</td>
-                                    <td><div class='control'>
-                                       <button class="button is-success" onclick='onTabSettingsHandler(0,"setdev")'>
+                                    <td><span class='control'>
+                                       <button class="button is-success is-fullwidth" onclick='onTabSettingsHandler(0,"setdev")'>
                                        <span style="padding:0 2em;">Apply</span>
                                        </button>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                               </tbody>
@@ -719,93 +735,93 @@
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Host:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="text" id='mqtt_server' maxlength='32' value='127.0.0.1'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Port:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="number" id='mqtt_port'  min='0' max='65535' value='1883'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">ClientID:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="text" id='mqtt_clientid' maxlength='32' value=''>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">User:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="text" id='mqtt_user' maxlength='20' value='N/A'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Password:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="text" id='mqtt_pwd' maxlength='20' value='N/A'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">In topic:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="text" id='mqtt_intopic' maxlength='64' value='N/A'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Out topic:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="text" id='mqtt_outtopic' maxlength='64' value='N/A'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Will topic:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="text" id='mqtt_willtopic' maxlength='64' value='N/A'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">QoS:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='mqtt_qos'>
                                              <option selected value='0'>0</option>
                                              <option value='1'>1</option>
                                              <option value='2'>2</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">keepAlive:</td>
-                                    <td><div class='control'>
+                                    <td><span class='control'>
                                        <input class="input" type="number" id='mqtt_keepalive' value='0'>
-                                    </div></td>
+                                    </span></td>
                                  </tr>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">Retain:</td>
                                     <td>
-                                       <div class='control'>
-                                          <div class="select">
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
                                              <select id='mqtt_retain'>
                                              <option selected value='0'>0</option>
                                              <option value='1'>1</option>
                                              </select>
-                                          </div>
-                                       </div>
+                                          </span>
+                                       </span>
                                     </td>
                                  </tr>
 
@@ -934,11 +950,11 @@
                         </div>
 
                         <div class="field is-grouped is-grouped-centered">
-                              <div class="control">
+                              <span class="control">
                                  <button class="button is-success" onclick='onTabMqttHandler(0,"setmqtt")'>
                                  <span style="padding:0 2em;">Apply</span>
                                  </button>
-                              </div>
+                              </span>
                         </div>
 
                      </div>
@@ -950,11 +966,11 @@
       </div>
 
       <div class="hero-footer">
-         <div class="container">Copyright 2019 Pavel Chauzov. Made with Bulma</div>
+         <span class="container">Copyright 2019 Pavel Chauzov. Made with Bulma</span>
       </div>
    </section>
    <div class="control">
-   <textarea class="textarea" readonly id="description">This content is readonly</textarea>
+      <textarea class="textarea" readonly id="description">This content is readonly</textarea>
    </div>
 
    <script >
@@ -1208,8 +1224,7 @@
       function onTabSettingsHandler(_id,_cmd)
       {
          var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "wifi", cmd: _cmd, id: _id };
-         var params;// = ['wifi_ssid', 'wifi_pwd', 'wifi_dhcp', 'wifi_ipa', 'wifi_gw', 'wifi_mask'];
-         //  msg['wifi_tnet'] =  document.getElementById('wifi_tnet').value;
+         var params;
          var fill = false;
 
          if(_cmd=="setwifi")
@@ -1234,7 +1249,8 @@
 
          if(_cmd=="setdev")
          {
-            params = ['dev_type', 'dev_tmr', 'dev_mqtt', 'dev_sens', 'dev_i2c', 'dev_ds2482', 'dev_gpio2', 'dev_gpio13'];
+            params = ['dev_type', 'dev_tmr', 'dev_mqtt', 'dev_sens', 'dev_i2c', 'dev_ds2482',
+                      'dev_gpio2', 'dev_gpio13', 'dev_adcc'];
             fill = true;
          }
 

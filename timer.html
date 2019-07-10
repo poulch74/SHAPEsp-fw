@@ -1,0 +1,11 @@
+<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf8'></head>
+<body>
+<p>Rebooting... Wait about <span id="s">15</span> sec.</p>
+</body>
+<script>
+function t(){if(s>0)document.getElementById('s').innerHTML = (--s);
+else {clearInterval(iID);window.location.reload(false);}}
+var s = document.getElementById('s').innerHTML;
+window.iID = setInterval(t, 1000);
+</script>
+</html>

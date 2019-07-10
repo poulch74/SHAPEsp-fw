@@ -149,7 +149,7 @@ void WriteConfig(bool def, bool clrtmr)
       cfg.wifi.wifi_mode = 0; // 0 ap 1 sta+ap 2 sta
       snprintf(cfg.wifi.sta_ssid,33,"CH-Home");
       snprintf(cfg.wifi.sta_pwd,65,"chps74qwerty");
-      cfg.wifi.sta_dhcp = 1;
+      cfg.wifi.sta_dhcp = 0;
       cfg.wifi.skip_logon = 0;
       cfg.wifi.sta_ip = IPAddress(192,168,137,88);
       cfg.wifi.sta_gw = IPAddress(192,168,137,1);
@@ -161,6 +161,11 @@ void WriteConfig(bool def, bool clrtmr)
       cfg.wifi.ap_ip = IPAddress(192,168,137,88);
       cfg.wifi.ap_gw = IPAddress(192,168,137,1);
       cfg.wifi.ap_subnet = IPAddress(255,255,255,0);
+      cfg.wifi.sysl_ip = IPAddress(192,168,137,1);
+      cfg.wifi.sysl_ena = 1;
+      String mac = WiFi.macAddress();
+      String hostname = "SHAPEsp_"+mac.substring(12,14)+mac.substring(15);
+      snprintf(cfg.wifi.hostname,33,hostname.c_str());
 
       snprintf(cfg.mqtt.user,20,"");
       snprintf(cfg.mqtt.pwd,20,"");
@@ -174,7 +179,8 @@ void WriteConfig(bool def, bool clrtmr)
       cfg.mqtt.qos = 0;
       cfg.mqtt.retain = 0;
 
-      // cfg.dev 0 by default
+      // cfg.dev 0 by default but
+      cfg.dev.adc_coef = 1563;
    }
 
    if(clrtmr)

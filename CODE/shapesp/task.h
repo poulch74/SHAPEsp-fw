@@ -17,7 +17,7 @@ public:
       }
 
       uint16_t adc = analogRead(A0);
-      vcc = adc*15.63/1024.0; //1000 15.98
+      vcc = cfg.dev.adc_coef*adc/102400.0; //1000 15.98 // 15.63 def
       heap = ESP.getFreeHeap();
       rssi = WiFi.RSSI();
       int vcc10 = (int)(vcc*10.0);
@@ -56,7 +56,7 @@ public:
       root["status_voltage"]  = String(vcc,2);
       root["status_heap"]     = heap;
       root["status_wifirssi"] = rssi;
-      if(do_update) root["status_update"] = uprogress;
+      if(getUpdateStatus()) root["status_update"] = getUpdateProgress();
    }
 
 private:
@@ -122,6 +122,7 @@ public:
             cfg.dev.scan_ds1w = iroot["dev_ds2482"];
             cfg.dev.gpio2_mode = iroot["dev_gpio2"];
             cfg.dev.gpio13_mode = iroot["dev_gpio13"];
+            cfg.dev.adc_coef = iroot["dev_adcc"];
             DEBUG_MSG_P(PSTR("Change dev settings\n"));
          }
 
@@ -155,6 +156,7 @@ public:
       root["dev_ds2482"] = cfg.dev.scan_ds1w;
       root["dev_gpio2"] = cfg.dev.gpio2_mode;
       root["dev_gpio13"] = cfg.dev.gpio13_mode;
+      root["dev_adcc"] = cfg.dev.adc_coef;
    }
 };
 
