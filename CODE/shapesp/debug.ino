@@ -1,18 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifndef DEBUG_UDP_SUPPORT
-   #define DEBUG_UDP_SUPPORT       1               // Enable UDP debug log
-#endif
-
-#ifndef DEBUG_UDP_IP
-   #define DEBUG_UDP_IP            IPAddress(192, 168, 137, 1)
-#endif
-
-#ifndef DEBUG_UDP_PORT
-   #define DEBUG_UDP_PORT          514
-#endif
-
 //------------------------------------------------------------------------------
 // UDP SYSLOG
 //------------------------------------------------------------------------------
@@ -55,13 +43,10 @@
 // DEBUG_UDP_FAC_PRI is the facility+priority
 #define DEBUG_UDP_FAC_PRI       (SYSLOG_LOCAL0 | SYSLOG_DEBUG)
 
-#if DEBUG_UDP_SUPPORT
 #include <WiFiUdp.h>
+
 WiFiUDP _udp_debug;
-#if DEBUG_UDP_PORT == 514
 char _udp_syslog_header[40] = {0};
-#endif
-#endif
 
 std::queue<String> dbgqueue; // очередь dbg
 bool rec = false;
@@ -69,22 +54,25 @@ bool play = false;
 
 HardwareSerial *debug_port = &Serial;
 
-HardwareSerial *getDebugPort() { return debug_port; }
+HardwareSerial *getDebugPort()
+{
+   if((cfg.wifi.sysl_ena==1) || (cfg.wifi.sysl_ena==3)) return debug_port;
+   else return nullptr;
+}
 
 void setDebugPort(int port, int baud)
 {
-   if(port) debug_port = &Serial1; else debug_port = &Serial;
-   debug_port->begin(baud);
+   if((cfg.wifi.sysl_ena==1) || (cfg.wifi.sysl_ena==3))
+   {
+      if(port) debug_port = &Serial1; else debug_port = &Serial;
+      debug_port->begin(baud);
+   }
 }
 
 void debugRecStart()
 {
-   #if DEBUG_UDP_SUPPORT
-   #if DEBUG_UDP_PORT == 514
-      snprintf_P(_udp_syslog_header, sizeof(_udp_syslog_header),
-                 PSTR("<%u>%s : "), DEBUG_UDP_FAC_PRI, cfg.wifi.hostname);
-   #endif
-   #endif
+   snprintf_P(_udp_syslog_header, sizeof(_udp_syslog_header),
+              PSTR("<%u>%s : "), DEBUG_UDP_FAC_PRI, cfg.wifi.hostname);
    rec = true;
 }
 
@@ -102,42 +90,37 @@ void debugRecSend()
    play = false;
 }
 
-
 void _debugSend(char * message)
 {
-   #if DEBUG_ADD_TIMESTAMP
-      static bool add_timestamp = true;
-      char timestamp[10] = {0};
-      if (add_timestamp) snprintf_P(timestamp, sizeof(timestamp), PSTR("[%06lu] "), millis() % 1000000);
-      add_timestamp = (message[strlen(message)-1] == 10) || (message[strlen(message)-1] == 13);
-   #endif
+   static bool add_timestamp = true;
+   char timestamp[10] = {0};
 
-   #if DEBUG_UDP_SUPPORT
-      if(rec)
-      {
-         dbgqueue.push(String(message));
-      }
+   if((cfg.wifi.sysl_ena==2) || (cfg.wifi.sysl_ena==3))
+   {
+      if(rec) { dbgqueue.push(String(message)); }
       else
       {
-         _udp_debug.beginPacket(DEBUG_UDP_IP, DEBUG_UDP_PORT);
-         #if DEBUG_UDP_PORT == 514
-            _udp_debug.write(_udp_syslog_header);
-         #endif
+         _udp_debug.beginPacket(IPAddress(cfg.wifi.sysl_ip), 514);
+         _udp_debug.write(_udp_syslog_header);
          _udp_debug.write(message);
          _udp_debug.endPacket();
          if(play) return;
          optimistic_yield(100);
       }
-   #endif
+   }
 
-   #if DEBUG_ADD_TIMESTAMP
+   if((cfg.wifi.sysl_ena==1) || (cfg.wifi.sysl_ena==3))
+   {
+      if (add_timestamp) snprintf_P(timestamp, sizeof(timestamp), PSTR("[%06lu] "), millis() % 1000000);
+      add_timestamp = (message[strlen(message)-1] == 10) || (message[strlen(message)-1] == 13);
       debug_port->printf(timestamp);
-   #endif
       debug_port->printf(message);
+   }
 }
 
 void debugSend(const char * format, ...)
 {
+   if(!cfg.wifi.sysl_ena) return;
    va_list args;
    va_start(args, format);
    char test[1];
@@ -151,6 +134,7 @@ void debugSend(const char * format, ...)
 
 void debugSend_P(PGM_P format_P, ...)
 {
+   if(!cfg.wifi.sysl_ena) return;
    char format[strlen_P(format_P)+1];
    memcpy_P(format, format_P, sizeof(format));
    va_list args;

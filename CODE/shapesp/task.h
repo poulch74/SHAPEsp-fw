@@ -56,6 +56,7 @@ public:
       root["status_voltage"]  = String(vcc,2);
       root["status_heap"]     = heap;
       root["status_wifirssi"] = rssi;
+      root["status_hostname"] = cfg.wifi.hostname;
       if(getUpdateStatus()) root["status_update"] = getUpdateProgress();
    }
 
@@ -88,6 +89,7 @@ public:
 
          if(cmd=="setwifi")
          {
+            snprintf(cfg.wifi.hostname, 33 ,iroot["wifi_hostname"].as<const char*>());
             snprintf(cfg.wifi.sta_ssid, 33 ,iroot["wifi_ssid"].as<const char*>());
             snprintf(cfg.wifi.sta_pwd,65, iroot["wifi_pwd"].as<const char*>());
             cfg.wifi.sta_dhcp = iroot["wifi_dhcp"];
@@ -102,7 +104,12 @@ public:
             cfg.wifi.sta_subnet = l_sn;
             DEBUG_MSG_P(PSTR("NetMask: %0X \n"), cfg.wifi.sta_subnet);
             cfg.wifi.skip_logon = iroot["wifi_tnet"];
-            DEBUG_MSG_P(PSTR("Write config.\n"));
+
+            cfg.wifi.sysl_ena = iroot["wifi_ensysl"];
+            ip.fromString(iroot["wifi_ipsysl"].as<const char*>());
+            cfg.wifi.sysl_ip = ip;
+
+            DEBUG_MSG_P(PSTR("Write wifi config.\n"));
          }
 
          if(cmd=="setpwd")
@@ -138,12 +145,16 @@ public:
       int m=0; while(ma!=0) { ma<<=1; m++; };
 
       root["action"] = "wifi";
+      root["wifi_hostname"] = cfg.wifi.hostname;
       root["wifi_ssid"] = cfg.wifi.sta_ssid;
       root["wifi_pwd"] = cfg.wifi.sta_pwd;
       root["wifi_dhcp"] = cfg.wifi.sta_dhcp;
       root["wifi_ipa"] = IPAddress(cfg.wifi.sta_ip).toString();
       root["wifi_gw"] = IPAddress(cfg.wifi.sta_gw).toString();
       root["wifi_mask"] = m;
+      root["wifi_ensysl"] = cfg.wifi.sysl_ena;
+      root["wifi_ipsysl"] = IPAddress(cfg.wifi.sysl_ip).toString();
+
       root["wifi_tnet"] = cfg.wifi.skip_logon;
 
       root["adm_un"] = cfg.wifi.user;

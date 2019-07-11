@@ -158,6 +158,7 @@
                               <tr><th width="40%"><abbr title="Status information">Status</abbr></th><th></th></tr>
                            </thead>
                            <tbody>
+                              <tr><td class="has-text-right">Hostname:</td><td><span id="status_hostname">1</span></td></tr>
                               <tr><td class="has-text-right">Date:</td><td><span id="status_date">1</span></td></tr>
                               <tr><td class="has-text-right">Time:</td><td><span id="status_time">2</span></td></tr>
                               <tr><td class="has-text-right">Uptime:</td><td><span id="status_uptime">3</span></td></tr>
@@ -386,6 +387,15 @@
                            <tbody>
 
                               <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Hostname:</td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_hostname' maxlength='32' value='SHAPEsp_00'>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
                                  <td class="has-text-right has-text-weight-semibold">SSID:</td>
                                  <td>
                                     <span class='control'>
@@ -452,6 +462,31 @@
                                              <option value='16'>&nbsp/16</option>
                                           </select>
                                        </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Debug mode:</td>
+                                 <td>
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
+                                          <select id='wifi_ensysl'>
+                                             <option value='0'>No</option>
+                                             <option selected value='1'>UART</option>
+                                             <option selected value='2'>Syslog</option>
+                                             <option selected value='3'>UART+Syslog</option>
+                                          </select>
+                                       </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Syslog IP:</td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_ipsysl' required value ='' title = 'Input gateway address d.d.d.d'>
                                     </span>
                                  </td>
                               </tr>
@@ -1231,13 +1266,16 @@
          {
             var IPvalue = document.getElementById('wifi_ipa').value;
             var GWvalue = document.getElementById('wifi_gw').value;
+            var SYSvalue = document.getElementById('wifi_ipsysl').value;
 
             var pattern = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
             if(!pattern.test(IPvalue)) { alert('Invalid IP address!!!'); return; }
             if(!pattern.test(GWvalue)) { alert('Invalid GW address!!!'); return; }
+            if(!pattern.test(SYSvalue)) { alert('Invalid Syslog server address!!!'); return; }
 
-            params = ['wifi_ssid', 'wifi_pwd', 'wifi_dhcp', 'wifi_ipa', 'wifi_gw', 'wifi_mask'];
+            params = ['wifi_hostname', 'wifi_ssid', 'wifi_pwd', 'wifi_dhcp', 'wifi_ipa', 'wifi_gw',
+                      'wifi_mask', 'wifi_ensysl', 'wifi_ipsysl'];
             fill = true;
          }
 

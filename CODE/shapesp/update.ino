@@ -56,8 +56,8 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
       HardwareSerial *dbg = getDebugPort();
       if(!index)
       { // if index == 0 then this is the first frame of data
-         dbg->printf("UploadStart: %s\n", filename.c_str());
-         dbg->setDebugOutput(true);
+         if(dbg) dbg->printf("UploadStart: %s\n", filename.c_str());
+         if(dbg) dbg->setDebugOutput(true);
          do_update = true;
          uprogress="0%";
 
@@ -65,16 +65,16 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
          maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
          if(!Update.begin(maxSketchSpace))
          {//start with max available size
-            Update.printError(*dbg);
+            if(dbg) Update.printError(*dbg);
          }
          Update.runAsync(true); // tell the updaterClass to run in async mode
       }
 
       //Write chunked data to the free sketch space
-      if(Update.write(data, len) != len) { Update.printError(*dbg); }
+      if(Update.write(data, len) != len) { if(dbg) Update.printError(*dbg); }
       else
       {
-         dbg->printf("Update progress: %uB\n", index);
+         if(dbg) dbg->printf("Update progress: %uB\n", index);
          uint32_t p = 100*index/maxSketchSpace;
          uprogress = String(p)+"%";
       }
@@ -83,14 +83,14 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
       { // if the final flag is set then this is the last frame of data
          if(Update.end(true))
          { //true to set the size to the current progress
-            dbg->printf("Update Success: %u B\nRebooting...\n", index+len);
+            if(dbg) dbg->printf("Update Success: %u B\nRebooting...\n", index+len);
             uprogress = "100%";
          }
          else
          {
-            Update.printError(*dbg);
+            if(dbg) Update.printError(*dbg);
          }
-         dbg->setDebugOutput(false);
+         if(dbg) dbg->setDebugOutput(false);
       }
    }
 }
