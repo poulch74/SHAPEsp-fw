@@ -274,6 +274,8 @@ void setup()
    //WiFi.setAutoConnect(false);
 
    WiFi.mode(WIFI_OFF);
+   // startup delay
+   delay(cfg.dev.sdelay*1000);
    delay(200);
    WiFi.mode(WIFI_STA);
 

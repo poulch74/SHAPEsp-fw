@@ -717,6 +717,13 @@
                                  </tr>
 
                                  <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Startup delay:</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='dev_sdelay' min='0' max='65535' step='1' value ='10'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
                                     <td class="has-text-right has-text-weight-semibold">&nbsp</td>
                                     <td><span class='control'>
                                        <button class="button is-success is-fullwidth" onclick='onTabSettingsHandler(0,"setdev")'>
@@ -1288,7 +1295,7 @@
          if(_cmd=="setdev")
          {
             params = ['dev_type', 'dev_tmr', 'dev_mqtt', 'dev_sens', 'dev_i2c', 'dev_ds2482',
-                      'dev_gpio2', 'dev_gpio13', 'dev_adcc'];
+                      'dev_gpio2', 'dev_gpio13', 'dev_adcc','dev_sdelay'];
             fill = true;
          }
 

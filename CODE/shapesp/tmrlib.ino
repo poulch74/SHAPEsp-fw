@@ -181,6 +181,7 @@ void WriteConfig(bool def, bool clrtmr)
 
       // cfg.dev 0 by default but
       cfg.dev.adc_coef = 1563;
+      cfg.dev.sdelay = 10;
    }
 
    if(clrtmr)

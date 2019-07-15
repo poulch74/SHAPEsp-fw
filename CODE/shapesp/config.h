@@ -117,6 +117,7 @@ typedef struct _ESP_DEV_S
    uint8_t  gpio2_mode;
    uint8_t  gpio13_mode;
    uint32_t adc_coef;
+   uint16_t sdelay;
    // ....
 } ESP_DEV_S;
 

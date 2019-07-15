@@ -130,6 +130,7 @@ public:
             cfg.dev.gpio2_mode = iroot["dev_gpio2"];
             cfg.dev.gpio13_mode = iroot["dev_gpio13"];
             cfg.dev.adc_coef = iroot["dev_adcc"];
+            cfg.dev.sdelay = iroot["dev_sdelay"];
             DEBUG_MSG_P(PSTR("Change dev settings\n"));
          }
 
@@ -168,6 +169,7 @@ public:
       root["dev_gpio2"] = cfg.dev.gpio2_mode;
       root["dev_gpio13"] = cfg.dev.gpio13_mode;
       root["dev_adcc"] = cfg.dev.adc_coef;
+      root["dev_sdelay"] = cfg.dev.sdelay;
    }
 };
 
