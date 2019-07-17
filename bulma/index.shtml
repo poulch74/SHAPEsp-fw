@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8" name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=2.0'>
+      <title>Bulma - Tabs</title>
+      <link href="data:image/ico;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAP+DAP//gwD//4MA/wAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAAAA/4MA/wAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAA/4MA//+DAP//gwD/AAAAAP+DAP//gwD//4MA//+DAP//gwD//4
+                  MA//+DAP8AAAAAAAAAAAAAAAAAAAAA/4MA/wAAAAD/gwD//4MA//+DAP//gwD//4MA//+DAP//
+                  gwD//4MA//+DAP//gwD//4MA/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP+DAP//gwD/AAAAAP
+                  +DAP//gwD/AAAAAAAAAAAAAAAA/4MA//+DAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD/
+                  /4MA//+DAP//gwD//4MA/wAAAAAAAAAA/4MA/wAAAAD/gwD/AAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAA/4MA//+DAP//gwD/AAAAAP+DAP//gwD//4MA/wAAAAD/gwD//4MA//+DAP8AAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAD/gwD//4MA/wAAAAAAAAAA/4MA//+DAP//gwD//4MA/wAAAAD/gw
+                  D/AAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD//4MA//+DAP//gwD//4MA/wAAAAAAAAAAAAAAAP+D
+                  AP//gwD/AAAAAAAAAAAAAAAA/4MA//+DAP//gwD//4MA//+DAP8AAAAAAAAAAAAAAAD/gwD//4
+                  MA//+DAP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/gwD/AAAAAAAAAAAAAAAA/4MA//+DAP8A
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AA
+                  D//wAA+M8AAOe/AADEBwAAoAMAAPJzAADwawAA8REAAPmFAADwcwAAg48AANz/AAD//wAA//8A
+                  AA==" rel="icon" type="image/x-icon">
+
+      <!--link rel='stylesheet prefetch' href='bulma.min.css'-->
+
+<style>
+<!--#include bulma#-->
+   @font-face {
+      font-family: 'fontello';
+      src: url('data:application/octet-stream;base64,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') format('woff'),
+       url('data:application/octet-stream;base64,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') format('truetype');
+   }
+
+   [class^="icon-"]:before, [class*=" icon-"]:before {
+      font-family: "fontello";
+      font-style: normal;
+      font-weight: normal;
+      speak: none;
+
+      display: inline-block;
+      text-decoration: inherit;
+      width: 1em;
+      margin-right: .2em;
+      text-align: center;
+      /* opacity: .8; */
+
+      /* For safety - reset parent styles, that can break glyph codes*/
+      font-variant: normal;
+      text-transform: none;
+
+      /* fix buttons height, for twitter bootstrap */
+      line-height: 1em;
+
+      /* Animation center compensation - margins should be symmetric */
+      /* remove if not needed */
+      margin-left: .2em;
+
+      /* you can be more comfortable with increased icons size */
+      /* font-size: 120%; */
+
+      /* Uncomment for 3D effect */
+      /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+   }
+   .icon-lock-1:before { content: '\e800'; } /* 'о Ђ' */
+   .icon-user:before { content: '\e801'; } /* 'о Ѓ' */
+
+   .tabs { margin-left: 10px; margin-bottom: -1px !important; position: relative; }
+   .tab-content { padding: 60px; top: 197px; color: #000; background-color: white; }
+   .tab-pane, .page-pane, .ppage-pane, .spage-pane { display: none; }
+   .tab-pane.is-active, .page-pane.is-active, .ppage-pane.is-active, .spage-pane.is-active { display: block;}
+
+   /*<!-- width: 50%; position: relative; left: 50%; transform: translateX(-50%); } */
+   .is-active { display: initial; }
+
+
+</style>
+</head>
+
+ <!-- onload="javascript:start();" -->
+ <body>
+
+   <section class="hero is-light">
+
+      <div class="hero-head">
+
+         <nav class="navbar" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+               <a class="navbar-item" href="https://bulma.io">
+                  <!--img src="https://bulma.io/images/bulma-logo.png" width="112" height="28"-->
+                  <img  width="112" height="28"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoAAAACgCAYAAACc/t08AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwwAADsMBx2+oZAAAABl0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC4yMfEgaZUAADCESURBVHhe7d0xrCXFgS7g8j4CBxsQWMiBAwICAkuPwHoiICAgwJIDAgcOCAgcoGM8c8cX7w5+BEhYj2ACtOLJIxlZ6AlZSItkpGVlI7z27BNvwc/z8HgBzbkwhgEPMAtohZkxYHts31f/qdtzz+nzd3dVV1V39Tl/SZ/vuO/p6uo+l3v+W91VZWLK/v7+5E2xsPPYJn0Kq0e2i8pmFvZeb6IpFNZuKVfvwiqbsikV1v5tE1pYHbJ9VDarsPd4k5VcWHulbL0Kq2hTTKGwdm+bkML2l+2lshmFvbfboLTC2ijTEFxYJZuo5MLau418C9tXtpvKtAt7T7dNCYW1S6YjqLAKNl2JhbVzG/kWtq9sN5XpFvZ+bqsxC2uPTEtQYRVsi5IKa9+28ilsv02x6eeXk8o0C3svt9kYhbVDpse7sJ23TSmFtW1b+RS23yaoF/YaaacyrcLew203dGFtkGnyLmznbTV2YW3aZm2FvX5TsMJeJ+1UplHYeyfOUIUdW6bLq7Adt92YhbVnm7UV9vpN0VTYa6WdSvmFvW9yKHdhx5Rp8ypsR3HGKKwd266psNduirbCXi/tVMot7P2SdbkKO5ZMX2dhO8m6IQs7/rZrKuy1m6StsNdLO5XyCnufhMtR2HFkM3QWtpNwQxV2bFm//uw1m4wV9jppV2phbWU2rbBzlGYpC6tfNkdnYTtJsyEKO66sX3v2mm2x7ecfa6zC2pLKFAs7D+mWqrC6ZXO0FraD+MlZ2PHEWS7s+yK+hizs+DlNpbC2S7cUhdUrm6W1sB3EX67CjiXOcmHfFwmRs7DjDa3kwtor/mIKq082T2thO0iYHIUdRw5VhX1PJESOwo4zthILa6f461tYXbKZWgvbQcKlLuwYIpJHisLqLVEphbVNwoUWVodsrtbCdpB+Uhd2DBHJo29hdZWuhMLaJeFCC6ujGDPzWeuBxD5Hj7UlWgvbQfpLVVjdIpJXSGH7T8mYhbVH+vMtbN+izMzt1n5id9JjbYnWwnaQOCkKq1dE8usqbJ+pGquwtkicrsL2Kc7MPFoLbyk8QY+1JVoL20HipSisXhEZBivsdVM3dGFtkHhthb2+SDNzoRbeUrhsfZYebwu0FraDpBFbWJ0iIqkNVdixJR1SPoP/Ya8tzszcvBTaUruNHnMLtBa2g6QTU1h9IiI5DFHYcSWdpfI31n+xPsNeV6SZebAW2lI6SY+5BVoL20HS6ltYXSIiOQxR2HElLVvQ6zed4FeZmXkttB16wPrnDngN29e5QI+5BVoL20HS61NYPSIiueQs7HgiCzNzQy2wHUKwe9d8vP+B/doGr2kPgV+ix95wrYXtIOn1KaweEZFcchZ2PJGFmbm3FtYOnTIf7e/Zr34utYTAB+mxN1xnYTtJeqGF1SEiklOOwo4jE5VjYuWZeW4pqB1CmHvH/J4EPQ49gbgdzOqamTP02DFm5gt0e0E6C9tJ0gstrA4RkdxSF3YMmaCZudG6uAhTM3MHfU0oBMqZuWKthzaEud9aLOwx563mAAg30DaEwrm7a4ApZm6hrylEZ2E7SR4hhe0vIjKEVIXVLRPkpmlB+FsOVPFBcGbuWqpv1bPmExr02vx8Ecp4fTOzQ9vga2ZutXDOy3UWHQK9CttR0gspbH8RkSGkKqxumRgEHBd0loPPMtzCvZXu22Vmnlqq5xBu/14Iev7Pece2s/k5wFO0DV3c+Z9aqqeu2BDoVdiOkodvYfuKiAwpprD6ZGK6w98yhKSbaD0MVuiYmU8P9l2FW7lvWyzktcEt4+bbwLjV7P8MI86lKaCuwzX6Kq1nRN6F7Szp+Ra2r4jI0PoWVpdMw+L9c7c8fcPfMoSmG1m9CzPzeQsjf+u3Uw/9xIa1V+1XFvK6PGP+SOt0XrZw7M/TtoGbluYxi+3fBgGzqBDoXdjOkodPYfuJiIwhtLA6ZEIQZJoGZ/jBvghRbuDFzFxjYfDETyz2+kO4hfuG+R0Ndz5w67j5NvAytAVtuuagjQimJ63Y8y4mBAYVVoGk51PYfiIiY/MpbD8pU70sAkxcCFqGeh610PPGvr8Ot3AvWizc+XjHah8NXIe2oY38dnQ4nPNd7FoPzf2PZ6nvLPl0FbaPiEgpmgp7rZSjrdjgkjL89YPw9huLhTsfuHWMW8is7mHFjTpOYPX/1Mry90RERGSzNRUbWO6x2oMTbq2eMRf2XzFv7v/Y/MXzVqs/1Heux+jfuje8bwP7Q30455fMW4vz96t/1BDINx4U9j0RERHZTPViQwqezzu2FFo4BJ7fLoWz16237f9PEQSxP3r+fmH+uv+e/boc5vp410JdqDNV296y54pzro6BVUr86h4tBNKNsHjjyXYRERGZrpBiA8q3aoFlHYJO07JsCEVv2nAUGraqYIXJm98xlxbTvrxmsWP0gVvBqBNzA+IYfduHc8MqI+wY/iHwYfY+5UY3ioiIyGbyLTaY3L//DbsLDy0OAo7PmrwISV1BsApVeEYPvYcX7L9ZXTlgjkAcE8f2aePr9rVv2a+srmXvmk9a6zs0eAikG0VERGQz+ZRFIOFBxamCkE/4W4bQhPC0HIqqun5tPt1/335N2dMXCsdGG9AW1sbXzCWv4LcMt62ft6q6mg0aAulGERER2VJta/ACggwCDYISCzw+XIi6tAhVL5o/LUJS38mdc0Bb0KYqCKKtfVYfqfiHwLvpe5IB3SjpdBW2j4hIqfR7awvMzLXWh0uhZBUCUUz4W4Zbr2P2+HVB21LdisY1w7Vj19TByirNq5AkRjdKOl2F7SMiIjIqN+0LCymuF+ttc4mGHGnWPSjkfvpeZEI3Slpthb1eRERkVG76l3NL4WQVpnd5w35lQUfWYTQ0rhm7ls4F67P0vciEbpS02gp7vYiIyOhm5itLAWUVerIwoTILO7IOI6Dbe/8GXx6ObpS02gp7vYiISBFm5lQtqBzC82xDTtUyVRjw0v7s32l67TOjGyWttsJeLyIiUoSZucniS8ChR+ts4DQw2+lSR+/frfTaZ0Y3SnpNhb1WRESkGDPzWC2wHELP1n9YPPgIlp1r7/17il7zAdCNkl5TYa8VEREpBqYmmZlPl0LLIfRs/cr8oeipXMaCuQRfMp+09P6hZ/UGes0HQDdmddZ80V6Yr1snrcf25+Yn9usp65x13rpiHV7AufnwYPt5++/nrCesh6177cX9mq3v5v3z5lp6rII0FfZaka01M9dZX94A19HzE5mqmXnAYiHGhcB3zccrn92yv/+B1d77N8oawBW6MZlXzN/ai3C7DWsPWD+xEOb4hYp30UKQfMSGwntsOLxp/5S5hrYrBsKnO04fxw9y39VCj5GKPV7t+P5wnqzOIczNU7RNcR6hxxrS3NxF2pWOu26PWY/Yfz9gvx4/OOad9uut9r/H0f7S9ObCE/tFOS3HzPfo+YlMFaYomdnPWfbzDlhDF1Od8M/n9NDjiJU5ELLeMh/tP2/et5/5H63ANnwPr8Frh+ylPGedttekufcPE22P2nlFN0bbMzfaDxz00uUMfN3m5lPrOfvvHdrOPtyHLT9et8cOct/VQo+RigsDrB0+TtE6c8PPDm9PrCuLP0jYMYfiQhlr23Dw3+Tc/NT++4T9+tXiQuGmBMBd8wN6fiJT1rZEHIIOwhb7vZMKbqletDD9DObUQ+8aNIcs973qddgH6xCjjtzLzr1tj9PWrlnCXNIT3djbWfMV+6GCW7r8gownXZhRAMzL9Vqy9sTDIwPsmEMpIQAyc/OB/Ypewy/Rdg9JAVCkbDNzZu3nvYKQ5db4TQs9d1hF49mDdXnbg1W7KhCiLtSZo1fwvIVjsOM7mGA7/R3KQHRjMDyHNzdzeiHKoAAYbqwAGHN9uzxGjzmUUgPgqpdtO+/df2W49ShXKACKlMvdBj6/8rO+LMfqIFg/90Xzp6jQ1wR1ou5U6xpXfmP90vy5pc24lT7oqh8M3ejtvD0B3EqqD9wojwJguOEDIAbz5PxZQk8XO+5QphEAK1dsex+1Xz9HzyUXBUCRcs3M19d+1isIOykHgiBIvmouRff4dUHdOAaOlTK8dg8AuYde4wHRjV7K7/VbpgAYbvgAiMEKvC0p3UKPPYRpBUAHoRkDSdj55KAAKFKuprWBq560VLdTsbpIrl6/JjgWBm1gsAhrUyg8Y/hr82nLOWDt31FvA9ONnfbMHVbpvX7LFADDDR8A5+Zx0o7UHqTHHsIUA+Ah/NzfSM8rJQVAkTK1rQuMnq73LP67Iwzq+YX566Dhr4JjPm+lOhcMNmnvBfwqvdYDoRtboQdlz1xeOcnyKQCGGzYAYsoeNxiBtSWduTlDjz+EaQdAwH/3eXtQFQBFyjQzT6/9nANCE3q6UoyqxYoiCGD+4e+y9YS1Y91mXV+DbfgeXoPXsjpWpQyBuCYvm49bzmf4jpYldGMjzK03vfAHCoDhhv3BdH9YsHak95r5Am1DbtMPgJA3BCoAipRnZm62+HrA6OFKMYgCt179wx9GIn/N8h9I4QawYJ/TFqvzUBUCU9wORqht7gXENR1lHWCgGymMCnSTLfOTLJsCYLhhA+DcPETakMfc3E3bkNtmBEDIFwIVAEXGhwmKXVjCGsDNkz8DJoDGpMf8d4UfDL5onzS5gufm4qfzcueGutgxHLQFbYodGIJewGfMH+kxDn1gPW7daQ028I5upOLCxNgUAMMN3QP4cu34OT1N25Db5gRAuGzPJ/28gQqAIuOY2f+eZ+Z+6zmL9/bVISSlmPwZI3C7w99TVrrJ/FHXzDx5UDeHNu3ZtrE2h3jb6/yWvWBh6b2badsToRvXuFu//MSmQQEw3HABcG6uJ8fPByvEYAoj1pacNisA4jrOF89usnPtSwFQZBghvXxNcGsz9jYpbh+3D5SAh+g5pNC2xjGkuMWNybG7z7FJtt5BunFNXOhpc8560nrQhsyv2Q+UWxfcUnIIBfhabcN6pnfbryfsV6x5iglrP7VfWb11CoDhhguAWLuZtyEfrFrD2pLTpgVA5zg9174UAEXymZkbrKqXj//shsDt35jBH7h13D3dS77wV5nZ32P82K4XEG2Mvc39L+b3tP5w6B3Eexi9jCfduAIflOxk+jtnPwjvt/V+kR4vFNYydeHxYVv3Cw2hUAEw3JA9gGMsH3iStiWn2ADI6lyGwS3uD6db7Ff80fR166T99xn7Nde0TZeTDqpJEQCPmbP7x80zo/rv5r/S8xMZU1dvVwgEozfM78jvBH+YOLo9/D1BzyMH1xPK2uDONXaS6+61gUM9QM8jAN24wq0GwE8ozEVb113JbxnVudVJ8AGIQQXoYcSxFQDDDRMAXzF/a98r357cdObmAm1PTrkDYBt3ndGDnv5Zy3nCX9JpegC/TOsW2XYxARDhBbcx4ef2Dz8Emjftv9nvBB/oOcR6vOxYDpacu5aeRw7umcDmZe7Q1pjeTgwmwbOAp+x1q65jXCAcJABeoCcT5vRoU2+gp3GecLJFBcC03KTi7Pg+qoDfD55tZW3KZcwAuGzP3G6dX6k7VqprqQAokk9oAKxCH9b4PWeDC56FS7Vc2rsW6mbHdYZ/TKdrsmu0mZ1LKFxDXMvX7TXFte0XBjMHQIzyY40P4Sb3HXY90ZwUANPq38OMqUhwi5N9zw8eRWBtyqWUAAjoEdwzj6wdo780K6woAA5jZq5bXKd+rqN1boPu61b2tekKgMu9fM+aT/Yv2IDyjv13qiXelr1p624OPeNN2O/mGFxvE9qKNrNziYFeRQykQY8qnhOsrn93IMweAFM8tP51WvdUKQCm1b+H+Wnrc7VtYebmOdqmXEoKgBUEN3ascC/T+kO5D1H2yy6EAuCy5dByxJzYP27+ef+o+d3BtQp3xHy8f5950frZ/rfNE/vfNA/Z7cOGoO4g1iSsbdVxds0P7HV7dn/HvGf/P78ucMR+gH/HnN7/lvm+/f/hx8utLQAicGA6lg/s15hbu77a58a7k7Z/CG60LWtT/KAXH+ct9A6+Zt+L9iCYOQC6Ebq8kX6u2JMZ7h7+EBQA04npYa4mc8bjBez7/obrnS4xAAKe4WPHC4UBWaz+EO5Dk/2yC6EAWAUXBJGj5sOla5Pfjrm4/3f2s+Mb5rv2/+cJQDvm4bXj+sB+rL5l1bVDsO0KfF12zPuL0F1KGGwKgAgZ75pP6H/XOSDkINywtswWzwWmm+8vlHsWkD+biDaj7eycckAYb75O2QNgTNiBF2i9U6YAmE5MIMJoV9QR24OFgUn1duVSagB0t4PjV/mZm3tp/SEUAPtbDS5vLV2P8SCAsrbG2jU/oMfrgv1YfVBdv6PmZyv7pHLUPGu/jhsCmwIgQgbCBvvvOoeLVnOwGebuUxu0gbUNbUbb2TnlMHIAjHtQPOXowFIoAKaDPxD4sdthAuLDOuLWEB7yZ7TUAAgp5mLEdD6s7hAKgP0gWHzT/Kh2Hca3m2k+RNTLjtcFt79ZfS78YbJdvl8q6B11P+PjBMFSAmD79C8naNuHhDawtrme0rjpYEKMGgDjp+d4jNY7ZQkDIK0/pZIDoFtbmh23G+Z8rOrBtEJuQAh/bbfL2acmqpQcAHEN4kf8n6N1h1AADFP1Wrlgwa7FuHaLC4DPrNWFa+h65/g+ORwx/2S/Dh8CSwmAL7X2UI8/bgBt4G1zbWfnlMPIPYC8Uf5O03qnTAEwjbgRvLfX6op7VvVVc9tKfbmUHAAhds5PjPhn9YZQAPSHALGzWBWAXYMy7BYeAHENj5nX1l43BHeredgQOI0AONxjOU3QBt42BUBv6EHE80Ws7qlKEABpvTmUHQD7hTb8TNXX8Y2dDgbLCy7Xl0vpARAr6rDjhmD1hlAA9OOCy0u18y5PaQHwO+YXV+vANTxiLq29ZkhHzI/t1+FCoAKgHwVAK81ksY/QuqcqMgDSOnMpNQC61Vr63bZlz5m55c/46/3E37r0UXoAxChedtwQsRO+KwB2Q2AoZZBHl9ICIKavwf64hkOPjm5yj/lH+3WYEDiNAKhbwJWRA2DsFBvOULfYhqAAGA8/D/yY3TBYgdWJgSHs9b5STGHSpfQA6J6n5Mf2FbvGtwJgOxf+3q6db7lKDIAlBmhMmcPOM7VSAmD7IJCHaNuHhDawtm3ZIJA0i/Tjtl3K5djGpAAYD4M4+DG7NQU13MZlr/e3Q+tNqfQACHEDavDf+q20Xl8KgM1cr1WeKUpyKS0A4pbvMXOWfm9MmC9wiF7AUgJg+zQw8bMJxEIbWNvQ5i2aBubkWoNizG2qrj+/NTUKgPH6r+HbfKvWrW/L9vEzNz+l9aY0jQAY99hHbE+qAmAzN7EyO99ylRYAS+am8ckbApsCIHq2sPQbliPLtfTbMqw00hxsLlvj5QQc27VhvW1oc+6JoA+Xhru0WBquuac0ewCMWai/CT5gVkdxTokCYJw9c2PtOCFO0joBf1jETVt0JfuApSkEwPipn+JWVlEA5BAMcg9YqJZ4w3Jm7Pt9KACGyvuz2xQAKwgbCDk/Nn/ZP2fDIJYkyxF4EHKwrBprgzPeHUMcm7cp31Jwb1i41q/ba45rj/egOfhVMgfAmIf1u2AdVgRMdtySKQDGwWoR/Hjdzpqv0DorsY8s5H5MYRo9gPzYvlidIRQAuRy9f+52Mq53xfU+4evq9lXHzPe81xNWAAxz1Pyr/ZqvF7ArAC6rwiCgJyp17+Ab9uenOeTkuwPVpWkVELQVbWbnEmq5l+/nNmNV17k79C3LHAAhfj3gdnNzxro7e+9LKgqAcfpeP58phWLCpZP3/Sk9AMaOpsZE0qzeEC5ksF92ITYrACIQHDN7tXOMgcXucZ3jgsZyUMR6t2w+vU0KgBh8g3kEIXaN4Hb5fn5DAmBdFQjRQ4Weqvfsv2PCYPtzgDD84FEck7fFtTXm+T+EPlyzN4J6+doMEABTzA3mw916QmC5hbajFAqA/Z0319p6r9SO48fnGb2428s4RvxExm1KD4Dxj3y8TOsN4QIF+2UXYtMCYIprgt4l9NjFB78my4EQvYS4nfw/zH+jr401VADENcPayvXrtnquaedjRJhePteUYgLgMgSX563YQPSM+SOt35lbw3UMuWf/cEzWFtfWmNu/71q4ZnGhb9kAAdAtEXWGnlA+5xcfltWC/yVRAOwv5o8J9O6xOutiBzGcNTfTelMoPwDGDvp6mtYbwn2osl92IRQAuc25LkMEQN9BGXiNm8uP1xPKLeuXK6TfbD1h8UEOIRBkYm+JvtM6yAEepeeRw8w8Ujv2IbQRbWXn4OuC+ShR+MN796QV/VlFN67B1A7shIZxyh7/rmJuEccFQDxPiYAylJjnN9MHwLl5nBzH1420zrrY5cz2zIO03hTKD4B9R2c7viG9TYqwg9tz6H0aA56NS/3hvWP+Ye0cQ7mBHXlCxRjyB0DcJve/XnjtzP5+43X1kTesz8w11q0WejdftlgbusUOijhn/dL8uSMYxf9e6TIzO7VjHkLb0Ea0lZ2Dj+7ezi7omTxh4RZ1shHSdCOV+1nAbggzj9kLeRNt31DiAuCUpA2Arif5A3IcH+dpnQwGcvA6/KC3m9WbQskBMM2If7+Q3iZdb9eY0n54/93ir312HH9/b35E656qvAEwLPxVsI9b2o3VGSbnbWBmZr5gYfUL/Kz59w7iOTYMZuC/D/y0z3VXyRcC28IfoG2xcyT+1uo+x2V4D5627ray3QmlG6lXzOftB9gFenLDQwgbZARxVa5uUwDsB8928uN0Q68eq5NBT3Hf5wwrscuZNSk5AMY/5uEf0tsoAK67zzxHjhHmmHndflUPYLd+4a/iQmD8NDo5bwN3CekdRO/Ym+Yj8vsgzNnOW8HwqJXuTiDqmpmTB3VzaBPaxtoc4rdet3+z9PK1oRsbYZmnXNPC9IHlvzCCOPHk0qxc/b4CYD+4tcqP0y10ehY3xRCvy0+etShLDYB79kOPHS9M8xyNIRQA133HnCbH6EPPALaLC3+VHfNwrd6+yni/XO8ggglro7sNHHN7FDDXYPetYEBIih8d7EJW84APQFvQpth5EHFt2uc8RAgdZbwD3djKreMa18OS3sXFhytGmbI2B2Ll6vcVAPvBCFF+nC7hEzTPzf2knhDxgxmYEgNgqj/quuZo9KUAuA7TjvDjhLln8fD/ZvQC7iYPgGnCH6T7GS4nsM/sZ+vMfLrUtkMpbpFC2ChZzNWHCZuvoe1lXM8m9uHz/C1DG9AWtIm1NQQmeG6//Rs3eX4EurETQuDcfEhPdkzuGbM7aZs9sbLyGgXAcHHzy4W3Y26+ROrxhymJcixZWFoAxGMdsQM/nIvJrpcC4LpvL4IbO064TQmBuwkDoBvBm+6aoC53y50fzxcm/2b1j8U9H7jeToSlX9vfmTGDQSqYJy9sqpQPLPxM32OhV+/6GmzD9/AavJbVsaoKf2gLa2OoV8zHLecz6rrHdKMXrPmJW7DshMeGOeN6PJDeVFZepwAYDrfp+TF8HKd1duk/4KSSfrnCkgKgC8kYKc6PFeKs/QXLjtGHAuC6b5nvk2P0d8z8X/sV13m6QXA3UQB0q6Gkvw4YxMGOFwKDf1jdY5nZ34msnYAerlSBKTwEppM6/P2H1d77N+pqaHSjN9yai5vaIyfc1vK+uE1l7bUKgOFilmjrO+o7/ucyzTNty0oIgG7N5Hut2DV/K+cWI7zZsfpQAFyX65q4ZcemGQR3EwRAt7pKnnNP8Z7tmPft17Lem5k5s9LGCoLTi+ZPyZaJw63X0+bKoCEQx8IxU9z2BVyLX5k/tJzDOSvd784e6MZgboRn32e88sKHLmtzTVNZe60CYBj3R0LfsHGR1ukDc0fyOv2kWNasbswA6EZH71gXV+qMhevMjteXAuC63NcES7i5tYanEwZ3IwOgWxUl37mme8/KeQ4QZva/d95OF6DeMZfo74k+3OCLS4OEQBxjbi4fHDONd1tv/cLd9BoPiG7sBb0AuBWU6rZSSnPzBG3zkqay9loFwDAYHMDr99F/5RT3fBur0x8GSLC6+xoiALrAff2i5xTXfm4esvu+YOUYuJW29w9yh51hpA6A1+1jHVp+rLTcsmZ4D8oOg7uRARD7s3pTwbU7YsMLO3aY0gIglkvjg0EAo11T9QJW3jWfLOrNEQRRJ+rGMdix+8LzkO0jf2G0wR8VujGKm/AXk/HiQ4dfnDHgg5C112oq7LW2LgXAEDErc2DpOFanrz1zeq3OEBhNzOrtKzYAluWKPZ9b6XnGUADkUjxTFmrH/jHvjlteGNwtPADCfebf6LHDlBYAMVk0a6cLU28n7AFchqlUsBQbQhWeqYsJg9gXdaAu1Bk7hU2T7h7A6LV8Y9GNyWBdVbeCSBnTxmAwAmlnU2GvtfUoAIboP3n4lf3YaX1c7xer2w/mE2T19rVZATBqtH0jBUAOAczdtmTHyw/Po7kl6coIg7sTCIApVnApKQC6qWAwQfV6OxF08PxcrjBVQe/iReuc+Wj/x+Yv3mGwCn3YB/uijtQ9lXXdzwCiJzXPogOe6MbkcEtqbh62YkdmxrqyCKW19pl/f/ozi8RXK/XXLSgA+ouZjiVF+EqzhnW6bvpNCYA4D3Z+KSgANvvmYmUGdrxhIYi6kcnjhcHdCQTA2DY6JQXA5p8/hCvMd8d+X+SCgIVl6HD79lfmwv7z9o+UUzbcLcM2fA+vwWtzh7667lHA/R9zSoBuzMaNQPyq9ZS9OGP1Cr5Qb5f593/6zHIIrH9/RUwARKjBQ/PDiVkRI0UA7D8hc4rbr3gcIX6S43Q9XZsRAPP+wkoRAI+Zs4vJk8fwbfND24Y8oQj14tzYOY/FjaQdPgjuTiAAplkRpIwAODM3WPzZP/RwvWQDVop5ADdR9zJ3X6LXfAB04yDQs+IGjcQ9p9UHwhFpE0Ig274irgdw2LSP4/F2+IgPgDHPgZKe2l7cHxv8GD48BhB5m3oAxNQ6qQd91KUIgCX1mqSGoLVj3qud7/iOmg8PeiiHCYJTCICb9LPcNAk0oIcr1dQpm+iC1d4LmOZxqx7oxsFh0uY9c8J+wAy1ukj/lQsUAP0g4PN6u+FRAVZnH3GTUKMtHyYLPVMNgJjGp+H52eQUALshZCFw8XMf187iGbH8PYIKgMOZmVtqbTqEnq1XMw382CRvmI86egHD1rtPhG4czeFcZSmWp+rSbwZuBUA/6GXl9XZDTxOrs4+4ZeicVKNdpxkAzy2mlGHnk4MCoB8ELMzfx89/fG61kXwhUAFwODNzutamQ+jZesvivzukgvkFMQCFXUNnlEmh6cbRuWe37rByDrjoF8YUAP240d+sXh9pR5jGL1l4gtYbamoBELe/8UcZO5dcFAD9uZ5ArObBrsH43NyFeXoDFQCH0TXx81vmI/q7Q9Zhipz2XsB76XuQEd1YFIwknZsz9ILGwG3GPrf2FAC7xQ++SDtB5p55pFZ/GARIVm+oaQRAzO/3VLJnMEMpAIZBuML5ltwbmOP9UADMb2b/+Gua9gUwj97r9iv/PSJ1mCKnfXk7PNYRN/VZILqxOAgU7sMz7cjhPrf2FAC7vWpuI/X5WhulHW3P3F47RrhXzA207hAlB0C3XN/JJOcZY+ofmmNBEMRybkOtGBLCDVpJ2ws4hQDopsrhx/c3ZgB8sNaWQwgxmOiY/S6RZpgqp31AyCP0vciEbiyWW3M4dlqPQw2jgVspAHbDnI+8Th9YqxbXOKUUq9Ls0HMNUV4AxB9UL9h23W+D3+dpm4emABin6hHcMf9n6XqMb8f8P/s1XQicQgCMbaMzzs/yzP4+aFvy7Vn7vaHn1NsEmCrnX8zv6TV1sHzcYH+E041FSxkC8YHMjtHGBQpeX7ftCIDDDOIZ1tz8lJ5riPEDYBX4sELK7bme76sX9ppGCoBpVEEQvYJufV92nYaW7n3ZnUAAnPJKIJigmLfHQS/Wexb/PeMP08e8b/6QfQWRGAi6H9jfnSmmusFk1O2DQeAp+p5kQDcWb88cX7uw/YR3tyoAtsMtRF7ftOEWaWxgig+Ay72a6xBS3Xt+8uBYx+1XTAiOtblvyRX4Kk2FvbaRAmB6VRgENzqXXbP8sLZwql7A3cIDIM4Ty+exY4cZKwA+UWvHKtwCft7qGwIxN96eubQIkv/T+qX5sw1Zw6/U0cYFv/39F82fFm1EW+fm8iLEsdd3wfJzvzB/7RgIAk/S9yQDurF4mMNvz/4yYRc5TPiFdh+2rC4fmx8A5+ZeUtdmQJBi5+wrNgCyOgvQVdg+jVxQYb8UQygANlkOg/ea/zXC+sJp3pvd4gNgip9jGCsAXmO192D2CYGYMuZ189EiTC0HIfwb23Br+R3z+1F7BHFsPN+ItjS1c8+GVxdi/eAa4Vot18Xhmg82HQzdOAlpbqeFhxwFwHZx16d0ce/fBgZA38L2pdJ8cCoA+qoCIQYsDBEGdxMFL9TD6veVqh1NUvwc5xg8E8KFwPbl7KpA1DUgBPPgseDH4Pu4TfqmfT1C1hBLzOEYOBaOiWP7tBHngnPqmgex0PAHdOMkvGq+Ri92mPAPdAXAZm4i77HWeB7CRXrevjYkAPYprB5KAXA8VRjMOYDEjVKODzW7hQfAI+YEPW6I3G301RUCAeEGPXf131kIfghVPsGvrgpZz5g/LuYbxC3U31j1Y/TlevoQ/D5aHCOmjVjpA+daPwZG/fqFv8ctTQTtDasT1C92KDwMz+puowDYLE0oL1vM/HgbEAD7FlYXpQA4vioIftP8aOmaphT//uwWHABx/dKs11zOz3FoCMT8gG/3DH5MFbRinjtchjCJulK3D2G3CoK4Fn71P0yv+QDoxkk4a7649qaGC5/aQwGwGZZw43VtkgfpufuYcAC05TMHehVWJ6UAWI58PYKbHgBT/AxDWT/HM/t5ydt5CGHnBRt+fW6j9oE6X0uw9nD32rz9oE6cO66BX/2jhT+gGycBkzizNzYEeqxY3W0UAJthdRVe1yY5Tc/dx0QDoC0Ifn9z8LVXYfVSaT48FQBTQhC8x/xj7RrH2NwAiGt11Pxs7XihUt0qT80nBOaGXrWYQSJ43g+rmLC6hzVq+AO6cRJiP0xBK4G0CQuAbn5GVs/mec18gV6DLhO/BWyLAuC2Qhg5ZvZq17mvTQ6AaXr/jpnv0fpL4EJgigCFiaYfsO60Th9s64YAiFu47Hekj3cs1MHq5tA2tBFtxXJt7DWhBl/3l6EbJyHFZMN9Vj9QAORwa5TXs4m+Tq9Blw14BhD6FlbXGgXAcn3TPESudR+bGQARktPdLi/7Z3hmvmr1DYEIfnimcPXzd2ZusTD/YPMKJIBbq+fN7+jvSB8Y9NF9exZtQFtuqbXxWgv/HbS3sV38qlKJ0I3FO2vuoW9siLk5Q+vuogDI7ZmXa/tvsqfpNeiyIQGQ8SlsvzUKgOVK897ApgbANNfniPnYfi3v9m9deAjEa7HCyPW0vsrMfM662zplsXrcLdy+08Ngfj9Wp/OChWN/jrat4pbKQ4gNDcHFhD+gGxfm5jnrYXuRb9s/Nfzw5EZu8Ef8UnBY/5TV30UBcB1uifI6fGDaGEzqPaTYn5/L9i/Qz9Jr0WaDA+AyVtjrKAXAcikANnO9fylG/uL5v9GfDfPmQuDllfZz6E0LW+N2Zn/HNvW04RZunxU5fms13/5FmGsPfnU4Jxdqu4Igvt/vzlFGdOOC+6B0Fw0P97sRnnfkXk6qFdYvTbUOMJYsY8foogC4bm7/YuJ1+OjXmxYjzWolt9O622xJAIyiALgO4cJdl3F7hfBcGr/eoTYrALrw99baMfqb1s+vu3XbFAKfsm6i+/lw+6/Xi1u4mGaG/Z5sg6lZmm//ht31WuaCIG+rC39xq0hlQjcuLAfAVYMsKL/C9TAhzKSZZLjv7V9QAFw3Nz8h+/tBeGR15pRmCqGTtO42CoDdFADX3Wf+dXFebh3fcYJgqh6uI/YDOEX7SwiAOA+8HynDn5t7sfzbv3XrIRC3b8MHWdah12z5+ix71nxCf0+2OWVDI6vLib89i7A7s5+Hh3UWG/6AblxoDoB1LhDumROLD3NMlHveXEvrDOFWlbjT1vm49enBsVI5To/pQwFwFW6Fxrw/847nQXKZmwu0Pf7O03rbKAB2SxMAMWIP9Ywp3Yf4feZFW9/h+eEZMSzdluNYDOo/ap5dHDsWwiw7RqixAyCuSdqpcSrT/ePFhcDnrK/Q7/fhngdk18ndyu1ahm0ZJmhuH/3b764gg/A7Mz+1ig1/QDcu+AdAzs0Jh7D0yMEH33H79a7F3HuYfmUZbi3je+51T1oYUJBnSTF88McEVAXAVWftf+x8/25zM6d1DmFuHqVtCoGeRFZ3EwXAbi7QsF/O05LyFmM9ANYdM2cPRuimDYSoB/UdMy/Zr/zYob5hvkuPFSo2AB41/3lwS9v/mlXXA+eQ9pavM9Xev9xcqFy/XriV27UG8TIsy9YcAF+mx95wdONCbAAsFQILO19fCoCrcCuU7+/jBK1zCGmWrQvrSVYA7OY+jNkv6GkZMgDWHTOv73/b/HARVA4DTnvQqcJNBQMREJJY/X2luv0LsQGwDhMvHzfPLK7bajDEkngPLY53zLx29fWpudvrCn/MzP6eZdcM/rf5kP6uZF41l1qe/+u/wtOE0Y0LmxkAn6TnGkIBcFXMrVSMMGd1DgG9wLG9zBgpz+puogDYzX3osl/Q0zJmAGxz1H5goj5A4IHvmNOL7ez1Ke2Yf6Dn10fqADi+zXpuNSU3wIJds8NewA/s1zbvmk9awh/0X+N9wujGhU0LgPPFXwphQ7wZBcBDr5qbyH6++k2lkpJ7dpW1zRcCpP/PlAJgNwXAdSkD4LjShZzNCoCPW+r9azMz55au1yoEO9zabdMe/i7QY24BunFhswIgPqjvoOcZSgHwEOZS5Pt2m5unaJ1Dig1kzp20bkYBsJsC4LpNCIBuwES6kLMpATD1ddlUbvUNfg3jPUqPuQXoxoXNCYCX7QdvupE4CoCHcAuU7+tj/EkxMWKdt80fRqmzuhkFwG4KgOumHgCPmp/Zr2lDziYEwKOL6X0U/ny4Ecb8OsYLn9N1Q9CNC5sQAN1t39W1/GIpADq49cn384O5HVm9Q3M/I7yNPrC/70o5CoDdFADXTTkAHjN79mv6kDP1AJgjFG+6mflg5RqmgbkLx30UaUR048L0A+BF60Z6bjEUAB1M28P381HOkPu5eYK0LwymMmJ11ykAdlMAXDfVAIjRyLlCzpQD4D2LZdEU/kLhVi27nnHiB4ZOGN24MOUAiNtyr5jP0/OKpQDoxAQnrCLD6hxDXJB1fM9HAbCbAuC6KQbA3Lc3pxgA3VQv+PlW+OtjZu64ei3T8X+GewPRjQvTDICnF891sfNJRQHQLG55xqzJ7NtjNgS3zCBvpy/fCa0VALspAK6bWgAcYmDD1ALgjnnBflXwi4FbtTP7OzSt+JlBJoxuXJhWAMTt3mEGFSgAYvqX28jrfV32fmZuKG7lGdZWf694LCOkANhNAXDdVALgkGsVTyUA7pgz9qt6/aRIdOMCPuRxa8vNlZZnWbY4GN37uP16x6DzySkAot4TtdeGKO+ZC/dzztrq76y5h9a9TAGwmwLguvvMv9FjlGLI4FcpPQC6W+AKflI0unHNK+Zv7QfQ7VcDYezIyb5w3DFC3zIFQNR7rvbaEONP/1IX16PpzM1Pad3LFAC7KQCuQ4g4Yv/o+nvzIxss0i7P1teOed8Gv2rJtOFDTokBcMectx62/1bwk0mgG71gkAVC4Z7ZsbAeLIIRIBzg9nFsr+E5+4H5lIXJhu8oZtoQEckHH5zuA3Tq8gSA+vVBELrPPGcD4sf2//NgkgLW8b3P/GyxLm7O8/MVGwDRa4ll8I6a39Hv+8DawAjmh++HQp9MCt2YFILi3Fy/GJyBh/8xKTNGXlawKL/bfuviOSq8Fj2OrC4REVnHgjN66L5tfniw3u8vFs8Stnvu6vrA3zLfr9VXVriJDYBVDy27boBrh9d8w3yXft9R4JNJoxtFRESKlSoAimwxulFERKRYCoAi0ehGERGRYikAikSjG0VERIqlACgSjW4UEREplgKgSJRFYd8QEREpFgIcC3a+sD+rV2QLXC3smyIiIsXaVQAU6WOlsBeIiIgUa1cBUCTUWmEvEhERKdauAqBICFrYC0VERIq1qwAo4qO1sB1ERESKtasAKNLGq7AdRUREirWrACjCBBVWgYiISLF2FQBFlvUqrCIREZFi7SoAikQXVqmIiEixdhUAZXtkK+xgEi6ksP1FRMTTrgKgTF+VB0Yr9QaJnxyFHUdERGp2FQClbJMorOHSbKzC2iIispV2FQBlHBtV2AnKutILa7OIyEbaVQCUtLaysAshhzaxsPMUEZmMXQVAaafiUdiFE/3wVIVdm9xCSujrQ0u9bSJSgF0FQHFUIgq7oNtMRSW0sJ8jEcloVwFwW6kkLOwCbysVlZSF/YyJSALHzPdosPOF/Vm9UiSVTIVd7G2jojJkYT+DIhJgZq6zvhzhOlqvFEFloMIu/jZRUSmhsJ9NEZFtoDJSYW/GNlBRmUJhP7siIlOmUkIx5v8D47LZM4kvwvwAAAAASUVORK5CYII=">
+               </a>
+
+               <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="nav">
+                  <span aria-hidden="true"></span>
+                  <span aria-hidden="true"></span>
+                  <span aria-hidden="true"></span>
+               </a>
+            </div>
+
+            <div id="nav" class="navbar-menu">
+               <div class="navbar-start">
+                  <a data-target="pane-0" id='0' class="navbar-item is-active">Logon</a>
+                  <a data-target='pane-1' id='1' class="navbar-item is-hidden">Status</a>
+                  <a data-target='pane-2' id='2' class="navbar-item is-hidden">Timer</a>
+                  <a data-target='pane-3' id='3' class="navbar-item is-hidden">Settings</a>
+                  <a data-target='pane-4' id='4' class="navbar-item is-hidden">MQTT</a>
+               </div>
+            </div>
+         </nav>
+
+      </div>
+
+      <div class="hero-body is-paddingless">
+
+         <div class="tab-content">
+
+            <div class="tab-pane is-active" id="pane-0">
+                  <div class="columns">
+                     <div class="column is-narrow">
+                        <form class="control" name='logf' method='POST' onsubmit='return reqauth(this);'>
+                           <div class="field">
+                              <div class="control has-icons-left">
+                                 <input class="input" type="text" id='un' maxlength="20" placeholder="Username">
+                                 <span class="icon is-small is-left">
+                                 <i class="icon-user"></i>
+                              </div>
+                           </div>
+                           <div class="field">
+                              <div class="control has-icons-left">
+                                 <input class="input" type="password" id='pwd' maxlength="20" placeholder="Password">
+                                 <span class="icon is-small is-left">
+                                 <i class="icon-lock-1"></i>
+                                 </span>
+                              </div>
+                           </div>
+                           <div class="field">
+                              <div class="control">
+                                 <button class="button is-success" >
+                                 <span style="padding:0 2em;">Login</span>
+                                 </button>
+                              </div>
+                           </div>
+                        </form>
+                     </div>
+                  </div>
+            </div>
+
+            <div class="tab-pane" id="pane-1">
+                  <div class="columns">
+                     <div class="column is-narrow">
+                        <table class="table">
+                           <thead>
+                              <tr><th width="40%"><abbr title="Status information">Status</abbr></th><th></th></tr>
+                           </thead>
+                           <tbody>
+                              <tr><td class="has-text-right">Hostname:</td><td><span id="status_hostname">1</span></td></tr>
+                              <tr><td class="has-text-right">Date:</td><td><span id="status_date">1</span></td></tr>
+                              <tr><td class="has-text-right">Time:</td><td><span id="status_time">2</span></td></tr>
+                              <tr><td class="has-text-right">Uptime:</td><td><span id="status_uptime">3</span></td></tr>
+                              <tr><td class="has-text-right">Free&nbspheap:</td><td><span id="status_heap">4</span></td></tr>
+                              <tr><td class="has-text-right">WiFi&nbspmode:</td><td><span id="status_wifimode">5</span></td></tr>
+                              <tr><td class="has-text-right">SSID:</td><td><span id="status_wifissid">6</span></td></tr>
+                              <tr><td class="has-text-right">IP:</td><td><span id="status_wifiip">7</span></td></tr>
+                              <tr><td class="has-text-right">RSSI:</td><td><span id="status_wifirssi">8</span></td></tr>
+                              <tr><td class="has-text-right">Voltage:</td><td><span id="status_voltage">9</span></td></tr>
+                              <tr><td class="has-text-right">Valve&nbspmode:</td><td><span class="tag is-warning" id="status_vmode">10</span></td></tr>
+                              <tr><td class="has-text-right">Valve&nbspstatus:</td><td><span class="tag is-info" id="status_vstatus">11</span></td></tr>
+                           </tbody>
+                        </table>
+                        <span class="buttons has-addons is-centered">
+                           <a class="button is-light" onclick='onTabTimerHandler(0,"open")'>Open</a>
+                           <a class="button is-light" onclick='onTabTimerHandler(0,"close")'>Close</a>
+                           <a class="button is-success" onclick='onTabTimerHandler(0,"auto")'>Auto</a>
+                        </span>
+                     </div>
+
+                     <div class="column is-narrow">
+                        <table class="table">
+                           <thead>
+                              <tr>
+                              <th><abbr title="Sensors data">Sensors</abbr></th>
+                              <th></th>
+                              </tr>
+                           </thead>
+                           <tbody id="sens_list"></tbody>
+                        </table>
+                     </div>
+                  </div>
+            </div>
+
+            <div class="tab-pane" id="pane-2">
+                  <div class="columns">
+                     <div class="column is-narrow">
+                        <!--section class="section"-->
+                           <nav class="pagination is-centered" role="navigation" id="nav1">
+                              <ul class="pagination-list">
+                                 <li><a class="pagination-link" data-target="page-0" id='0'>0</a></li>
+                                 <li><a class="pagination-link" data-target="page-1" id='1'>1</a></li>
+                                 <li><a class="pagination-link" data-target="page-2" id='2'>2</a></li>
+                                 <li><a class="pagination-link" data-target="page-3" id='3'>3</a></li>
+                                 <li><a class="pagination-link" data-target="page-4" id='4'>4</a></li>
+                                 <li><a class="pagination-link" data-target="page-5" id='5'>5</a></li>
+                                 <li><a class="pagination-link" data-target="page-6" id='6'>6</a></li>
+                                 <li><a class="pagination-link" data-target="page-7" id='7'>7</a></li>
+                                 <li><a class="pagination-link" data-target="page-8" id='8'>8</a></li>
+                                 <li><a class="pagination-link" data-target="page-9" id='9'>9</a></li>
+                                 <li><a class="pagination-link is-current" data-target="page-10" id='10'>Time</a></li>
+                              </ul>
+                           </nav>
+                        <!--/section-->
+
+                        <div class="page-pane is-active" id="page-10">
+                           <div class="columns is-centered">
+                              <div class="column is-narrow">
+                              <table class="table is-fullwidth">
+                              <thead>
+                                 <tr>
+                                    <th></th>
+                                    <th></th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Year:</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='time_year' min='2000' max='2032' step='1' value ='2017'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Month:</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='time_month' min='1' max='12' step='1' value ='1'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Day:</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='time_day' min='1' max='31' step='1' value ='1'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">DayOfWeek:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                       <span class='select is-fullwidth'>
+                                       <select id='time_dow'>
+                                          <option selected value='1'>Mon</option>
+                                          <option value='2'>Tue</option>
+                                          <option value='3'>Wen</option>
+                                          <option value='4'>Thu</option>
+                                          <option value='5'>Fri</option>
+                                          <option value='6'>Sat</option>
+                                          <option value='7'>Sun</option>
+                                       </select>
+                                       </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Hour:</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='time_hour' min='0' max='23' step='1' value ='1'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Minute:</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='time_min' min='0' max='59' step='1' value ='1'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Seconds:</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='time_sec' min='0' max='59' step='1' value ='1'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td></td>
+                                    <td>
+                                       <span class='control has-text-right'>
+                                          <button class='button is-info is-fullwidth' onclick='onTabTimerHandler(0,"settime")'>
+                                          <span style="padding:0 0.5em;">Set</span>
+                                          </button>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                              </tbody>
+                              </table>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="page-pane" id="page-0"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-0"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-1"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-1"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-2"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-2"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-3"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-3"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-4"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-4"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-5"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-5"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-6"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-6"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-7"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-7"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-8"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-8"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="page-pane" id="page-9"><div class="columns is-centered"><div class="column is-narrow">
+                           <table class="table is-fullwidth" id="page-0-table-9"><thead><tr><th></th><th></th></tr></thead><tbody></tbody></table>
+                        </div></div></div>
+
+                        <div class="field is-grouped is-grouped-centered">
+                           <span class="control">
+                              <button class="button is-success" onclick='onTabTimerHandler(0,"resettimer")'>
+                              <span style="padding:0 2em;">Reset</span>
+                              </button>
+                           </span>
+                           <span class="control">
+                              <button class="button is-success" onclick='onTabTimerHandler(0,"savetimer")'>
+                              <span style="padding:0 2em;">Apply</span>
+                              </button>
+                           </span>
+                        </div>
+
+                     </div>
+                  </div>
+            </div>
+
+            <div class="tab-pane" id="pane-3">
+               <div class="columns">
+                  <div class="column is-narrow">
+
+                     <!---section class="section"-->
+                        <nav class="pagination is-centered" role="navigation" id="nav3">
+                           <ul class="pagination-list">
+                              <li><a data-target="spage-0" class="pagination-link is-current" id="0">WiFi</a></li>
+                              <li><a data-target="spage-1" class="pagination-link" id="1">Admin</a></li>
+                              <li><a data-target="spage-2" class="pagination-link" id="2">Device</a></li>
+                           </ul>
+                        </nav>
+                     <!--/section-->
+
+                     <div class="spage-pane is-active" id="spage-0">
+                        <div class="columns is-centered">
+                           <div class="column is-narrow">
+                           <table class="table is-fullwidth">
+                           <thead>
+                              <tr>
+                                 <th></th>
+                                 <th></th>
+                              </tr>
+                           </thead>
+                           <tbody>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Hostname:</td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_hostname' maxlength='32' value='SHAPEsp_00'>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">SSID:</td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_ssid' maxlength='32' value='DIR-300'>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">PWD:</td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_pwd' maxlength='64' value=''>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">DHCP:</td>
+                                 <td>
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
+                                          <select id='wifi_dhcp'>
+                                             <option value='0'>No</option>
+                                             <option selected value='1'>Yes</option>
+                                          </select>
+                                       </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">IP addr:</td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_ipa' required value ='' title = 'Input ip address d.d.d.d'>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Gateway:</td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_gw' required value ='' title = 'Input gateway address d.d.d.d'>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Netmask:</td>
+                                 <td>
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
+                                          <select id='wifi_mask'>
+                                             <option selected value='24'>&nbsp/24</option>
+                                             <option value='23'>&nbsp/23</option>
+                                             <option value='22'>&nbsp/22</option>
+                                             <option value='21'>&nbsp/21</option>
+                                             <option value='20'>&nbsp/20</option>
+                                             <option value='19'>&nbsp/19</option>
+                                             <option value='18'>&nbsp/18</option>
+                                             <option value='17'>&nbsp/17</option>
+                                             <option value='16'>&nbsp/16</option>
+                                          </select>
+                                       </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Debug mode:</td>
+                                 <td>
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
+                                          <select id='wifi_ensysl'>
+                                             <option value='0'>No</option>
+                                             <option selected value='1'>UART</option>
+                                             <option selected value='2'>Syslog</option>
+                                             <option selected value='3'>UART+Syslog</option>
+                                          </select>
+                                       </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Syslog IP:</td>
+                                 <td>
+                                    <span class='control'>
+                                       <input class="input" type="text" id='wifi_ipsysl' required value ='' title = 'Input gateway address d.d.d.d'>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                             <tr>
+                                 <td class="has-text-right has-text-weight-semibold">&nbsp</td>
+                                 <td>
+                                    <span class='control'>
+                                       <button class="button is-success is-fullwidth" onclick='onTabSettingsHandler(0,"setwifi")'>
+                                          <span style="padding:0 2em;">Apply</span>
+                                       </button>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                           </tbody>
+                           </table>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div class="spage-pane" id="spage-1">
+                        <div class="columns is-centered">
+                           <div class="column is-narrow">
+                           <table class="table is-fullwidth">
+                              <thead>
+                              <tr>
+                                 <th></th>
+                                 <th></th>
+                              </tr>
+                              </thead>
+                              <tbody>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">New User:</td>
+                                 <td><span class='control'>
+                                    <input class="input" type="text" id='adm_un' maxlength='20' value='' placeholder="Username">
+                                 </span></td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">New PWD:</td>
+                                 <td><span class='control'>
+                                    <input class="input" type="text" id='adm_pwd' maxlength='20' value='' placeholder="Password">
+                                 </span></td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">&nbsp</td>
+                                 <td><span class='control'>
+                                    <button class="button is-success is-fullwidth" onclick='onTabSettingsHandler(0,"setpwd")'>
+                                    <span style="padding:0 2em;">Change</span>
+                                     </button>
+                                 </span></td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">&nbsp</td>
+                                 <td><span class='control'>
+                                    <form method='POST' action='/reboot' onsubmit='return reload(this);'>
+                                       <button class="button is-danger is-fullwidth">
+                                       <span style="padding:0 2em;">Reboot</span>
+                                       </button>
+                                    </form>
+                                 </span></td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Firmware:</td>
+                                 <td><span class='control'>
+                                    <form method='POST' action='/update' enctype='multipart/form-data' onsubmit='return reload(this);'>
+                                       <span class="file">
+                                          <label class="file-label">
+                                             <input class="file-input" type="file" name="update">
+                                             <span class="file-cta">
+                                                <span class="file-label">File…</span>
+                                             </span>
+                                          </label>
+                                       </span>
+                                       <span>&nbsp</span>
+                                       <span class="control">
+                                          <button class="button is-warning is-fullwidth" >
+                                          <span id="status_update" style="padding:0 2em;">Update</span>
+                                          </button>
+                                       </span>
+                                    </form>
+                                 </span></td>
+                              </tr>
+
+                              </tbody>
+                           </table>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div class="spage-pane" id="spage-2">
+                        <div class="columns is-centerd">
+                           <div class="column is-narrow">
+                           <table class="table is-fullwidth">
+                              <thead>
+                              <tr>
+                                 <th></th>
+                                 <th></th>
+                              </tr>
+                              </thead>
+                              <tbody>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Type:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='dev_type'>
+                                             <option selected value='0'>Valve</option>
+                                             <option value='1'>Relay</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Enable Timer:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='dev_tmr'>
+                                             <option selected value='0'>No</option>
+                                             <option value='1'>Yes</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Enable MQTT:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='dev_mqtt'>
+                                             <option selected value='0'>No</option>
+                                             <option value='1'>Yes</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Enable Sensors:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='dev_sens'>
+                                             <option selected value='0'>No</option>
+                                             <option value='1'>Yes</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Scan I2C:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='dev_i2c'>
+                                             <option selected value='0'>No</option>
+                                             <option value='1'>Yes</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Scan DS2482:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='dev_ds2482'>
+                                             <option selected value='0'>No</option>
+                                             <option value='1'>Yes</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">GPIO2 mode:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='dev_gpio2'>
+                                             <option selected value='0'>Unused</option>
+                                             <option value='1'>Alarm input</option>
+                                             <option value='2'>Soft 1-Wire</option>
+                                             <option value='3'>Debug UART</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">GPIO13 mode:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='dev_gpio13'>
+                                             <option selected value='0'>Unused</option>
+                                             <option value='1'>Alarm input</option>
+                                             <option value='2'>Autostop</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">ADC coef(*100):</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='dev_adcc' min='0' max='100000' step='1' value ='1563'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Startup delay:</td>
+                                    <td><span class='control'>
+                                       <input class='input' type='number' id='dev_sdelay' min='0' max='65535' step='1' value ='10'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">&nbsp</td>
+                                    <td><span class='control'>
+                                       <button class="button is-success is-fullwidth" onclick='onTabSettingsHandler(0,"setdev")'>
+                                       <span style="padding:0 2em;">Apply</span>
+                                       </button>
+                                    </span></td>
+                                 </tr>
+
+                              </tbody>
+                           </table>
+                           </div>
+                        </div>
+                     </div>
+
+                     <!--div class="field is-grouped is-grouped-centered">
+                        <div class="control">
+                           <button class="button is-success" onclick='onTabSettingsHandler(0,"setwifi")'>
+                              <span style="padding:0 2em;">Apply</span>
+                            </button>
+                         </div>
+                     </div-->
+
+                  </div>
+               </div>
+            </div>
+
+            <div class="tab-pane" id="pane-4">
+                  <div class="columns">
+                     <div class="column is-narrow">
+
+                        <!--section class="section"-->
+                           <nav class="pagination is-centered" role="navigation" id="nav2">
+                              <ul class="pagination-list">
+                                 <li><a data-target="ppage-0" class="pagination-link is-current" id="0">MQTT</a></li>
+                                 <li><a data-target="ppage-1" class="pagination-link" id="1">Domoticz</a></li>
+                              </ul>
+                           </nav>
+                        <!--/section-->
+
+                        <div class="ppage-pane is-active" id="ppage-0">
+                           <div class="columns is-centered">
+                              <div class="column is-narrow">
+                              <table class="table is-fullwidth">
+                              <thead>
+                                 <tr>
+                                    <th></th>
+                                    <th></th>
+                                 </tr>
+                              </thead>
+                              <tbody>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Host:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="text" id='mqtt_server' maxlength='32' value='127.0.0.1'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Port:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="number" id='mqtt_port'  min='0' max='65535' value='1883'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">ClientID:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="text" id='mqtt_clientid' maxlength='32' value=''>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">User:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="text" id='mqtt_user' maxlength='20' value='N/A'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Password:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="text" id='mqtt_pwd' maxlength='20' value='N/A'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">In topic:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="text" id='mqtt_intopic' maxlength='64' value='N/A'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Out topic:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="text" id='mqtt_outtopic' maxlength='64' value='N/A'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Will topic:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="text" id='mqtt_willtopic' maxlength='64' value='N/A'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">QoS:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='mqtt_qos'>
+                                             <option selected value='0'>0</option>
+                                             <option value='1'>1</option>
+                                             <option value='2'>2</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">keepAlive:</td>
+                                    <td><span class='control'>
+                                       <input class="input" type="number" id='mqtt_keepalive' value='0'>
+                                    </span></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Retain:</td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='mqtt_retain'>
+                                             <option selected value='0'>0</option>
+                                             <option value='1'>1</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                 </tr>
+
+                              </tbody>
+                              </table>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="ppage-pane" id="ppage-1">
+                           <div class="columns is-centered">
+                              <div class="column is-narrow">
+                              <table class="table">
+                              <thead> <tr><th></th><th></th></tr></thead>
+                              <tbody>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Relay/Valve:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_relay' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Mode button:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_mbtn' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Vcc:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_vcc' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Status:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_status' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Mode:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_mode' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 0:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens0' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 1:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens1' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 2:</td>
+                                    <td><div class='control'>
+                                          <input class="input" type="number" id='mqtt_sens2' value='0'>
+                                     </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 3:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens3' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 4:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens4' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 5:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens5' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 6:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens6' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 7:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens7' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 8:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens8' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                                 <tr>
+                                    <td class="has-text-right has-text-weight-semibold">Sensor 9:</td>
+                                    <td><div class='control'>
+                                       <input class="input" type="number" id='mqtt_sens9' value='0'>
+                                    </div></td>
+                                 </tr>
+
+                              </tbody>
+                              </table>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="field is-grouped is-grouped-centered">
+                              <span class="control">
+                                 <button class="button is-success" onclick='onTabMqttHandler(0,"setmqtt")'>
+                                 <span style="padding:0 2em;">Apply</span>
+                                 </button>
+                              </span>
+                        </div>
+
+                     </div>
+                  </div>
+            </div>
+
+         </div>
+
+      </div>
+
+      <div class="hero-footer">
+         <span class="container">Copyright 2019 Pavel Chauzov. Made with Bulma</span>
+      </div>
+   </section>
+   <div class="control">
+      <textarea class="textarea" readonly id="description">This content is readonly</textarea>
+   </div>
+
+   <script >
+// my scripts
+      !function(n){'use strict';function t(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}
+      function r(n,t){return n<<t|n>>>32-t}function e(n,e,o,u,c,f){return t(r(t(t(e,n),t(u,f)),c),o)}
+      function o(n,t,r,o,u,c,f){return e(t&r|~t&o,n,t,u,c,f)}function u(n,t,r,o,u,c,f){return e(t&o|r&~o,n,t,u,c,f)}
+      function c(n,t,r,o,u,c,f){return e(t^r^o,n,t,u,c,f)}function f(n,t,r,o,u,c,f){return e(r^(t|~o),n,t,u,c,f)}
+      function i(n,r){n[r>>5]|=128<<r%32,n[14+(r+64>>>9<<4)]=r;var e,i,a,d,h,l=1732584193,g=-271733879,v=-1732584194,m=271733878;
+      for(e=0;e<n.length;e+=16)i=l,a=g,d=v,h=m,g=f(g=f(g=f(g=f(g=c(g=c(g=c(g=c(g=u(g=u(g=u(g=u(g=o(g=o(g=o(g=o(g,v=o(v,m=o(m,l=o(l,g,v,m,n[e],7,-680876936),
+      g,v,n[e+1],12,-389564586),l,g,n[e+2],17,606105819),m,l,n[e+3],22,-1044525330),v=o(v,m=o(m,l=o(l,g,v,m,n[e+4],7,-176418897),
+      g,v,n[e+5],12,1200080426),l,g,n[e+6],17,-1473231341),m,l,n[e+7],22,-45705983),v=o(v,m=o(m,l=o(l,g,v,m,n[e+8],7,1770035416),
+      g,v,n[e+9],12,-1958414417),l,g,n[e+10],17,-42063),m,l,n[e+11],22,-1990404162),v=o(v,m=o(m,l=o(l,g,v,m,n[e+12],7,1804603682),
+      g,v,n[e+13],12,-40341101),l,g,n[e+14],17,-1502002290),m,l,n[e+15],22,1236535329),v=u(v,m=u(m,l=u(l,g,v,m,n[e+1],5,-165796510),
+      g,v,n[e+6],9,-1069501632),l,g,n[e+11],14,643717713),m,l,n[e],20,-373897302),v=u(v,m=u(m,l=u(l,g,v,m,n[e+5],5,-701558691),
+      g,v,n[e+10],9,38016083),l,g,n[e+15],14,-660478335),m,l,n[e+4],20,-405537848),v=u(v,m=u(m,l=u(l,g,v,m,n[e+9],5,568446438),
+      g,v,n[e+14],9,-1019803690),l,g,n[e+3],14,-187363961),m,l,n[e+8],20,1163531501),v=u(v,m=u(m,l=u(l,g,v,m,n[e+13],5,-1444681467),
+      g,v,n[e+2],9,-51403784),l,g,n[e+7],14,1735328473),m,l,n[e+12],20,-1926607734),v=c(v,m=c(m,l=c(l,g,v,m,n[e+5],4,-378558),
+      g,v,n[e+8],11,-2022574463),l,g,n[e+11],16,1839030562),m,l,n[e+14],23,-35309556),v=c(v,m=c(m,l=c(l,g,v,m,n[e+1],4,-1530992060),
+      g,v,n[e+4],11,1272893353),l,g,n[e+7],16,-155497632),m,l,n[e+10],23,-1094730640),v=c(v,m=c(m,l=c(l,g,v,m,n[e+13],4,681279174),
+      g,v,n[e],11,-358537222),l,g,n[e+3],16,-722521979),m,l,n[e+6],23,76029189),v=c(v,m=c(m,l=c(l,g,v,m,n[e+9],4,-640364487),
+      g,v,n[e+12],11,-421815835),l,g,n[e+15],16,530742520),m,l,n[e+2],23,-995338651),v=f(v,m=f(m,l=f(l,g,v,m,n[e],6,-198630844),
+      g,v,n[e+7],10,1126891415),l,g,n[e+14],15,-1416354905),m,l,n[e+5],21,-57434055),v=f(v,m=f(m,l=f(l,g,v,m,n[e+12],6,1700485571),
+      g,v,n[e+3],10,-1894986606),l,g,n[e+10],15,-1051523),m,l,n[e+1],21,-2054922799),v=f(v,m=f(m,l=f(l,g,v,m,n[e+8],6,1873313359),
+      g,v,n[e+15],10,-30611744),l,g,n[e+6],15,-1560198380),m,l,n[e+13],21,1309151649),v=f(v,m=f(m,l=f(l,g,v,m,n[e+4],6,-145523070),
+      g,v,n[e+11],10,-1120210379),l,g,n[e+2],15,718787259),m,l,n[e+9],21,-343485551),l=t(l,i),g=t(g,a),v=t(v,d),m=t(m,h);return[l,g,v,m]}
+      function a(n){var t,r='',e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}
+      function d(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}
+      function h(n){return a(i(d(n),8*n.length))}function l(n,t){var r,e,o=d(n),u=[],c=[];for(u[15]=c[15]=void 0,o.length>16&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(d(t)),512+8*t.length),a(i(c.concat(e),640))}
+      function g(n){var t,r,e='';for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),e+='0123456789abcdef'.charAt(t>>>4&15)+'0123456789abcdef'.charAt(15&t);return e}
+      function v(n){return unescape(encodeURIComponent(n))}function m(n){return h(v(n))}function p(n){return g(m(n))}
+      function s(n,t){return l(v(n),v(t))}function C(n,t){return g(s(n,t))}
+      function A(n,t,r){return t?r?s(t,n):C(t,n):r?m(n):p(n)}'function'==typeof define&&define.amd?define(function(){return A}):
+      'object'==typeof module&&module.exports?module.exports=A:n.md5=A}(this);
+
+      // The following code is based off a toggle menu by @Bradcomp
+      // source: https://gist.github.com/Bradcomp/a9ef2ef322a8e8017443b626208999c1
+
+      function getRandomInt(max) { return Math.floor(Math.random() * (max-1)) + 1; }
+
+      (function()
+      {
+         var burger = document.querySelector('.burger');
+         var menu = document.querySelector('#'+burger.dataset.target);
+         burger.addEventListener('click', function() { burger.classList.toggle('is-active'); menu.classList.toggle('is-active');});
+      })();
+
+
+      var fwupdate = false;
+      var websock;
+
+      websock = new WebSocket("ws://" + window.location.host + "/ws");
+      //websock = new WebSocket("ws://192.168.137.88/ws");
+      //websock = new WebSocket("ws://176.62.187.161:8091/ws");
+      websock.onopen = function(evt) { sOpen(); console.log('websock open'); };
+      websock.onclose = function(evt) { sClose(); console.log('websock close'); };
+      websock.onerror = function(evt) { console.log(evt); };
+      websock.onmessage = onMessageHandler;
+
+      for(i=0;i<10;i++) maketable("page-0-table-",i);
+
+      document.querySelectorAll("#nav a").forEach(function(navEl)
+      {
+         navEl.onclick = function() { toggleTab("#nav a", "is-active", ".tab-pane", true, this.id, this.dataset.target); }
+      });
+
+      document.querySelectorAll("#nav1 a").forEach(function(navEl)
+      {
+         navEl.onclick = function() { toggleTab("#nav1 a", "is-current", ".page-pane", false, this.id, this.dataset.target); }
+      });
+
+      document.querySelectorAll("#nav2 a").forEach(function(navEl)
+      {
+         navEl.onclick = function() { toggleTab("#nav2 a", "is-current", ".ppage-pane", false, this.id, this.dataset.target); }
+      });
+
+      document.querySelectorAll("#nav3 a").forEach(function(navEl)
+      {
+         navEl.onclick = function() { toggleTab("#nav3 a", "is-current", ".spage-pane", false, this.id, this.dataset.target); }
+      });
+
+      function toggleTab(selector, key, pane, defaults, selectedNav, targetId)
+      {
+         var navEls = document.querySelectorAll(selector);
+
+         navEls.forEach(function(navEl)
+         {
+            if (navEl.id == selectedNav) { navEl.classList.add(key); }
+            else
+            {
+               if (navEl.classList.contains(key)) { navEl.classList.remove(key); }
+            }
+         });
+
+         var tabs = document.querySelectorAll(pane);
+
+         tabs.forEach(function(tab)
+         {
+            if (tab.id == targetId)
+            {
+               tab.style.display = "block";
+               if(defaults==true) handler_array[selectedNav-1](0,"defaults");
+            }
+            else { tab.style.display = "none"; }
+         });
+      }
+
+      function makelist(key,def)
+      {
+         var navEls = document.querySelectorAll("#nav a");
+         navEls.forEach(function(navEl) { navEl.classList.toggle('is-hidden'); }); // if(def)
+         toggleTab("#nav a", "is-active", ".tab-pane", def, key, "pane-"+key);
+      }
+
+      var handler_array = [ onTabStatusHandler, onTabTimerHandler, onTabSettingsHandler,
+                            onTabMqttHandler, onTabAdminHandler];
+
+      function sOpen()
+      {
+         if(sessionStorage.getItem("hash"))
+         {
+            makelist("1",true);
+            makesensor();
+            morestatus();
+         }
+         else
+         {
+            sessionStorage.setItem("sessionid", getRandomInt(1000000));
+         }
+      }
+
+      function sClose()
+      {
+         sessionStorage.removeItem("hash");
+         sessionStorage.removeItem("sensCount");
+         if(!fwupdate) window.location.reload(false);
+      }
+
+      function onMessageHandler(evt)
+      {
+         console.log(evt);
+
+         let resp = JSON.parse(evt.data);
+
+         if(resp.action == "auth")
+         {
+            if(resp.status_auth=='ok')
+            {
+               makelist("1",true);
+               morestatus();
+               document.getElementById('description').innerHTML = "status ok";
+            }
+            else { websock.close(); }
+            return;
+         }
+
+         if((resp.action == "senscnt"))
+         {
+            sessionStorage.setItem("sensCount", resp.sens_cnt);
+            makesensor();
+            morestatus();
+            return;
+         }
+
+         if((resp.action == "time") || (resp.action == "wifi") || (resp.action == "mqtt"))
+         {
+            JSON.parse(evt.data,function(key,value){
+               if(document.getElementById(key)!=null) document.getElementById(key).value = value;
+               return value;
+            });
+            return;
+         }
+
+         JSON.parse(evt.data,function(key,value){
+            if(key!='action' && key!='')
+               if(document.getElementById(key)!=null) document.getElementById(key).innerHTML = value;
+            return value;
+         });
+
+      };
+
+      function reqauth(f)
+      {
+         var paswd = document.getElementById('pwd').value; document.getElementById('pwd').value = '';
+         var user = document.getElementById('un').value; document.getElementById('un').value = '';
+         if(sessionStorage.getItem("sessionid"))
+         {
+            var d = sessionStorage.getItem("sessionid");
+            var hash = md5(user+paswd+d);
+            sessionStorage.setItem("hash", hash);
+            document.getElementById('description').innerHTML = hash;
+            var msg = { type: "message", auth : hash, text: "sessionid", data : d};
+            websock.send(JSON.stringify(msg));
+         }
+         return false;
+      }
+
+      function morestatus()
+      {
+         var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "status", id: 0 };
+         if(sessionStorage.getItem("sensCount")) { setTimeout(morestatus, 1000); }
+         else { msg["text"] = "senscnt"; }
+         var smsg = JSON.stringify(msg);
+         websock.send(smsg);
+      }
+
+      function makesensor()
+      {
+         var div = document.getElementById("sens_list");
+         var temp="";
+         var sensCount = parseInt(sessionStorage.getItem("sensCount"));
+         for(var i=0;i<sensCount;i++)
+         {
+              temp += "<tr> \
+                       <td class='has-text-right'><span id='tsensor_"+i+"'>Sensor"+i+":</span></td> \
+                       <td><span id='vsensor_"+i+"'>N/A</span></td> \
+                       </tr>";
+         }
+         div.innerHTML = temp;
+      }
+
+      function onTabStatusHandler(_id,_cmd) {}
+
+      function onTabTimerHandler(_id,_cmd)
+      {
+         let msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "time", cmd: _cmd, id: _id };
+         let params;
+         if(_cmd=="settime")
+         {
+               params = ['time_year', 'time_month', 'time_day', 'time_dow', 'time_hour', 'time_min', 'time_sec'];
+               params.forEach(function(item) {
+                  msg[item] = document.getElementById(item).value;
+               });
+         }
+
+         if(_cmd=="settimer" || _cmd=="savetimer" || _cmd=="resettimer")
+         {
+            params = ['time_sact', 'time_sdmask', 'time_shour', 'time_smin', 'time_edmask', 'time_ehour', 'time_emin'];
+            for(let i=0;i<10;i++)
+            {
+               params.forEach(function(item) {
+                  msg[item+i] = document.getElementById(item+i).value;
+               });
+            }
+         }
+
+         websock.send(JSON.stringify(msg));
+         document.getElementById('description').innerHTML = JSON.stringify(msg);
+      }
+
+      function onTabSettingsHandler(_id,_cmd)
+      {
+         var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "wifi", cmd: _cmd, id: _id };
+         var params;
+         var fill = false;
+
+         if(_cmd=="setwifi")
+         {
+            var IPvalue = document.getElementById('wifi_ipa').value;
+            var GWvalue = document.getElementById('wifi_gw').value;
+            var SYSvalue = document.getElementById('wifi_ipsysl').value;
+
+            var pattern = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+            if(!pattern.test(IPvalue)) { alert('Invalid IP address!!!'); return; }
+            if(!pattern.test(GWvalue)) { alert('Invalid GW address!!!'); return; }
+            if(!pattern.test(SYSvalue)) { alert('Invalid Syslog server address!!!'); return; }
+
+            params = ['wifi_hostname', 'wifi_ssid', 'wifi_pwd', 'wifi_dhcp', 'wifi_ipa', 'wifi_gw',
+                      'wifi_mask', 'wifi_ensysl', 'wifi_ipsysl'];
+            fill = true;
+         }
+
+         if(_cmd=="setpwd")
+         {
+            params = ['adm_un', 'adm_pwd'];
+            fill = true;
+         }
+
+         if(_cmd=="setdev")
+         {
+            params = ['dev_type', 'dev_tmr', 'dev_mqtt', 'dev_sens', 'dev_i2c', 'dev_ds2482',
+                      'dev_gpio2', 'dev_gpio13', 'dev_adcc','dev_sdelay'];
+            fill = true;
+         }
+
+         if(fill==true)
+         {
+            params.forEach(function(item) {
+               msg[item] =   document.getElementById(item).value;
+            });
+         }
+
+         websock.send(JSON.stringify(msg));
+         document.getElementById('description').innerHTML = JSON.stringify(msg);
+      }
+
+      function onTabMqttHandler(_id,_cmd)
+      {
+         var msg = { type: "message", auth: sessionStorage.getItem("hash"), text: "mqtt", cmd: _cmd, id: _id };
+
+         var params = [ 'mqtt_server', 'mqtt_port', 'mqtt_user', 'mqtt_pwd',
+                        'mqtt_intopic','mqtt_outtopic','mqtt_willtopic',
+                        'mqtt_clientid', 'mqtt_qos', 'mqtt_keepalive', 'mqtt_retain',
+                        'mqtt_relay', 'mqtt_mbtn', 'mqtt_vcc', 'mqtt_status', 'mqtt_mode',
+                        'mqtt_sens0', 'mqtt_sens1', 'mqtt_sens2', 'mqtt_sens3', 'mqtt_sens4',
+                        'mqtt_sens5', 'mqtt_sens6', 'mqtt_sens7', 'mqtt_sens8', 'mqtt_sens9'
+                      ];
+
+         if(_cmd=="setmqtt")
+         {
+            params.forEach(function(item) {
+               msg[item] =   document.getElementById(item).value;
+            });
+         }
+
+         websock.send(JSON.stringify(msg));
+         document.getElementById('description').innerHTML = JSON.stringify(msg);
+      }
+
+      function onTabAdminHandler(_id,_cmd) {}
+
+      function maketable(name,idx)
+      {
+         var tl = ['All','MO','TU','WE','TH','FR','SA','SU','Work','SA,SU','Work+SA','MO,WE,FR','TU,TH,SA','MO,TU,WE','TH,FR,SA'];
+         var val = ['127','1','2','4','8','16','32','64','31','96','63','21','42','7','56'];
+
+         var table = document.getElementById(name+idx).getElementsByTagName('tbody')[0];
+
+         var row = table.insertRow();
+         var cell0 = row.insertCell(0);
+         var cell1 = row.insertCell(1);
+         cell0.classList.add("has-text-right","has-text-weight-semibold");
+         cell0.innerHTML = "Active";
+
+         var select = document.createElement("select");
+         select.id = "time_sact"+idx;
+         select.appendChild(new Option("No", "0"));
+         select.appendChild(new Option("Yes", "1"));
+         var divsel = document.createElement("div");
+         divsel.classList.add("select");
+         var divctl = document.createElement("div");
+         divctl.classList.add("control");
+         divsel.appendChild(select);
+         divctl.appendChild(divsel);
+         cell1.appendChild(divctl);
+
+         var row = table.insertRow();
+         var cell0 = row.insertCell(0);
+         var cell1 = row.insertCell(1);
+         cell0.classList.add("has-text-right","has-text-weight-semibold");
+         cell0.innerHTML = "Start DoW";
+         var select = document.createElement("select");
+         select.id = "time_sdmask"+idx;
+         var sel=true;
+         for(var j=0;j<15;j++)
+         {
+            if(j!=0) sel = false;
+            select.options[j] = new Option(tl[j], val[j], sel);
+         }
+         var divsel = document.createElement("div");
+         divsel.classList.add("select");
+         var divctl = document.createElement("div");
+         divctl.classList.add("control");
+         divsel.appendChild(select);
+         divctl.appendChild(divsel);
+         cell1.appendChild(divctl);
+
+         var row = table.insertRow();
+         var cell0 = row.insertCell(0);
+         var cell1 = row.insertCell(1);
+         cell0.classList.add("has-text-right","has-text-weight-semibold");
+         cell0.innerHTML = "Start Hour";
+         var input = document.createElement("input");
+         input.classList.add("input"); input.id = "time_shour"+idx; input.type = "number";
+         input.min =  "0"; input.max = "23"; input.step = "1";
+         input.value = "0";
+         var divctl = document.createElement("div");
+         divctl.classList.add("control");
+         divctl.appendChild(input);
+         cell1.appendChild(divctl);
+
+         var row = table.insertRow();
+         var cell0 = row.insertCell(0);
+         var cell1 = row.insertCell(1);
+         cell0.classList.add("has-text-right","has-text-weight-semibold");
+         cell0.innerHTML = "Start Minute";
+         var input = document.createElement("input");
+         input.classList.add("input"); input.id = "time_smin"+idx; input.type = "number";
+         input.min =  "0"; input.max = "59"; input.step = "1";
+         input.value = "0";
+         var divctl = document.createElement("div");
+         divctl.classList.add("control");
+         divctl.appendChild(input);
+         cell1.appendChild(divctl);
+
+         var row = table.insertRow();
+         var cell0 = row.insertCell(0);
+         var cell1 = row.insertCell(1);
+         cell0.classList.add("has-text-right","has-text-weight-semibold");
+         cell0.innerHTML = "Stop DoW";
+         var select = document.createElement("select");
+         select.id = "time_edmask"+idx;
+         var sel=true;
+         for(var j=0;j<15;j++)
+         {
+            if(j!=0) sel = false;
+            select.options[j] = new Option(tl[j], val[j], sel);
+         }
+         var divsel = document.createElement("div");
+         divsel.classList.add("select");
+         var divctl = document.createElement("div");
+         divctl.classList.add("control");
+         divsel.appendChild(select);
+         divctl.appendChild(divsel);
+         cell1.appendChild(divctl);
+
+         var row = table.insertRow();
+         var cell0 = row.insertCell(0);
+         var cell1 = row.insertCell(1);
+         cell0.classList.add("has-text-right","has-text-weight-semibold");
+         cell0.innerHTML = "Stop Hour";
+         var input = document.createElement("input");
+         input.classList.add("input"); input.id = "time_ehour"+idx; input.type = "number";
+         input.min =  "0"; input.max = "23"; input.step = "1";
+         input.value = "0";
+         var divctl = document.createElement("div");
+         divctl.classList.add("control");
+         divctl.appendChild(input);
+         cell1.appendChild(divctl);
+
+         var row = table.insertRow();
+         var cell0 = row.insertCell(0);
+         var cell1 = row.insertCell(1);
+         cell0.classList.add("has-text-right","has-text-weight-semibold");
+         cell0.innerHTML = "Stop Minute";
+         var input = document.createElement("input");
+         input.classList.add("input"); input.id = "time_emin"+idx; input.type = "number";
+         input.min =  "0"; input.max = "59"; input.step = "1";
+         input.value = "0";
+         var divctl = document.createElement("div");
+         divctl.classList.add("control");
+         divctl.appendChild(input);
+         cell1.appendChild(divctl);
+
+         var row = table.insertRow();
+         var cell0 = row.insertCell(0);
+         var cell1 = row.insertCell(1);
+         cell0.classList.add("has-text-right","has-text-weight-semibold");
+         cell0.innerHTML = "";
+         var input = document.createElement("button");
+         input.classList.add("button","is-info");
+         input.innerHTML= "<span style='padding:0 0.5em;'>Set</span>";
+         input.onclick = function(){ onTabTimerHandler(0,"settimer") };
+         var divctl = document.createElement("div");
+         divctl.classList.add("control","has-text-right");
+         divctl.appendChild(input);
+         cell1.appendChild(divctl);
+      }
+
+      function reload(f)
+      {
+         fwupdate = true;
+//         sessionStorage.removeItem("hash");
+//         sessionStorage.removeItem("sensCount");
+//         websock.close();
+         f.submit();
+         return false;
+      }
+
+
+   </script>
+</body>
+</html>

@@ -1,4 +1,7 @@
-del index.html.gz
-gzip.exe -c -9 index.html >> index.html.gz
-converter.exe index.html.gz
-copy  index_html.h ..\CODE\SHAPESP\index_html.h /Y
+echo runnig prebuild
+echo %cd%
+del BULMA\index.html.gz
+BULMA\converter.exe BULMA\index.shtml e BULMA\bulma.min.css
+BULMA\gzip.exe -c -9 BULMA\index.html >> BULMA\index.html.gz
+BULMA\converter.exe BULMA\index.html.gz
+copy  %cd%\BULMA\index_html.h %cd%\CODE\SHAPESP\index_html.h /Y
