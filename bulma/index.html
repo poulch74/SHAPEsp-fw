@@ -109,6 +109,7 @@
                   <a data-target='pane-2' id='2' class="navbar-item is-hidden">Timer</a>
                   <a data-target='pane-3' id='3' class="navbar-item is-hidden">Settings</a>
                   <a data-target='pane-4' id='4' class="navbar-item is-hidden">MQTT</a>
+                  <a data-target='pane-5' id='5' class="navbar-item is-hidden">Noolite</a>
                </div>
             </div>
          </nav>
@@ -119,7 +120,7 @@
 
          <div class="tab-content">
 
-            <div class="tab-pane is-active" id="pane-0">
+            <div id="pane-0" class="tab-pane is-active">
                   <div class="columns">
                      <div class="column is-narrow">
                         <form class="control" name='logf' method='POST' onsubmit='return reqauth(this);'>
@@ -150,7 +151,7 @@
                   </div>
             </div>
 
-            <div class="tab-pane" id="pane-1">
+            <div id="pane-1" class="tab-pane">
                   <div class="columns">
                      <div class="column is-narrow">
                         <table class="table">
@@ -193,7 +194,7 @@
                   </div>
             </div>
 
-            <div class="tab-pane" id="pane-2">
+            <div id="pane-2" class="tab-pane">
                   <div class="columns">
                      <div class="column is-narrow">
                         <!--section class="section"-->
@@ -360,7 +361,7 @@
                   </div>
             </div>
 
-            <div class="tab-pane" id="pane-3">
+            <div id="pane-3" class="tab-pane">
                <div class="columns">
                   <div class="column is-narrow">
 
@@ -750,7 +751,7 @@
                </div>
             </div>
 
-            <div class="tab-pane" id="pane-4">
+            <div id="pane-4" class="tab-pane">
                   <div class="columns">
                      <div class="column is-narrow">
 
@@ -875,9 +876,23 @@
 
                         <div class="ppage-pane" id="ppage-1">
                            <div class="columns is-centered">
+
+                              <span>
+                                 <input type="hidden" id='mqtt_sens0' value='0'>
+                                 <input type="hidden" id='mqtt_sens1' value='0'>
+                                 <input type="hidden" id='mqtt_sens2' value='0'>
+                                 <input type="hidden" id='mqtt_sens3' value='0'>
+                                 <input type="hidden" id='mqtt_sens4' value='0'>
+                                 <input type="hidden" id='mqtt_sens5' value='0'>
+                                 <input type="hidden" id='mqtt_sens6' value='0'>
+                                 <input type="hidden" id='mqtt_sens7' value='0'>
+                                 <input type="hidden" id='mqtt_sens8' value='0'>
+                                 <input type="hidden" id='mqtt_sens9' value='0'>
+                              </span>
+
                               <div class="column is-narrow">
                               <table class="table">
-                              <thead> <tr><th></th><th></th></tr></thead>
+                              <thead> <tr><th></th><th></th><th></th></tr></thead>
                               <tbody>
 
                                  <tr>
@@ -885,6 +900,7 @@
                                     <td><div class='control'>
                                        <input class="input" type="number" id='mqtt_relay' value='0'>
                                     </div></td>
+                                    <td></td>
                                  </tr>
 
                                  <tr>
@@ -892,6 +908,7 @@
                                     <td><div class='control'>
                                        <input class="input" type="number" id='mqtt_mbtn' value='0'>
                                     </div></td>
+                                    <td></td>
                                  </tr>
 
                                  <tr>
@@ -899,6 +916,7 @@
                                     <td><div class='control'>
                                        <input class="input" type="number" id='mqtt_vcc' value='0'>
                                     </div></td>
+                                    <td></td>
                                  </tr>
 
                                  <tr>
@@ -906,6 +924,7 @@
                                     <td><div class='control'>
                                        <input class="input" type="number" id='mqtt_status' value='0'>
                                     </div></td>
+                                    <td></td>
                                  </tr>
 
                                  <tr>
@@ -913,78 +932,37 @@
                                     <td><div class='control'>
                                        <input class="input" type="number" id='mqtt_mode' value='0'>
                                     </div></td>
+                                    <td></td>
                                  </tr>
 
                                  <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 0:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens0' value='0'>
-                                    </div></td>
+                                    <td>
+                                       <span class='control is-expanded'>
+                                          <span class="select is-fullwidth">
+                                             <select id='mqtt_sensS'>
+                                             <option selected value='0'>Sensor 0</option>
+                                             <option value='1'>Sensor 1</option>
+                                             <option value='2'>Sensor 2</option>
+                                             <option value='3'>Sensor 3</option>
+                                             <option value='4'>Sensor 4</option>
+                                             <option value='5'>Sensor 5</option>
+                                             <option value='6'>Sensor 6</option>
+                                             <option value='7'>Sensor 7</option>
+                                             <option value='8'>Sensor 8</option>
+                                             <option value='9'>Sensor 9</option>
+                                             </select>
+                                          </span>
+                                       </span>
+                                    </td>
+                                    <td><span class='control'>
+                                       <input class="input" type="number" id='mqtt_sensX' value='0'>
+                                    </span></td>
+                                    <td>
+                                       <span class="control">
+                                          <button class="button is-info" onclick='onSensSetHandler()'>Set</button>
+                                       </span>
+                                    </td>
                                  </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 1:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens1' value='0'>
-                                    </div></td>
-                                 </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 2:</td>
-                                    <td><div class='control'>
-                                          <input class="input" type="number" id='mqtt_sens2' value='0'>
-                                     </div></td>
-                                 </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 3:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens3' value='0'>
-                                    </div></td>
-                                 </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 4:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens4' value='0'>
-                                    </div></td>
-                                 </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 5:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens5' value='0'>
-                                    </div></td>
-                                 </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 6:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens6' value='0'>
-                                    </div></td>
-                                 </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 7:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens7' value='0'>
-                                    </div></td>
-                                 </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 8:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens8' value='0'>
-                                    </div></td>
-                                 </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">Sensor 9:</td>
-                                    <td><div class='control'>
-                                       <input class="input" type="number" id='mqtt_sens9' value='0'>
-                                    </div></td>
-                                 </tr>
-
                               </tbody>
                               </table>
                               </div>
@@ -1002,6 +980,98 @@
                      </div>
                   </div>
             </div>
+
+            <div id="pane-5" class="tab-pane">
+                  <div class="columns">
+                     <div class="column is-narrow">
+                        <table class="table">
+                           <thead>
+                              <tr><th width="40%"><abbr title="Noolite">Noolite&nbspconfig</abbr></th><th></th></tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Binding:</td>
+                                 <td>
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
+                                          <select id='nool_bind'>
+                                          <option value='0' selected>0</option>
+                                          <option value='1'>1</option>
+                                          <option value='2'>2</option>
+                                          <option value='3'>3</option>
+                                          <option value='4'>4</option>
+                                          <option value='5'>5</option>
+                                          <option value='6'>6</option>
+                                          <option value='7'>7</option>
+                                          </select>
+                                       </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Mode:</td>
+                                 <td>
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
+                                          <select id='nool_mode'>
+                                          <option value='0' selected>Noolite TX</option>
+                                          <option value='1'>Noolite RX</option>
+                                          </select>
+                                       </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Action:</td>
+                                 <td>
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
+                                          <select id='nool_action'>
+                                          <option value='0' selected>Send command</option>
+                                          <option value='3'>Enable binding</option>
+                                          <option value='4'>Disable binding</option>
+                                          <option value='5'>Clear binding</option>
+                                          <option value='6'>Clear all bindings</option>
+                                          </select>
+                                       </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">Cmd:</td>
+                                 <td>
+                                    <span class='control is-expanded'>
+                                       <span class="select is-fullwidth">
+                                          <select id='nool_cmd'>
+                                          <option value='0' selected>Off</option>
+                                          <option value='2'>On</option>
+                                          </select>
+                                       </span>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                              <tr>
+                                 <td class="has-text-right has-text-weight-semibold">&nbsp</td>
+                                 <td>
+                                    <span class='control'>
+                                       <button class="button is-success is-fullwidth">
+                                          <span style="padding:0 2em;">Send</span>
+                                       </button>
+                                    </span>
+                                 </td>
+                              </tr>
+
+                           </tbody>
+                        </table>
+
+                     </div>
+                  </div>
+            </div>
+
 
          </div>
 
@@ -1059,6 +1129,18 @@
          var menu = document.querySelector('#'+burger.dataset.target);
          burger.addEventListener('click', function() { burger.classList.toggle('is-active'); menu.classList.toggle('is-active');});
       })();
+
+      //
+      document.getElementById("mqtt_sensS").onchange = function(evt){
+         var value = evt.target.value;
+         document.getElementById("mqtt_sensX").value = document.getElementById("mqtt_sens"+value).value;
+      };
+
+      function onSensSetHandler()
+      {
+         var sens = document.getElementById("mqtt_sensS").value;
+         document.getElementById("mqtt_sens"+sens).value = document.getElementById("mqtt_sensX").value;
+      }
 
 
       var fwupdate = false;
@@ -1183,6 +1265,10 @@
                if(document.getElementById(key)!=null) document.getElementById(key).value = value;
                return value;
             });
+
+            if(resp.action == "mqtt")
+               document.getElementById("mqtt_sensX").value = document.getElementById("mqtt_sens0").value;
+
             return;
          }
 
