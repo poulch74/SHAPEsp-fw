@@ -1048,6 +1048,7 @@
                                           <select id='nool_cmd'>
                                           <option value='0' selected>Off</option>
                                           <option value='2'>On</option>
+                                          <option value='4'>Switch</option>
                                           </select>
                                        </span>
                                     </span>

@@ -77,6 +77,8 @@ DEFINE_EVENT(EVT_MQTTPUB,7) // ipc посылка msg
 
 DEFINE_EVENT(EVT_MQTT,8) // выделенное событие, его mqtt_task перебирает когда вызывается
 
+DEFINE_EVENT(EVT_NOO,9) // событие noolite
+
 DEFINE_MSG(MSG_STATUS,101)
 DEFINE_MSG(MSG_SET_TIME,102)
 DEFINE_MSG(MSG_SET_SETTINGS,103)
@@ -94,6 +96,8 @@ DEFINE_MSG(MSG_MQTT,105)
 
 #include "task_mqtt.h"
 
+#include "task_noo.h"
+
 //static int sec60cnt = 0;
 
 EVENT_BEGIN_REGISTER_TASKS
@@ -108,6 +112,8 @@ EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_VAUTO,taskTimer,true)
 
    EVENT_REGISTER_TASK(EVT_VSTARTUP,taskTimer,true) //загрузка значений по умолчанию
+
+   EVENT_REGISTER_TASK(EVT_NOO,taskNoolite,true) //noolite
 
    EVENT_REGISTER_TASK(EVT_MQTTPUB, mqtt_task,cfg.dev.en_mqtt) // публикация
 
@@ -162,7 +168,7 @@ AsyncWebSocket ws("/ws");
 
 void setup()
 {
-   Serial.begin(115200);
+   Serial.begin(9600);
    Serial.flush();
    Serial.write('R');
    delay(5);
@@ -239,6 +245,18 @@ void setup()
    DEBUG_MSG_P(PSTR("Hostname: %s \n"), hostname.c_str());
    DEBUG_MSG_P(PSTR("User: %s \n"), cfg.wifi.user);
    DEBUG_MSG_P(PSTR("Pwd: %s \n"), cfg.wifi.pwd);
+
+   // Test MTRF-64 init uart
+   Serial.begin(9600);
+   Serial.flush();
+   noo.SendMsgInit();
+   noo.s_msg[b_mode] = 4; // service mode
+   noo.Send();
+   uint32_t start = millis();
+   while((millis()-start)<50) { if(Serial.available()>16) { noo.Recv(); } }
+   sysqueue.push(&GetEvent(EVT_NOO));
+
+
 
 /*////////////////////////////////////////////
    DEBUG_MSG_P(PSTR("Test EEPROM \n"));
@@ -355,6 +373,8 @@ void setup()
    // test deepsleep
    //    DbgPrintln(("Deepsleep for 10s"));
    //    ESP.deepSleep(10e6);
+
+
 
    EventRegisterTasks();
    MsgRegisterTasks();
