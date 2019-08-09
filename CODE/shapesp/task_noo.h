@@ -23,20 +23,26 @@ class Noolite
 public:
    uint8_t r_msg[17];
    uint8_t s_msg[17];
+   HardwareSerial *port;
 public:
-   Noolite() {}
+   Noolite()
+   {
+      port = &Serial;
+      port->begin(9600);
+      port->flush();
+   }
    void SendMsgInit() { memset(s_msg,0,sizeof(s_msg)); s_msg[b_start] = 171; s_msg[b_stop] = 172;}
    void Send()
    {
       _crc();
-      Serial.write(s_msg,sizeof(s_msg));
+      port->write(s_msg,sizeof(s_msg));
       DEBUG_MSG_P(PSTR("Send: "));
       for(auto i=0;i<17;i++) DEBUG_MSG_P(PSTR("%02x"), s_msg[i]);
       DEBUG_MSG_P(PSTR("\n"));
    }
    void Recv()
    {
-      Serial.readBytes(r_msg,17);
+      port->readBytes(r_msg,17);
       DEBUG_MSG_P(PSTR("Recv: "));
       for(auto i=0;i<17;i++) DEBUG_MSG_P(PSTR("%02x"), r_msg[i]);
       DEBUG_MSG_P(PSTR("\n"));
@@ -44,15 +50,28 @@ public:
    void _crc() { s_msg[b_crc] = 0; for(auto i=0;i<15;i++) s_msg[b_crc] += s_msg[i]; }
 };
 
-Noolite noo;
+
 
 class TaskNoolite : public EspTask
 {
 public:
+   Noolite *noo;
+public:
    TaskNoolite() : EspTask() { }
+   Initialize()
+   {
+      noo = new Noolite();
+      noo.SendMsgInit();
+      noo.s_msg[b_mode] = 4; // service mode
+      noo.Send();
+      uint32_t start = millis();
+      while((millis()-start)<50) { if(Serial.available()>16) { noo.Recv(); } }
+   }
 
    void doTask(int evt)
    {
+      if(evt==EVT_NOOSEND) { noo.Send(); }
+
       //if(!sendqueue.empty()) Serial.write(sendqueue.front());
       uint32_t start = millis();
       while((millis()-start)<50)
@@ -66,7 +85,7 @@ public:
       }
       //sendqueue.pop();
 
-      sysqueue.push(&GetEvent(EVT_NOO));
+      //!!!!!!!!!!!!!!sysqueue.push(&GetEvent(EVT_NOO));
    }
 
    void doMqttTask(int evt, std::vector<String> &payload)

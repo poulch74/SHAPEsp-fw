@@ -61,8 +61,9 @@ int maxbat = 140;
 
 #include "event.h"
 
-std::queue<EspEvent *> sysqueue; // очередь сообщений
-std::map<String, EspEvent *> msglist; // список подписок websocket
+
+std::queue<EspEvent> sysqueue; // очередь сообщений
+std::map<String, EspEventPtr *> msglist; // список подписок websocket
 
 // events
 DEFINE_EVENT(EVT_1SEC,1)
@@ -78,6 +79,7 @@ DEFINE_EVENT(EVT_MQTTPUB,7) // ipc посылка msg
 DEFINE_EVENT(EVT_MQTT,8) // выделенное событие, его mqtt_task перебирает когда вызывается
 
 DEFINE_EVENT(EVT_NOO,9) // событие noolite
+DEFINE_EVENT(EVT_NOOSEND,10) // событие noolite send
 
 DEFINE_MSG(MSG_STATUS,101)
 DEFINE_MSG(MSG_SET_TIME,102)
@@ -96,7 +98,7 @@ DEFINE_MSG(MSG_MQTT,105)
 
 #include "task_mqtt.h"
 
-#include "task_noo.h"
+//#include "task_noo.h"
 
 //static int sec60cnt = 0;
 
@@ -113,7 +115,8 @@ EVENT_BEGIN_REGISTER_TASKS
 
    EVENT_REGISTER_TASK(EVT_VSTARTUP,taskTimer,true) //загрузка значений по умолчанию
 
-   EVENT_REGISTER_TASK(EVT_NOO,taskNoolite,true) //noolite
+  // EVENT_REGISTER_TASK(EVT_NOO,taskNoolite,true) //noolite
+  // EVENT_REGISTER_TASK(EVT_NOOSEND,taskNoolite,true) //noolite
 
    EVENT_REGISTER_TASK(EVT_MQTTPUB, mqtt_task,cfg.dev.en_mqtt) // публикация
 
@@ -155,10 +158,15 @@ const char* password = "chps74qwerty";
 Ticker timer;
 void alarm()
 {
-   sysqueue.push(&GetEvent(EVT_1SEC));
+   sysqueue.push(EspEvent(&GetEvent(EVT_1SEC)));
    //sec5cnt++; if(sec5cnt == 5) { sysqueue.push(EVT_5SEC); sec5cnt = 0; }
    static int sec60cnt = 0;
-   sec60cnt++; if(sec60cnt == 60) { sysqueue.push(&GetEvent(EVT_60SEC)); sec60cnt = 0; }
+   sec60cnt++;
+   if(sec60cnt == 60)
+   {
+      sysqueue.push(EspEvent(&GetEvent(EVT_60SEC)));
+      sec60cnt = 0;
+   }
 }
 
 IPAddress apIP(192, 168, 4, 1);
@@ -247,6 +255,7 @@ void setup()
    DEBUG_MSG_P(PSTR("Pwd: %s \n"), cfg.wifi.pwd);
 
    // Test MTRF-64 init uart
+   /*
    Serial.begin(9600);
    Serial.flush();
    noo.SendMsgInit();
@@ -255,7 +264,7 @@ void setup()
    uint32_t start = millis();
    while((millis()-start)<50) { if(Serial.available()>16) { noo.Recv(); } }
    sysqueue.push(&GetEvent(EVT_NOO));
-
+   */
 
 
 /*////////////////////////////////////////////
@@ -396,7 +405,8 @@ void loop()
          sum = 0;
       }*/
       //uint32_t start = millis();
-      sysqueue.front()->doTasks();
+      EspEvent e = sysqueue.front();
+      e.evt->doTasks(e.data);
       sysqueue.pop();
       //sum +=(millis()-start+1);
    }

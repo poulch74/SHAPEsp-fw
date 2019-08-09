@@ -40,18 +40,21 @@ public:
       GetEvent(EVT_MQTTPUB).doTasks(payload); // force publish
    }
 
-   void doTask(int evt)
+   void doTask(int evt, void *data)
    {
       int vstate = 0;
       bool updatemode = false;
+      //чтобы не мутить и не забывать делаем копию и грохаем фазу данных
+      String s;
+      if(data) { s = *(String *)data; delete (String *)data; data = nullptr; }
 
       do
       {
          if(evt == EVT_VSTARTUP) { vstate=1; updatemode=true; break;}
 
-         if(evt == EVT_VCLOSE) { skiptmr = true;  updatemode = true; vstate = -1; }
-         if(evt == EVT_VOPEN)  { skiptmr = true;  updatemode = true; vstate = 1; }
-         if(evt == EVT_VAUTO)  { skiptmr = false; updatemode = true;}
+         if(evt == EVT_VCLOSE) { skiptmr = true;  updatemode = true; vstate = -1; DEBUG_MSG_P(PSTR("%s\n"), s.c_str()); }
+         if(evt == EVT_VOPEN)  { skiptmr = true;  updatemode = true; vstate = 1; DEBUG_MSG_P(PSTR("%s\n"), s.c_str()); }
+         if(evt == EVT_VAUTO)  { skiptmr = false; updatemode = true; DEBUG_MSG_P(PSTR("%s\n"), s.c_str()); }
 
          if((cfg.dev.en_timer) && (!skiptmr)) // if timer enabled - check
          {
@@ -101,9 +104,22 @@ public:
 
       if(event== "time")
       {
-         if(cmd=="auto") { sysqueue.push(&GetEvent(EVT_VAUTO)); DEBUG_MSG_P(PSTR("SCHEDULE AUTO\n"));}
-         if(cmd=="close") { sysqueue.push(&GetEvent(EVT_VCLOSE)); DEBUG_MSG_P(PSTR("SCHEDULE CLOSE\n"));}
-         if(cmd=="open") { sysqueue.push(&GetEvent(EVT_VOPEN)); DEBUG_MSG_P(PSTR("SCHEDULE OPEN\n"));}
+         if(cmd=="auto")
+         {
+            //e.evt = &GetEvent(EVT_VAUTO);
+            sysqueue.push(EspEvent(&GetEvent(EVT_VAUTO),new String("auto")));
+            DEBUG_MSG_P(PSTR("SCHEDULE AUTO\n"));
+         }
+         if(cmd=="close")
+         {
+            sysqueue.push(EspEvent(&GetEvent(EVT_VCLOSE),new String("close")));
+            DEBUG_MSG_P(PSTR("SCHEDULE CLOSE\n"));
+         }
+         if(cmd=="open")
+         {
+            sysqueue.push(EspEvent(&GetEvent(EVT_VOPEN),new String("open")));
+            DEBUG_MSG_P(PSTR("SCHEDULE OPEN\n"));
+         }
 
          if(cmd == "settime")
          {

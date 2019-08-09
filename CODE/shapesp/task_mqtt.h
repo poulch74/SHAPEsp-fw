@@ -63,7 +63,7 @@ public:
          uint16_t packetIdSub = mqttClient.subscribe(cfg.mqtt.outTopic, cfg.mqtt.qos);
       }
       // initial state
-      GetEvent(EVT_VSTARTUP).doTasks();
+      GetEvent(EVT_VSTARTUP).doTasks(nullptr);
    }
 
    static void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total)
@@ -92,8 +92,16 @@ public:
                DEBUG_MSG_P(PSTR("[DOMOTICZ] Status IGNORED\n")); return;
             }
             DEBUG_MSG_P(PSTR("[DOMOTICZ] Received value for Relay %u for IDX %u\n"), value, idx);
-            if(value==1)  { sysqueue.push(&GetEvent(EVT_VOPEN)); DEBUG_MSG_P(PSTR("SCHEDULE OPEN MQTT\n")); }
-            else {sysqueue.push(&GetEvent(EVT_VCLOSE)); DEBUG_MSG_P(PSTR("SCHEDULE CLOSE MQTT\n"));}
+            if(value==1)
+            {
+               sysqueue.push(EspEvent(&GetEvent(EVT_VOPEN)));
+               DEBUG_MSG_P(PSTR("SCHEDULE OPEN MQTT\n"));
+            }
+            else
+            {
+               sysqueue.push(EspEvent(&GetEvent(EVT_VCLOSE)));
+               DEBUG_MSG_P(PSTR("SCHEDULE CLOSE MQTT\n"));
+            }
          }
 
          if(idx == cfg.mqtt.idx_mbtn)
@@ -103,13 +111,19 @@ public:
                DEBUG_MSG_P(PSTR("[DOMOTICZ] Status IGNORED\n")); return;
             }
             DEBUG_MSG_P(PSTR("[DOMOTICZ] Received value for Button %u for IDX %u\n"), value, idx);
-            if(value==1)  { sysqueue.push(&GetEvent(EVT_VAUTO)); DEBUG_MSG_P(PSTR("SCHEDULE AUTO MQTT\n")); }
+            if(value==1)
+            {
+               sysqueue.push(EspEvent(&GetEvent(EVT_VAUTO)));
+               DEBUG_MSG_P(PSTR("SCHEDULE AUTO MQTT\n"));
+            }
          }
+
+         // тут if и send noolite типа GetEvent(EVT_NOOSEND).doTasks();
 
       }
    }
 
-   void doTask(int evt)
+   void doTask(int evt, void *data)
    {
       if(mqttClient.connected())
       {

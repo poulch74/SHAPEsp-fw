@@ -3,7 +3,7 @@ class TestTask1 : public EspTask
 public:
    TestTask1() : EspTask() { snprintf(uptime,32,"00d:00h:00m"); }
 
-   void doTask(int evt)
+   void doTask(int evt, void *data)
    {
       if(evt == EVT_60SEC)
       {
@@ -74,7 +74,7 @@ class TestTask4 : public EspTask
 {
 public:
    TestTask4() : EspTask() {}
-   void doTask(int evt) {}
+   void doTask(int evt, void *data) {}
    void doWStask(int evt, JsonObject &iroot, JsonObject &root)
    {
       String cmd = iroot["cmd"];
