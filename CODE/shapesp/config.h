@@ -39,6 +39,8 @@
 #define GPIO2_MODE_1WIRE   2
 #define GPIO2_MODE_DEBUG   3
 
+#define GPIO13_MODE_UNUSED 0
+#define GPIO13_MODE_AUTOSTOP 1
 
 typedef struct _ESP_TPRG_S
 {

@@ -49,16 +49,16 @@ public:
       if(f_ok)
       {
          if(step==2) {step--; return 0;}
-         //DEBUG_MSG("sensor run\n");
+         //DEBUG_MSG_P(PSTR("sensor run\n"));
          if(reset())
          {
-            //DEBUG_MSG("sensor run OK\n");
+            //DEBUG_MSG_P(PSTR("sensor run OK\n"));
             select(adr);
             write(0xBE);
             uint8_t data[9];
             for (int i = 0; i < 9; i++) { data[i] = read(); }
 
-            //DEBUG_MSG("get value OK\n");
+            //DEBUG_MSG_P(PSTR("get value OK\n"));
             int16_t raw = (data[1] << 8) | data[0];
             if (type_s)
             {

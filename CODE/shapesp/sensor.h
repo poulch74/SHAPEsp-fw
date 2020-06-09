@@ -2,7 +2,7 @@ class Sensor
 {
 public:
    Sensor() {};
-   virtual int init(){ return 0; };
+   int init(){ return 0; };
    virtual int begin(){ return 0; };
    virtual int run(){ return 0; };
    virtual int end(){ return 0; };

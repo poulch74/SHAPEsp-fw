@@ -371,7 +371,6 @@
                               <li><a data-target="spage-0" class="pagination-link is-current" id="0">WiFi</a></li>
                               <li><a data-target="spage-1" class="pagination-link" id="1">Admin</a></li>
                               <li><a data-target="spage-2" class="pagination-link" id="2">Device</a></li>
-                              <li><a data-target="spage-3" class="pagination-link" id="3">RFID keys</a></li>
                            </ul>
                         </nav>
                      <!--/section-->
@@ -604,7 +603,6 @@
                                              <select id='dev_type'>
                                              <option selected value='0'>Valve</option>
                                              <option value='1'>Relay</option>
-                                             <option value='2'>Pulse</option>
                                              </select>
                                           </span>
                                        </span>
@@ -725,33 +723,6 @@
                                        <input class='input' type='number' id='dev_sdelay' min='0' max='65535' step='1' value ='10'>
                                     </span></td>
                                  </tr>
-
-                                 <tr>
-                                    <td class="has-text-right has-text-weight-semibold">&nbsp</td>
-                                    <td><span class='control'>
-                                       <button class="button is-success is-fullwidth" onclick='onTabSettingsHandler(0,"setdev")'>
-                                       <span style="padding:0 2em;">Apply</span>
-                                       </button>
-                                    </span></td>
-                                 </tr>
-
-                              </tbody>
-                           </table>
-                           </div>
-                        </div>
-                     </div>
-
-                     <div class="spage-pane" id="spage-3">
-                        <div class="columns is-centerd">
-                           <div class="column is-narrow">
-                           <table class="table is-fullwidth">
-                              <thead>
-                              <tr>
-                                 <th></th>
-                                 <th></th>
-                              </tr>
-                              </thead>
-                              <tbody>
 
                                  <tr>
                                     <td class="has-text-right has-text-weight-semibold">&nbsp</td>

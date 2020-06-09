@@ -42,6 +42,7 @@ public:
                dsbus = new DS2482(0);
 
                uint8_t addr[8];
+               dsbus->reset_search();
                while(dsbus->search(addr))
                {
                   DEBUG_MSG_P(PSTR("found 1-Wire ROM: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X \n"),
@@ -87,14 +88,14 @@ public:
       {
          for(int i=0;i<sensors.size();i++)
          {
-            sensors[i]->init();
+            //sensors[i]->init(); called in ctor
             sens_count+=sensors[i]->getTagCount();
          }
          DEBUG_MSG_P(PSTR("Sensor cnt %d %d\n"), sensors.size(), sens_count);
       }
    }
 
-   void doTask(int evt)
+   void doTask(int evt,void *data)
    {
       if(!sensors.empty())
       {

@@ -1,5 +1,6 @@
 #define R_VALVE 0
 #define R_RELAY 1
+#define R_PULSE 2
 
 class Relay;
 
@@ -35,7 +36,7 @@ public:
 
    int SetState(int state)
    {
-      if(state!=curstate)
+      if((state!=curstate) || (rmode==R_PULSE))
       {
          int a1,a2=a1=LOW;
 
@@ -49,6 +50,7 @@ public:
          {
             if(state==1) { a1=HIGH; a2=LOW;  DEBUG_MSG_P(PSTR("on relay\n")); }
             if(state==0) { a1=LOW;  a2=LOW;  DEBUG_MSG_P(PSTR("off relay\n")); }
+            if(rmode==R_PULSE) timer.once_ms(500, alarm1, this);
          }
 
          digitalWrite(pinA1, a1);
@@ -76,7 +78,7 @@ public:
 
 void alarm1(Relay *r)
 {
-   if(r->rmode==R_VALVE)
+   if((r->rmode==R_VALVE) || (r->rmode==R_PULSE))
    {
       digitalWrite(r->pinA1, LOW);
       digitalWrite(r->pinA2, LOW);

@@ -13,12 +13,13 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
    if(type == WS_EVT_CONNECT)
    {
       DEBUG_MSG_P(PSTR("ws[%s][%u] connect\n"), server->url(), client->id());
+      client->keepAlivePeriod(1);
       client->ping();
       client->_tempObject = new WebSocketIncommingBuffer(&wsParseHandler, true); // буфер для принятого сообщения
    }
    else if(type == WS_EVT_DISCONNECT)
    {
-      DEBUG_MSG_P(PSTR("ws[%s][%u] disconnect: %u\n"), server->url(), client->id());
+      DEBUG_MSG_P(PSTR("ws[%s][%u] disconnect...\n"), server->url(), client->id());
       if(client->_tempObject) delete (WebSocketIncommingBuffer *)client->_tempObject;
    }
    else if(type == WS_EVT_ERROR)

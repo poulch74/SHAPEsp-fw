@@ -9,6 +9,7 @@
 #include <EEPROM.h>
 #include <Ticker.h>
 
+
 #define ARDUINOJSON_ENABLE_PROGMEM 1
 #include <ArduinoJson.h>
 
@@ -97,6 +98,7 @@ DEFINE_MSG(MSG_MQTT,105)
 #include "task_sens.h"
 
 #include "task_mqtt.h"
+#include "task_wg.h"
 
 //#include "task_noo.h"
 
@@ -106,8 +108,9 @@ EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,task1,true) // периодические события
    EVENT_REGISTER_TASK(EVT_60SEC,task1,true) // обновление
    EVENT_REGISTER_TASK(EVT_1SEC,taskTimer,true)
-   EVENT_REGISTER_TASK(EVT_1SEC,sens_task,cfg.dev.en_sensors)
+   EVENT_REGISTER_TASK(EVT_1SEC,sens_task,true)//cfg.dev.en_sensors)
    EVENT_REGISTER_TASK(EVT_1SEC,mqtt_task,cfg.dev.en_mqtt)
+   EVENT_REGISTER_TASK(EVT_1SEC,task_wg,true)
 
    EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer,true) // асинхронные события в очереди
    EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer,true)
