@@ -28,6 +28,10 @@
 
 #endif
 
+
+// 0 ext adc, 1  internal vcc voltage
+#define ADC_MODE_ADC_VCC 1
+
 #define DEBUG_ADD_TIMESTAMP 1
 
 #define MAX_SENSORS_CNT 10 // max sensors IDX cnt for MQTT
@@ -120,6 +124,7 @@ typedef struct _ESP_DEV_S
    uint8_t  gpio13_mode;
    uint32_t adc_coef;
    uint16_t sdelay;
+   uint8_t  en_wg;
    // ....
 } ESP_DEV_S;
 

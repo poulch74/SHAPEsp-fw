@@ -40,7 +40,7 @@ public:
             {
                DEBUG_MSG_P(PSTR("I2C-1W bridge found at address 0x18. Adding... \n"));
                dsbus = new DS2482(0);
-
+               dsbus->resetMaster();
                uint8_t addr[8];
                dsbus->reset_search();
                while(dsbus->search(addr))
@@ -56,7 +56,7 @@ public:
                   }
                }
                DEBUG_MSG_P(PSTR("No more addresses on I2C-1W bridge. \n"));
-               dsbus->reset_search();
+               //dsbus->reset_search();
             }
          }
 

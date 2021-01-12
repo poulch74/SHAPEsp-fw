@@ -1,3 +1,7 @@
+#if (ADC_MODE_ADC_VCC == 1)
+   ADC_MODE(ADC_VCC);
+#endif
+
 class TestTask1 : public EspTask
 {
 public:
@@ -16,8 +20,13 @@ public:
          return;
       }
 
-      uint16_t adc = analogRead(A0);
-      vcc = cfg.dev.adc_coef*adc/102400.0; //1000 15.98 // 15.63 def
+      #if (ADC_MODE_ADC_VCC == 1)
+         vcc = ESP.getVcc()/1024.0;
+      #else
+         uint16_t adc = analogRead(A0);
+         vcc = cfg.dev.adc_coef*adc/102400.0; //1000 15.98 // 15.63 def      
+      #endif
+
       heap = ESP.getFreeHeap();
       rssi = WiFi.RSSI();
       int vcc10 = (int)(vcc*10.0);
@@ -131,6 +140,7 @@ public:
             cfg.dev.gpio13_mode = iroot["dev_gpio13"];
             cfg.dev.adc_coef = iroot["dev_adcc"];
             cfg.dev.sdelay = iroot["dev_sdelay"];
+            cfg.dev.en_wg = iroot["dev_wg"];
             DEBUG_MSG_P(PSTR("Change dev settings\n"));
          }
 
@@ -170,6 +180,7 @@ public:
       root["dev_gpio13"] = cfg.dev.gpio13_mode;
       root["dev_adcc"] = cfg.dev.adc_coef;
       root["dev_sdelay"] = cfg.dev.sdelay;
+      root["dev_wg"] = cfg.dev.en_wg;
    }
 };
 

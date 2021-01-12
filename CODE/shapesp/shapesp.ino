@@ -29,7 +29,8 @@
 
 #include "brzo_i2c.h"
 
-#include "AsyncMqttClient.h"
+//#include "AsyncMqttClient.h"
+#include <PangolinMQTT.h> 
 
 #define I2C_USE_BRZO 1
 
@@ -112,7 +113,7 @@ EVENT_BEGIN_REGISTER_TASKS
    EVENT_REGISTER_TASK(EVT_1SEC,taskTimer,true)
    EVENT_REGISTER_TASK(EVT_1SEC,sens_task,true)//cfg.dev.en_sensors)
    EVENT_REGISTER_TASK(EVT_1SEC,mqtt_task,cfg.dev.en_mqtt)
-   EVENT_REGISTER_TASK(EVT_1SEC,task_wg,true)
+   EVENT_REGISTER_TASK(EVT_1SEC,task_wg,cfg.dev.en_wg)
 
    EVENT_REGISTER_TASK(EVT_VCLOSE,taskTimer,true) // асинхронные события в очереди
    EVENT_REGISTER_TASK(EVT_VOPEN,taskTimer,true)
@@ -154,9 +155,9 @@ MSG_BEGIN_SUBSCRIBE
 MSG_END_SUBSCRIBE
 
 
-const char* ssid = "DIR-300";
+//const char* ssid = "DIR-300";
 //const char* ssid = "CH1-Home";
-const char* password = "chps74qwerty";
+//const char* password = "chps74qwerty";
 
 //const int led = 2; // led ow_pin
 
@@ -317,7 +318,7 @@ void setup()
 
    if(cfg.wifi.sta_dhcp == 0)
    {
-      WiFi.config(IPAddress(cfg.wifi.sta_ip), IPAddress(cfg.wifi.sta_gw), IPAddress(cfg.wifi.sta_subnet));
+      WiFi.config(IPAddress(cfg.wifi.sta_ip), IPAddress(cfg.wifi.sta_gw), IPAddress(cfg.wifi.sta_subnet), IPAddress(cfg.wifi.sta_gw));
    }
 
    uint16_t to = 60;
@@ -367,6 +368,9 @@ void setup()
    //if(cfg.s.skip_logon)  server.on("/"     , handleIndex1);
    //else server.on("/"     , handleLogin);
 
+
+   //snprintf(myrealm,9,"%8d",random(1000000));
+
    server.rewrite("/","/index.html");
    server.on("/index.html", handleIndex);
    server.onNotFound(handleNotFound);
@@ -387,8 +391,6 @@ void setup()
    // test deepsleep
    //    DbgPrintln(("Deepsleep for 10s"));
    //    ESP.deepSleep(10e6);
-
-
 
    EventRegisterTasks();
    MsgRegisterTasks();

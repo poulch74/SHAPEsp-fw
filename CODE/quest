@@ -1,0 +1,8 @@
+how i can effectively block "publish" from sending messages or check state of
+connection in more speed manner?
+The problem is - low heap. For example after onConnect I start publish messages each 1 sec to
+remoute mqtt server. All ok until WAN interface of my router goes down. if keepAlive
+is about 15 then "publish" eat all heap but I not receive any onError or onDisconnect
+and MCU fail and reboot. I can limit keepAlive to 3, so until heap goes low 
+onDisconnect fired and i can recovery. but I think it not right way... (keepAlive can be under user control)
+I can check heap and block "publish"... but... so which right way?
